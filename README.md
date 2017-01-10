@@ -1,2 +1,1 @@
-# TreeDecomps
-Tree Decompositions on Graph Grammars
+ctrlRtdecomp.Rmd

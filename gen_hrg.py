@@ -30,7 +30,7 @@ def gen_nx_graph_obj (fname):
 		print str(e)
 		traceback.print_exc()
 		os._exit(1)
-    return "Results/{}_hstar.edgelist.gz".format(fname)
+    return "Results/{}{}_hstar.edgelist.bz2".format(fname,len(files))
 
 def get_parser():
 	parser = argparse.ArgumentParser(description='gen_hrg: Generate synthetic graph using HRG model')
@@ -42,18 +42,9 @@ def main():
     parser = get_parser()
     args = vars(parser.parse_args())
 
-    print gen_nx_graph_obj(args['graph'])
+    print gen_nx_graph_obj(args['graph']) # gen synth graph
 
 if __name__ == '__main__':
-	# g = command_line_runner()
-
-	# ## View/Plot the graph to a file
-	# fig = plt.figure(figsize=(1.6*6,1*6))
-	# ax0 = fig.add_subplot(111)
-
-	# nx.draw_networkx(g[1],ax=ax0)
-	# plt_filename="/tmp/outfig"
-
 	try:
 		main()
 		#save_plot_figure_2disk(plotname=plt_filename)
