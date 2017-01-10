@@ -1,0 +1,92 @@
+---
+title:  "Tree Decomposition"
+author: "S. Aguinaga"
+date:   "1/4/2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+# python dir /Volumes/theory/entropy/graphly/Modularity
+```
+
+## Tree Decompositions
+- `netfiles` holds the edgelist real-world networks
+
+```{r netfiles, echo=F}
+netfiles <-system("find ~/Theory/Datasets -name 'out.*'", intern=TRUE)
+netfiles
+```
+
+- Compute basic network properties
+
+The code below uses **networkx** to process input files and compute a battery of network properties.
+
+```{r pressure, echo=F}
+# network properties (http://stackoverflow.com/questions/10651640)
+netpropsfun <- function(x) {
+  system(sprintf("/Users/saguinag/anaconda2/bin/python netprops.py -d -g %s", x))
+}
+# on the netfiles, compute the net properties (minus modularity)
+xc <- lapply(netfiles, netpropsfun)
+
+```
+
+### Generate Synthetic Graphs
+Given the list of edgelist files, we generate files of type 
+- HRG
+```{r hrgs, echo=F}
+generate_hrg <- function(x) {
+  # generate_hrg returns synth network in edge_list form
+  system(sprintf("/Users/saguinag/anaconda2/bin/python gen_hrg.py -g %s", x), intern=TRUE)
+}
+hrg_flist <- lapply(netfiles, generate_hrg)
+print (tail(hrg_flist[[2]], n=1))
+```
+- KRON
+
+## Community (Modularity)
+- Using the igraph library, we compute the modularity using `cluster_walktrap` and `membership`.
+```{r, echo=F}
+library(igraph)
+compute_modularity <- function(x) {
+  el   <- read.table(x,comment.char = "%")
+  gobj <- graph.data.frame(el, directed=FALSE)
+  wc <- walktrap.community(gobj) # This is looking for structure in your graph
+  modularity(wc) # The modularity score of that structure
+  # membership(wc) # The membership of each vertex to groups found
+  # return (gobj)
+}
+```
+
+```{r , echo=F}
+# system('/Users/saguinag/anaconda2/bin/python ignxtst.py')
+# Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the
+#   R code that generated the plot.
+# http://stackoverflow.com/questions/25254151/using-igraph-in-python-for-community-detection-and-writing-community-number-for
+# https://lists.nongnu.org/archive/html/igraph-help/2007-09/msg00011.html
+# - Control:
+# - compute modularity on original graphs 
+print_modularity <- function(mod){
+  sprintf("... modularity: %s",mod)
+}
+print ('Control: modularity of original graphs')
+ctrls <- lapply(netfiles, compute_modularity)
+lapply(ctrls, print_modularity)
+
+# - list newly created edgelist files in ./Results
+print ('Synthetic: modularity of HRG graphs')
+hfiles <- system("find ./Results -iname '*edgelist.bz2'", intern=TRUE)
+gg <- lapply(hfiles, compute_modularity)
+lapply(gg, print_modularity)
+
+# karate <- graph.famous("Zachary")
+# wc <- walktrap.community(karate) # This is looking for structure in your graph
+# modularity(wc) # The modularity score of that structure
+# membership(wc) # The membership of each vertex to groups found
+# plot(wc, karate) # Showing the network and the groups.
+```
+
+# StarLog
+- 07Jan17 Done: python call to generate hrg (hstar) graph objects
+- 10Jan17 ToDo: python call to generate kron graphs
