@@ -123,31 +123,31 @@ $(document).ready(function () {
 </div>
 
 
-<div id="tree-decompositions" class="section level2">
-<h2>Tree Decompositions</h2>
+<div id="tree-decomposition" class="section level1">
+<h1>Tree Decomposition</h1>
+<p>This is a workflow for experiments associated with Tree Decomposition on Graph Grammars.</p>
+<div id="datasets" class="section level2">
+<h2>Datasets</h2>
 <ul>
-<li><code>netfiles</code> holds the edgelist real-world networks</li>
+<li><code>netfiles</code> holds the edgelists of real-world networks.</li>
 </ul>
 <pre><code>## [1] &quot;/Users/saguinag/Theory/Datasets/moreno_propro/out.moreno_propro_propro&quot;
 ## [2] &quot;/Users/saguinag/Theory/Datasets/ucidata-zachary/out.ucidata-zachary&quot;</code></pre>
-<ul>
-<li>Compute basic network properties</li>
-</ul>
-<p>The code below uses <strong>networkx</strong> to process input files and compute a battery of network properties.</p>
-<div id="generate-synthetic-graphs" class="section level3">
-<h3>Generate Synthetic Graphs</h3>
+</div>
+<div id="compute-basic-network-properties" class="section level2">
+<h2>Compute basic network properties</h2>
+<p>The code below uses <strong>networkx</strong> to process input files and compute a battery of network properties tests.</p>
+</div>
+<div id="generate-synthetic-graphs" class="section level2">
+<h2>Generate synthetic graphs</h2>
 <p>Given the list of edgelist files, we generate files of type - HRG</p>
-<pre><code>## Warning: running command '/Users/saguinag/anaconda2/bin/python gen_hrg.py -
-## g /Users/saguinag/Theory/Datasets/ucidata-zachary/out.ucidata-zachary' had
-## status 1</code></pre>
-<pre><code>## character(0)</code></pre>
+<pre><code>## [1] &quot;Results/ucidata-zachary2_hstar.edgelist.bz2&quot;</code></pre>
 <ul>
 <li>KRON</li>
 </ul>
 </div>
-</div>
-<div id="community-modularity" class="section level2">
-<h2>Community (Modularity)</h2>
+<div id="compute-community-modularity" class="section level2">
+<h2>Compute Community (Modularity)</h2>
 <ul>
 <li>Using the igraph library, we compute the modularity using <code>cluster_walktrap</code> and <code>membership</code>.</li>
 </ul>
@@ -167,19 +167,26 @@ $(document).ready(function () {
 ## [1] &quot;... modularity: 0.353221565485001&quot;</code></pre>
 <pre><code>## [1] &quot;Synthetic: modularity of HRG graphs&quot;</code></pre>
 <pre><code>## [[1]]
-## [1] &quot;... modularity: 0.757326185703278&quot;
+## [1] &quot;... modularity: 0.75649482011795&quot;
 ## 
 ## [[2]]
-## [1] &quot;... modularity: 0.382070183753967&quot;
+## [1] &quot;... modularity: 0.782806217670441&quot;
 ## 
 ## [[3]]
-## [1] &quot;... modularity: 0.434171587228775&quot;</code></pre>
+## [1] &quot;... modularity: 0.310378074645996&quot;
+## 
+## [[4]]
+## [1] &quot;... modularity: 0.291195839643478&quot;
+## 
+## [[5]]
+## [1] &quot;... modularity: 0.306720852851868&quot;</code></pre>
+</div>
 </div>
 <div id="starlog" class="section level1">
 <h1>StarLog</h1>
 <ul>
-<li>07Jan17 ToDo: python call to generate hrg (hstar) graph objects</li>
-<li>10Jan17 ToDo:</li>
+<li>07Jan17 Done: python call to generate hrg (hstar) graph objects</li>
+<li>10Jan17 ToDo: python call to generate kron graphs</li>
 </ul>
 </div>
 

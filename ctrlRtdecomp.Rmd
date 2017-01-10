@@ -5,22 +5,21 @@ date:   "1/4/2017"
 output: html_document
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-# python dir /Volumes/theory/entropy/graphly/Modularity
-```
+# Tree Decomposition
+This is a workflow for experiments associated with Tree Decomposition on Graph Grammars.
 
-## Tree Decompositions
-- `netfiles` holds the edgelist real-world networks
+
+## Datasets
+- `netfiles` holds the edgelists of real-world networks.
 
 ```{r netfiles, echo=F}
 netfiles <-system("find ~/Theory/Datasets -name 'out.*'", intern=TRUE)
 netfiles
 ```
 
-- Compute basic network properties
+## Compute basic network properties
 
-The code below uses **networkx** to process input files and compute a battery of network properties.
+The code below uses **networkx** to process input files and compute a battery of network properties tests.
 
 ```{r pressure, echo=F}
 # network properties (http://stackoverflow.com/questions/10651640)
@@ -32,7 +31,7 @@ xc <- lapply(netfiles, netpropsfun)
 
 ```
 
-### Generate Synthetic Graphs
+## Generate synthetic graphs
 Given the list of edgelist files, we generate files of type 
 - HRG
 ```{r hrgs, echo=F}
@@ -45,7 +44,8 @@ print (tail(hrg_flist[[2]], n=1))
 ```
 - KRON
 
-## Community (Modularity)
+
+## Compute Community (Modularity)
 - Using the igraph library, we compute the modularity using `cluster_walktrap` and `membership`.
 ```{r, echo=F}
 library(igraph)
@@ -86,6 +86,7 @@ lapply(gg, print_modularity)
 # membership(wc) # The membership of each vertex to groups found
 # plot(wc, karate) # Showing the network and the groups.
 ```
+
 
 # StarLog
 - 07Jan17 Done: python call to generate hrg (hstar) graph objects
