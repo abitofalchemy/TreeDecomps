@@ -24,12 +24,12 @@ def gen_nx_graph_obj (fname):
     files = [ f for f in os.listdir("./Results") if os.path.isfile(os.path.join("./Results",f)) ]
     files=  [f for f in files if fname in f]
     try:
-        nx.write_edgelist(hstar, "Results/{}{}_hstar.edgelist.bz2".format(fname,len(files)))
+			nx.write_edgelist(hstar, "Results/{}{}_hstar.edgelist.bz2".format(fname,len(files)))
     except Exception, e:
-		print 'ERROR, UNEXPECTED Write output file EXCEPTION'
-		print str(e)
-		traceback.print_exc()
-		os._exit(1)
+			print 'ERROR, UNEXPECTED Write output file EXCEPTION'
+			print str(e)
+			traceback.print_exc()
+			os._exit(1)
     return "Results/{}{}_hstar.edgelist.bz2".format(fname,len(files))
 
 def get_parser():

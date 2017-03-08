@@ -23,10 +23,12 @@ def synthetic_graph_generator (ref, graph_model):
 	n = ref.number_of_nodes()
 
 	if 'hrg' in graph_model:
-		prod_rules = PHRG.probabilistic_hrg_learning(G) # derive rules
+		prod_rules = PHRG.probabilistic_hrg_deriving_prod_rules(G) # derive rules
+		
 		g = pcfg.Grammar('S')
 		for (id, lhs, rhs, prob) in prod_rules:
 			g.add_rule(pcfg.Rule(id, lhs, rhs, prob))
+
 		num_nodes = G.number_of_nodes()
 		# print "Starting max size",'n=',num_nodes
 		g.set_max_size(num_nodes)
