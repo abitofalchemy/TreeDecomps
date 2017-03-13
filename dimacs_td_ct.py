@@ -13,12 +13,18 @@ __version__ = "0.1.0"
 import argparse, traceback, optparse
 import os, sys, time
 import networkx as nx
+import re
 from collections import deque, defaultdict, Counter
 from enumhrgtree import tuplz_tree_graph
 import pprint as pp
 import tree_decomposition as td
 import PHRG as phrg
+import probabilistic_cfg as pcfg
+import net_metrics as metrics
+import exact_phrg as xphrg
 
+
+DEBUG = True
 
 def get_parser():
   parser = argparse.ArgumentParser(description='dimacs_td_ct: Convert tree decomposition to clique tree')
@@ -28,7 +34,13 @@ def get_parser():
 
 def dimacs_td_ct(tdfname):
   ''' tree decomp to clique-tree'''
+
   fname = tdfname
+  gfname = fname.rstrip('.graph.tree')
+  graph_name = os.path.basename(gfname)
+  gfname = "/Users/saguinag/Theory/DataSets/out."+graph_name
+  print '...', gfname
+  G = nx.read_edgelist(gfname, comments="%", nodetype=int)
 
   with open(fname, 'r') as f: # read tree decomp from inddgo
     lines = f.readlines()
@@ -62,6 +74,55 @@ def dimacs_td_ct(tdfname):
   T = phrg.binarize(T)
   print
   print T
+  root = list(T)[0]
+  root, children = T
+  #td.new_visit(T, G, prod_rules, TD)
+
+  prod_rules = {}
+  td.new_visit(T, G, prod_rules)
+
+  if DEBUG: print "--------------------"
+  if DEBUG: print "- Production Rules -"
+  if DEBUG: print "--------------------"
+
+  for k in prod_rules.iterkeys():
+    if DEBUG: print k
+    s = 0
+    for d in prod_rules[k]:
+      s += prod_rules[k][d]
+    for d in prod_rules[k]:
+      prod_rules[k][d] = float(prod_rules[k][d]) / float(s)  # normailization step to create probs not counts.
+      if DEBUG: print '\t -> ', d, prod_rules[k][d]
+
+  rules = []
+  id = 0
+  for k, v in prod_rules.iteritems():
+    sid = 0
+    for x in prod_rules[k]:
+      rhs = re.findall("[^()]+", x)
+      rules.append(("r%d.%d" % (id, sid), "%s" % re.findall("[^()]+", k)[0], rhs, prod_rules[k][x]))
+      if DEBUG: print ("r%d.%d" % (id, sid), "%s" % re.findall("[^()]+", k)[0], rhs, prod_rules[k][x])
+      sid += 1
+    id += 1
+  # print rules
+  if DEBUG: print "--------------------"
+  print '- P. Rules'
+  if DEBUG: print "--------------------"
+
+  g = pcfg.Grammar('S')
+  for (id, lhs, rhs, prob) in rules:
+    #print type(id), type(lhs), type(rhs), type(prob)
+    print ' ', id, lhs, rhs, prob
+    g.add_rule(pcfg.Rule(id, lhs, rhs, prob))
+
+
+  # Synthetic Graphs
+  hStars = xphrg.grow_exact_size_hrg_graphs_from_prod_rules(  rules,
+                                                        graph_name.rstrip(".out"),
+                                                        G.number_of_nodes(),10)
+  metricx = ['degree']# ,'hops', 'clust', 'assort', 'kcore','eigen','gcd']
+  metrics.network_properties([G], metricx, hStars, name=graph_name, out_tsv=True)
+
   exit()
 
   CT = nx.Graph()

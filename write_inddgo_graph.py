@@ -23,7 +23,7 @@ def nx_edges_to_nddgo_graph(G):
 	edges = [(int(e[0]), int(e[1])) for e in edges]
 	df = pd.DataFrame(edges)
 	df.sort_values(by=[0],inplace=True)
-	ofname = '{}.graph'.format(G.name)
+	ofname = '{}.dimacs'.format(G.name)
 
 	with open (ofname, 'w') as f:
 		f.write('c {}\n'.format(G.name))
@@ -32,6 +32,7 @@ def nx_edges_to_nddgo_graph(G):
 		output_edges = lambda x: f.write("e\t{}\t{}\n".format(x[0], x[1]))
 		df.apply(output_edges,axis=1)
 			#f.write("e\t{}\t{}\n".format(e[0]+1,e[1]+1))
+	if os.path.exists(ofname): print 'Wrote: ./{}'.format(ofname)
 
 def get_parser():
 	parser = argparse.ArgumentParser(description='gen_hrg: Generate synthetic graph using HRG model')
@@ -51,7 +52,7 @@ if __name__ == '__main__':
 	G.name = gname
 	print "... info",nx.info(G)
 	try:
-		nx_edges_to_nddgo_graph (G)
+		nx_edges_to_nddgo_graph(G)
 		#save_plot_figure_2disk(plotname=plt_filename)
 		#print 'Saved plot to: '+plt_filename
 	except Exception, e:
