@@ -187,7 +187,16 @@ frozenset([u'5', u'4', u'6']) # root
 ```{r graphvizit, echo=F}
 
 ```
+
+## Workflow
+Experiments:
+- Need input graphs to be in .graph form?
+
+`./INDDGO/bin/serial_wis -f INDDGO/sample_graphs/board_example.graph -gavril -mind -decompose_only -gviz ./INDDGO/sample_graphs/viz.test`
+
 # StarLog
+- 17Mar17 The workflow: 
+
 - 29Jan17 `dimacs_td_ct` ToDo: TD to Prod Rules from NDDGO
           
 - 17Jan17 INDDGO - Baseline TD plotting; Compute Network Statistics

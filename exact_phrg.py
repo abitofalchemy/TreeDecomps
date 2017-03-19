@@ -3,8 +3,8 @@
 __version__ = "0.1.0"
 import numpy as np
 import pandas as pd
-import matplotlib
-matplotlib.use('pdf')
+# import matplotlib
+# matplotlib.use('pdf')
 import matplotlib.pyplot as plt
 import sys
 import os
@@ -12,7 +12,7 @@ import networkx as nx
 import PHRG
 import probabilistic_cfg as pcfg
 import net_metrics as metrics
-# import dataframe_from_temporal_edgelist as tdf
+import dataframe_from_temporal_edgelist as tdf
 import pprint as pp
 import argparse, traceback
 
@@ -27,8 +27,10 @@ def get_parser ():
   return parser
 
 def Hstar_Graphs_Control (G, graph_name, axs):
+  print '-',Hstar_Graphs_Control,'-'
   # Derive the prod rules in a naive way, where
   prod_rules = PHRG.probabilistic_hrg_learning(G)
+  print prod_rules
   g = pcfg.Grammar('S')
   for (id, lhs, rhs, prob) in prod_rules:
     g.add_rule(pcfg.Rule(id, lhs, rhs, prob))
@@ -103,7 +105,10 @@ def grow_exact_size_hrg_graphs_from_prod_rules(prod_rules, gname, n, runs=1):
   """
   if n <=0: sys.exit(1)
 
-
+  print runs
+  for i,x in enumerate(prod_rules):
+    print i,'  ', x
+  
   g = pcfg.Grammar('S')
   for (id, lhs, rhs, prob) in prod_rules:
     g.add_rule(pcfg.Rule(id, lhs, rhs, prob))
@@ -126,6 +131,9 @@ def grow_exact_size_hrg_graphs_from_prod_rules(prod_rules, gname, n, runs=1):
     rule_list = g.sample(num_nodes)
     hstar = PHRG.grow(rule_list, g)[0]
     hstars_lst.append(hstar)
+
+  print rule_list
+
   return hstars_lst
 
 def pwrlaw_plot (xdata, ydata, yerr):
@@ -270,9 +278,15 @@ def get_hrg_production_rules(edgelist_data_frame, graph_name):
   from growing import derive_prules_from
 
   df = edgelist_data_frame
-  G = nx.from_pandas_dataframe(df, 'src', 'trg', ['ts'])  # whole graph
+  try:
+    G = nx.from_pandas_dataframe(df, 'src', 'trg', ['ts'])  # whole graph
+  except  Exception, e:
+      print '==========================\n\t',
+      print str(e)
+      traceback.print_exc()
+      G = nx.from_pandas_dataframe(df, 'src', 'trg')
+      # os._exit(1)
   G.name = graph_name
-  # pos = nx.spring_layout(G)
   prules = derive_prules_from([G])
 
   # Synthetic Graphs
@@ -287,30 +301,30 @@ def get_hrg_production_rules(edgelist_data_frame, graph_name):
 
 
 
-# if __name__ == '__main__':
-#   parser = get_parser()
-#   args = vars(parser.parse_args())
-#
-#   in_file = args['g_fname'][0]
-#   datframes = tdf.Pandas_DataFrame_From_Edgelist([in_file])
-#   df = datframes[0]
-#   # g_name = os.path.basename(in_file).lstrip('out.')
-#   g_name = os.path.basename(in_file).split('.')[1]
-#
-#   print '...', g_name
-#
-#   if args['chunglu']:
-#       print 'Generate chunglu graphs given an edgelist'
-#       sys.exit(0)
-#   elif args['kron']:
-#       print 'Generate chunglu graphs given an edgelist'
-#       sys.exit(0)
-#
-#   try:
-#     get_hrg_production_rules(df,g_name)
-#   except  Exception, e:
-#     print 'ERROR, UNEXPECTED SAVE PLOT EXCEPTION'
-#     print str(e)
-#     traceback.print_exc()
-#     os._exit(1)
-#   sys.exit(0)
+if __name__ == '__main__':
+  parser = get_parser()
+  args = vars(parser.parse_args())
+
+  in_file = args['g_fname'][0]
+  datframes = tdf.Pandas_DataFrame_From_Edgelist([in_file])
+  df = datframes[0]
+  # g_name = os.path.basename(in_file).lstrip('out.')
+  g_name = os.path.basename(in_file).split('.')[1]
+
+  print '...', g_name
+
+  if args['chunglu']:
+      print 'Generate chunglu graphs given an edgelist'
+      sys.exit(0)
+  elif args['kron']:
+      print 'Generate chunglu graphs given an edgelist'
+      sys.exit(0)
+
+  try:
+    get_hrg_production_rules(df,g_name)
+  except  Exception, e:
+    print 'ERROR, UNEXPECTED SAVE PLOT EXCEPTION'
+    print str(e)
+    traceback.print_exc()
+    os._exit(1)
+  sys.exit(0)
