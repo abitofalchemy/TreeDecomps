@@ -1,3 +1,6 @@
 Results/*
 .Rproj.user
 .Rhistory
+tmp_*
+*.pyc
+

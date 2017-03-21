@@ -20,6 +20,8 @@ import tree_decomposition as td
 import PHRG as phrg
 import probabilistic_cfg as pcfg
 import exact_phrg as xphrg
+import a1_hrg_cliq_tree as nfld
+from a1_hrg_cliq_tree import load_edgelist
 
 DEBUG = False
 
@@ -30,20 +32,19 @@ def get_parser ():
   parser.add_argument('--version', action='version', version=__version__)
   return parser
 
-
 def dimacs_td_ct (tdfname):
   """ tree decomp to clique-tree """
-
+  print '... input file:', tdfname
   fname = tdfname
-  gfname = fname.rstrip('.dimacs.tree')  # input file format
-  # print gfname
-  assert gfname, basestring
-  graph_name = os.path.basename(gfname)
-  gfname = "/Users/saguinag/Theory/DataSets/out." + graph_name.split('.')[0]
+  graph_name = os.path.basename(fname)
+  gname = graph_name.split('.')[0]
+  gfname = "/Users/saguinag/Theory/DataSets/out." + gname
   print '...', gfname
 
-  G = nx.read_edgelist(gfname, comments="%", nodetype=int)  # read the tree's edgelist
+  G = load_edgelist(gfname)
 
+  print nx.info(G)
+  print
   with open(fname, 'r') as f:  # read tree decomp from inddgo
     lines = f.readlines()
     lines = [x.rstrip('\r\n') for x in lines]
@@ -52,22 +53,24 @@ def dimacs_td_ct (tdfname):
   bags = [x.split() for x in lines if x.startswith('B')]
 
   for b in bags:
-    # print int(b[1])
-    cbags[int(b[1])] = [int(x) for x in b[2:]]  # [int(k) for k in x[2:]]
-    # print '\t', [int(x) for x in b[2:]]
+    cbags[int(b[1])] = [int(x) for x in b[3:]]  # what to do with bag size?
 
   edges = [x.split()[1:] for x in lines if x.startswith('e')]
   edges = [[int(k) for k in x] for x in edges]
 
   tree = defaultdict(set)
   for s, t in edges:
-    # print s, t
-    # print cbags[s]
-    # print cbags[t]
     tree[frozenset(cbags[s])].add(frozenset(cbags[t]))
-
+  print '.. # of keys in `tree`:', len(tree.keys())
+  print tree.keys()
   root = list(tree)[0]
+  print '.. Root:', root
+  root = frozenset(cbags[1])
+  print '.. Root:', root
   T = td.make_rooted(tree, root)
+  print '.. T rooted:', len(T)
+  nfld.unfold_2wide_tuple(T)
+
   T = phrg.binarize(T)
   # root = list(T)[0]
   # root, children = T
@@ -117,7 +120,7 @@ def dimacs_td_ct (tdfname):
                                                             graph_name,
                                                             G.number_of_nodes(), 50)
   print len(hStars)
-  metricx = ['degree']  # ,'hops', 'clust', 'assort', 'kcore','eigen','gcd']
+  metricx = ['degree','hops', 'clust', 'assort', 'kcore','eigen']#,'gcd']
   metrics.network_properties([G], metricx, hStars, name=graph_name, out_tsv=True)
 
   exit()
