@@ -3,4 +3,6 @@ Results/*
 .Rhistory
 tmp_*
 *.pyc
-
+*.dimacs
+*.tree
+*.sol

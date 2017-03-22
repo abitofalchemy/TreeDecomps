@@ -1,6 +1,8 @@
 __author__ = ['Salvador Aguinaga', 'Rodrigo Palacios', 'David Chaing', 'Tim Weninger']
 
 import networkx as nx
+import matplotlib
+matplotlib.use('pdf')
 import matplotlib.pyplot as plt
 import matplotlib.pylab as pylab
 params = {'legend.fontsize':'small',
@@ -259,6 +261,7 @@ def draw_network_value(orig_g_M, chunglu_M, HRG_M, pHRG_M, kron_M):
     """
 
     eig_cents = [nx.eigenvector_centrality_numpy(g) for g in orig_g_M]  # nodes with eigencentrality
+    eig_cents = [nx.eigenvector_centrality(g) for g in orig_g_M]  # nodes with eigencentrality
     net_vals = []
     for cntr in eig_cents:
         net_vals.append(sorted(cntr.values(), reverse=True))
@@ -272,7 +275,7 @@ def draw_network_value(orig_g_M, chunglu_M, HRG_M, pHRG_M, kron_M):
         for i in range(0, len(l), sa):
             print "(" + str(i) + "," + str(l[i]) + ")"
 
-    eig_cents = [nx.eigenvector_centrality_numpy(g) for g in pHRG_M]  # nodes with eigencentrality
+    eig_cents = [nx.eigenvector_centrality(g) for g in pHRG_M]  # nodes with eigencentrality
     net_vals = []
     for cntr in eig_cents:
         net_vals.append(sorted(cntr.values(), reverse=True))
@@ -286,7 +289,7 @@ def draw_network_value(orig_g_M, chunglu_M, HRG_M, pHRG_M, kron_M):
         for i in range(0, len(l), sa):
             print "(" + str(i) + "," + str(l[i]) + ")"
 
-    eig_cents = [nx.eigenvector_centrality_numpy(g) for g in HRG_M]  # nodes with eigencentrality
+    eig_cents = [nx.eigenvector_centrality(g) for g in HRG_M]  # nodes with eigencentrality
     net_vals = []
     for cntr in eig_cents:
         net_vals.append(sorted(cntr.values(), reverse=True))
@@ -300,7 +303,7 @@ def draw_network_value(orig_g_M, chunglu_M, HRG_M, pHRG_M, kron_M):
         for i in range(0, len(l), sa):
             print "(" + str(i) + "," + str(l[i]) + ")"
 
-    eig_cents = [nx.eigenvector_centrality_numpy(g) for g in chunglu_M]  # nodes with eigencentrality
+    eig_cents = [nx.eigenvector_centrality(g) for g in chunglu_M]  # nodes with eigencentrality
     net_vals = []
     for cntr in eig_cents:
         net_vals.append(sorted(cntr.values(), reverse=True))
@@ -314,7 +317,7 @@ def draw_network_value(orig_g_M, chunglu_M, HRG_M, pHRG_M, kron_M):
         for i in range(0, len(l), sa):
             print "(" + str(i) + "," + str(l[i]) + ")"
 
-    eig_cents = [nx.eigenvector_centrality_numpy(g) for g in kron_M]  # nodes with eigencentrality
+    eig_cents = [nx.eigenvector_centrality(g) for g in kron_M]  # nodes with eigencentrality
     net_vals = []
     for cntr in eig_cents:
         net_vals.append(sorted(cntr.values(), reverse=True))
@@ -433,8 +436,15 @@ def network_properties(orig, net_mets, synth_graphs_lst, name='', out_tsv=False)
     if 'degree' in net_mets:
         print 'Degree'
         orig__Deg = degree_distribution_multiples(orig)
-        orig__Deg.mean(axis=1).plot(ax=ax0,marker='o', ls="None", markeredgecolor="w", color='b')
+        print orig__Deg.columns
+        print '\t{}, {}'.format(orig__Deg.index.values, orig__Deg[0].values)
+        for row in orig__Deg.iterrows():
+          print row.index.name, row[0]
+
+        orig__Deg.mean(axis=1).plot(ax=ax0, marker='o', ls="None", markeredgecolor="w", color='b')
         synth_Deg = degree_distribution_multiples(synth_graphs_lst)
+        print synth_Deg.columns
+        exit()
         synth_Deg.to_csv('Results/degree_synth_{}.tsv'.format(name),sep='\t',header=None, index=False)
         if os.path.exists('Results/degree_synth_{}.tsv'.format(name)): print 'saved to disk'
 

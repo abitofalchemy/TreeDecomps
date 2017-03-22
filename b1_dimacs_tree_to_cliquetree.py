@@ -38,7 +38,7 @@ def dimacs_td_ct (tdfname):
   fname = tdfname
   graph_name = os.path.basename(fname)
   gname = graph_name.split('.')[0]
-  gfname = "/Users/saguinag/Theory/DataSets/out." + gname
+  gfname = "datasets/out." + gname
   print '...', gfname
 
   G = load_edgelist(gfname)
