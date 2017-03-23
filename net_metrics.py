@@ -410,6 +410,9 @@ def eigenvector_multiples(graphs):
 
     return df
 
+
+
+
 def network_properties(orig, net_mets, synth_graphs_lst, name='', out_tsv=False):
     '''
     compute network properties
@@ -436,44 +439,47 @@ def network_properties(orig, net_mets, synth_graphs_lst, name='', out_tsv=False)
     if 'degree' in net_mets:
         print 'Degree'
         orig__Deg = degree_distribution_multiples(orig)
-        print orig__Deg.columns
-        print '\t{}, {}'.format(orig__Deg.index.values, orig__Deg[0].values)
-        for row in orig__Deg.iterrows():
-          print row.index.name, row[0]
+        print '... Orig G'
+        for i, row in orig__Deg.itertuples():
+          print '{}, {}'.format(i, row)
 
-        orig__Deg.mean(axis=1).plot(ax=ax0, marker='o', ls="None", markeredgecolor="w", color='b')
+        orig__Deg.mean(axis=1).plot(ax=ax0, marker='o', ls="None", markeredgecolor="w", color='b',label="Orig G")
+        # synthetic graph (HRG)
         synth_Deg = degree_distribution_multiples(synth_graphs_lst)
-        print synth_Deg.columns
-        exit()
-        synth_Deg.to_csv('Results/degree_synth_{}.tsv'.format(name),sep='\t',header=None, index=False)
-        if os.path.exists('Results/degree_synth_{}.tsv'.format(name)): print 'saved to disk'
+        print '\n... HRG G'
+        synth_Deg['kmean'] = synth_Deg.mean(axis=1)
+        print synth_Deg['kmean'].to_string(header=False)
+
+        # if out_tsv: synth_Deg.to_csv('Results/degree_synth_{}.tsv'.format(name),sep='\t',header=None, index=False)
+        #if os.path.exists('Results/degree_synth_{}.tsv'.format(name)): print 'saved to disk'
 
         # synth_Deg.max( axis=1).plot(ax=ax0,alpha=0.4, color='r')
         # synth_Deg.min( axis=1).plot(ax=ax0,alpha=0.4, color='r')
         ax0.fill_between(synth_Deg.index.values,
                          synth_Deg.mean(axis=1) - synth_Deg.std(axis=1),
                          synth_Deg.mean(axis=1) + synth_Deg.std(axis=1), color='r',alpha=0.25)
-        synth_Deg.mean(axis=1).plot(ax=ax0, alpha=0.5, marker=".", color='r')
+        synth_Deg.mean(axis=1).plot(ax=ax0, alpha=0.5, marker=".", color='r', label="Synth G")
 
-        orig__Deg.mean(axis=1).to_csv('Results/degree_orig_{}.tsv'.format(name),sep='\t')
-        synth_Deg.mean(axis=1).to_csv('Results/degree_hrg_{}.tsv'.format(name),sep='\t')
+        if out_tsv:
+          orig__Deg.mean(axis=1).to_csv('Results/degree_orig_{}.tsv'.format(name),sep='\t')
+          synth_Deg.mean(axis=1).to_csv('Results/degree_hrg_{}.tsv'.format(name),sep='\t')
         ax0.set_title('Degree distributuion', y=0.9)
         #ax0.set_xscale('log')
         #ax0.set_yscale('log')
-        xdat = synth_Deg.index.values
-        ydat = synth_Deg.median(axis=1).values
-        zdat = synth_Deg.std(axis=1).values
-        df1 = pd.DataFrame()
-        df1['xdat'] = xdat
-        df1['ydat'] = ydat
-        df1['ysig'] = zdat
-        # df2 = pd.DataFrame()
-        # df2['s_med'] = zdat
-        # df2['s_std'] = wdat
-        # df = df1.join(df2, how='outer')
-        df1.to_csv('Results/deg_dist_{}.tsv'.format(name),sep='\t', header=None, index=False)
-        if os.path.exists('Results/deg_dist_{}.tsv'.format(name)):
-            print '... file written:','Results/deg_dist_{}.tsv'.format(name)
+        # xdat = synth_Deg.index.values
+        # ydat = synth_Deg.median(axis=1).values
+        # zdat = synth_Deg.std(axis=1).values
+        # df1 = pd.DataFrame()
+        # df1['xdat'] = xdat
+        # df1['ydat'] = ydat
+        # df1['ysig'] = zdat
+        # # df2 = pd.DataFrame()
+        # # df2['s_med'] = zdat
+        # # df2['s_std'] = wdat
+        # # df = df1.join(df2, how='outer')
+        # df1.to_csv('Results/deg_dist_{}.tsv'.format(name),sep='\t', header=None, index=False)
+        # if os.path.exists('Results/deg_dist_{}.tsv'.format(name)):
+        #     print '... file written:','Results/deg_dist_{}.tsv'.format(name)
 
     if 'hops' in net_mets:
       print 'Hops'
@@ -487,37 +493,49 @@ def network_properties(orig, net_mets, synth_graphs_lst, name='', out_tsv=False)
 
       orig__Hop_Plot.mean(axis=1).to_csv('Results/hops_orig_{}.tsv'.format(name),sep='\t')
       synth_Hop_Plot.mean(axis=1).to_csv('Results/hops_hrg_{}.tsv'.format(name),sep='\t')
+      print '... Orig G'
+      print orig__Hop_Plot.mean(axis=1).to_string(header=False)
+      print '\n... Synth G'
+      print synth_Hop_Plot.mean(axis=1).to_string(header=False)
 
     if 'clust' in net_mets:
-      print 'Clustering Coef'
+      print '\nClustering Coef'
       orig__clust_coef = clustering_coefficients_multiples(orig)
       synth_clust_coef = clustering_coefficients_multiples(synth_graphs_lst)
 
       gb = orig__clust_coef.groupby(['k'])
       gb['cc'].mean().plot(ax=ax2, marker='o', ls="None", markeredgecolor="w", color='b', alpha=0.8)
       gb['cc'].mean().to_csv('Results/clust_orig_{}.tsv'.format(name),sep='\t')
+      print '... Orig G'
+      print gb['cc'].mean().to_string(header=False)
 
       gb = synth_clust_coef.groupby(['k'])
       gb['cc'].mean().plot(ax=ax2, marker='o', ls="None", markeredgecolor="w", color='r',  alpha=0.8 )
       ax2.set_title('Avg Clustering Coefficient', y=0.9)
       gb['cc'].mean().to_csv('Results/clust_hrg_{}.tsv'.format(name),sep='\t')
+      print '\n... Synth G'
+      print gb['cc'].mean().to_string(header=False)
 
     if 'assort' in net_mets:
-      print 'Assortativity'
+      print '\nAssortativity'
       orig__assort = assortativity_coefficients_multiples(orig)
       synth_assort = assortativity_coefficients_multiples(synth_graphs_lst)
 
       gb = orig__assort.groupby(['k'])
       gb[1].mean().plot(ax=ax3, marker='o', ls="None", markeredgecolor="w", color='b',  alpha=0.8 )
       gb[1].mean().to_csv('Results/assort_orig_{}.tsv'.format(name),sep='\t')
+      print '... Orig G'
+      print gb[1].mean().to_string(header=False)
 
       gb = synth_assort.groupby(['k'])
       gb[1].mean().plot(ax=ax3, marker='o', ls="None", markeredgecolor="w", color='r',  alpha=0.8 )
       ax3.set_title('Assortativity', y=0.9)
       gb[1].mean().to_csv('Results/assort_hrg_{}.tsv'.format(name),sep='\t')
+      print '\n... Synth G'
+      print gb[1].mean().to_string(header=False)
 
     if 'kcore' in net_mets:
-      print 'kcore_decomposition'
+      print '\nkcore_decomposition'
       orig__kcore = kcore_decomposition_multiples(orig)
       synth_kcore = kcore_decomposition_multiples(synth_graphs_lst)
 
@@ -530,9 +548,13 @@ def network_properties(orig, net_mets, synth_graphs_lst, name='', out_tsv=False)
 
       orig__kcore.to_csv('Results/kcore_orig_{}.tsv'.format(name),sep='\t')
       synth_kcore.mean(axis=1).to_csv('Results/kcore_hrg_{}.tsv'.format(name),sep='\t')
+      print '... Orig G'
+      print orig__kcore.to_string(header=False)
+      print '\n... Synth G'
+      print synth_kcore.mean(axis=1).to_string(header=False)
 
     if 'eigen' in net_mets:
-      print 'eigenvec'
+      print '\neigenvec'
       orig__eigenvec = eigenvector_multiples(orig)
       synth_eigenvec = eigenvector_multiples(synth_graphs_lst)
 
@@ -544,15 +566,19 @@ def network_properties(orig, net_mets, synth_graphs_lst, name='', out_tsv=False)
       synth_eigenvec.mean(axis=1).plot(ax=ax5, marker='s', ls="None", markeredgecolor="w", color='r',  alpha=0.8)
       synth_eigenvec.mean(axis=1).to_csv('Results/eigenv_hrg_{}.tsv'.format(name),sep='\t')
       ax5.set_title('eigenvector', y=0.9)
+      print '... Orig G'
+      print orig__eigenvec.mean(axis=1).to_string(header=False)
+      print '\n... Synth G'
+      print synth_eigenvec.mean(axis=1).to_string(header=False)
 
     import pprint as pp
     if 'gcd' in net_mets:
-      print 'GCD'
+      print '\nGCD'
       ax6.set_title('GCD', y=0.9)
       gcd_hrg = []
-      df_g = external_rage(orig[0],name) # original graph
+      df_g = external_rage(orig[0], name) # original graph
       for synthG in synth_graphs_lst:
-        gcd_network = external_rage(synthG,name)
+        gcd_network = external_rage(synthG, name)
         # rgfd =  tijana_eval_rgfd(df_g, gcd_network)  ## what is this?
         gcm_g = tijana_eval_compute_gcm(df_g)
         gcm_h = tijana_eval_compute_gcm(gcd_network)
@@ -568,6 +594,8 @@ def network_properties(orig, net_mets, synth_graphs_lst, name='', out_tsv=False)
       ax6.set_xlim(0, 5)
       with open ('Results/gcd_{}.tsv'.format(name), 'w') as f:
         f.write('{}\t{}\n'.format(gcd_hrg_mean,gcd_hrg_std))
+      print "\n... mean\tstd"
+      print "{}\t{}".format(gcd_hrg_mean, gcd_hrg_std)
 
     oufigname = '/tmp/outfig_{}.pdf'.format(name)
     plt.savefig(oufigname, bbox_inches='tight')
@@ -1061,6 +1089,7 @@ def external_rage(G,netname):
     giant_nodes = sorted(nx.connected_component_subgraphs(G), key=len, reverse=True)
 
     G = nx.subgraph(G, giant_nodes[0])
+    netname = netname.split('.')[0]
     tmp_file = "tmp_{}.txt".format(netname)
     with open(tmp_file, 'w') as tmp:
         for e in G.edges():

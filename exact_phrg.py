@@ -105,9 +105,9 @@ def grow_exact_size_hrg_graphs_from_prod_rules(prod_rules, gname, n, runs=1):
   """
   if n <=0: sys.exit(1)
 
-  print runs
-  for i,x in enumerate(prod_rules):
-    print i,'  ', x
+  # print runs
+  # for i,x in enumerate(prod_rules):
+  #   print i,'  ', x
   
   g = pcfg.Grammar('S')
   for (id, lhs, rhs, prob) in prod_rules:
@@ -132,7 +132,7 @@ def grow_exact_size_hrg_graphs_from_prod_rules(prod_rules, gname, n, runs=1):
     hstar = PHRG.grow(rule_list, g)[0]
     hstars_lst.append(hstar)
 
-  print rule_list
+  # print rule_list
 
   return hstars_lst
 

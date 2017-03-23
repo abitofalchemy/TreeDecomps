@@ -43,7 +43,7 @@ def dimacs_td_ct (tdfname):
 
   G = load_edgelist(gfname)
 
-  print nx.info(G)
+  if DEBUG: print nx.info(G)
   print
   with open(fname, 'r') as f:  # read tree decomp from inddgo
     lines = f.readlines()
@@ -61,15 +61,15 @@ def dimacs_td_ct (tdfname):
   tree = defaultdict(set)
   for s, t in edges:
     tree[frozenset(cbags[s])].add(frozenset(cbags[t]))
-  print '.. # of keys in `tree`:', len(tree.keys())
-  print tree.keys()
+    if DEBUG: print '.. # of keys in `tree`:', len(tree.keys())
+  if DEBUG: print tree.keys()
   root = list(tree)[0]
-  print '.. Root:', root
+  if DEBUG: print '.. Root:', root
   root = frozenset(cbags[1])
-  print '.. Root:', root
+  if DEBUG: print '.. Root:', root
   T = td.make_rooted(tree, root)
-  print '.. T rooted:', len(T)
-  nfld.unfold_2wide_tuple(T)
+  if DEBUG: print '.. T rooted:', len(T)
+  # nfld.unfold_2wide_tuple(T) # lets me display the tree's frozen sets
 
   T = phrg.binarize(T)
   # root = list(T)[0]
@@ -104,14 +104,12 @@ def dimacs_td_ct (tdfname):
       sid += 1
     id += 1
   # print rules
-  if DEBUG: print "--------------------"
+  if 1: print "--------------------"
   print '- P. Rules'
-  if DEBUG: print "--------------------"
+  if 1: print "--------------------"
 
   g = pcfg.Grammar('S')
   for (id, lhs, rhs, prob) in rules:
-    # print type(id), type(lhs), type(rhs), type(prob)
-    # print ' ', id, lhs, rhs, prob
     g.add_rule(pcfg.Rule(id, lhs, rhs, prob))
 
   # Synthetic Graphs
@@ -119,52 +117,10 @@ def dimacs_td_ct (tdfname):
   hStars = xphrg.grow_exact_size_hrg_graphs_from_prod_rules(rules,
                                                             graph_name,
                                                             G.number_of_nodes(), 50)
-  print len(hStars)
-  metricx = ['degree','hops', 'clust', 'assort', 'kcore','eigen']#,'gcd']
+  metricx = ['degree', 'hops', 'clust', 'assort', 'kcore', 'eigen', 'gcd']
   metrics.network_properties([G], metricx, hStars, name=graph_name, out_tsv=True)
 
-  exit()
-
-  CT = nx.Graph()
-  CT.add_edges_from(edges)
-
-  for v in CT.nodes_iter():
-
-    if v == '1':
-      CT.node[v]['root'] = True
-      CT.node[v]['parent'] = True
-
-    CT.node[v]['cnode'] = cbags[int(v)]
-
-  # print nx.info(CT)
-  # print CT.edges()
-  # print CT.nodes()
-  print "CT.nodes(data=True)"
-  print "==================="
-
-  print CT.nodes(data=True)
-  for k, v in CT.nodes_iter(data=True):
-    print k, ':\t', v
-  # TODO: create the defaultdict from these node bags
-  # print [v for v in  CT.nodes_iter()]
-  # print CT.node['1']['root']
-  print '... root:', nx.get_node_attributes(CT, 'root').keys()
-  root = nx.get_node_attributes(CT, 'root').keys()[0]
-
-  tree = defaultdict(set)
-
-  # bag = frozenset(clique | {v})
-  # tree[bag].add(tv)
-
-  # print [c for c in CT.neighbors_iter(root)]
-  # pprint.pprint  (T)
-  # print len(T), type(T)
-  # for x in T:
-  #     print "{}".format(x)
-  # root = list(T)[0]
-  # T = td.make_rooted(T, root)
-  # T = binarize(T)
-  # print tuplz_tree_graph(root, CT) # need to convert to the tree ds in hrg
+  return
 
 
 def main ():

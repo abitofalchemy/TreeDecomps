@@ -1,15 +1,44 @@
 # Tree Decompositions
+
 We investigate the effect of different tree decompositions on 
 graph grammars. 
 
 ## StarLog
+- 23Mar17: 
 - 19Mar17: Need to make sure the conversion to binarized tree works okay
-
 - 08Mar16: plot/show the progression from the BoardExample file to 
   the binarized version and test other graphs
 
 
 # Experiments
+
+## How to Run Experiments
+
+- Setup the graphs (edgelist network datasets) 
+  `./setup_working_graphs.sh`
+
+- Run from a script to generate clique trees given a dataset and POE heuristic
+  `./experiments.sh datasets/out.ucidata-zachary mcs`
+
+## POE Heuristic Results
+-mind : generates an elim. ordering using min degree heuristic
+-mmd : generates an elim. ordering using multiple min degree heuristic
+-minf : generates an elim. ordering using min fill heuristic
+-bmf : generates an elim. ordering using a batched min fill heuristic
+-beta : generates an elim. ordering using the beta heuristic
+-metmmd : generates an elim. ordering using METIS mmd heuristic
+-metnnd : generates an elim. ordering using METS node ND heuristic
+-mcsm : generates an elim. ordering using mcsm euristic
+-mcs  : generates an elim. ordering using mcs
+-lexm : generates an elim. ordering using lex-m bfs heuristic
+
+Dataset | mcs | mind | 
+--------|-----|------|
+jazz    |
+lesmis  |
+zachary |
+
+## Workflow (Rstudio)
 
 [Main Workflow (Rstudio)](ctrlRtdecomp.Rmd)
 `python write_inddgo_graph.py -g ~/Theory/DataSets/out.brunson_southern-women_southern-women`

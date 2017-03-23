@@ -6,3 +6,5 @@ tmp_*
 *.dimacs
 *.tree
 *.sol
+*.graph
+*.comp
