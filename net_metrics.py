@@ -431,6 +431,7 @@ def network_properties(orig, net_mets, synth_graphs_lst, name='', out_tsv=False)
     ax6 = plt.subplot(gs[2, 2])
 
     plt.suptitle(name)
+    f = lambda m, n: [i*n//m + n//(2*m) for i in range(m)] # to select m out n elements in a list
 
     import os
     if not os.path.exists('./Results'):
@@ -443,12 +444,14 @@ def network_properties(orig, net_mets, synth_graphs_lst, name='', out_tsv=False)
         for i, row in orig__Deg.itertuples():
           print '{}, {}'.format(i, row)
 
-        orig__Deg.mean(axis=1).plot(ax=ax0, marker='o', ls="None", markeredgecolor="w", color='b',label="Orig G")
+        orig__Deg.mean( axis=1).plot(ax=ax0, marker='o', ls="None", markeredgecolor="w", color='b',
+                        label="Orig G")
         # synthetic graph (HRG)
         synth_Deg = degree_distribution_multiples(synth_graphs_lst)
         print '\n... HRG G'
         synth_Deg['kmean'] = synth_Deg.mean(axis=1)
-        print synth_Deg['kmean'].to_string(header=False)
+        mask = f(70, len(synth_Deg))
+        print synth_Deg['kmean'].loc[mask].to_string(header=False)
 
         # if out_tsv: synth_Deg.to_csv('Results/degree_synth_{}.tsv'.format(name),sep='\t',header=None, index=False)
         #if os.path.exists('Results/degree_synth_{}.tsv'.format(name)): print 'saved to disk'
