@@ -11,8 +11,8 @@ python a1_write_inddgo_graph.py -g $1 &&
 
 ## dimacs to tree
 
-./bin/serial_wis -f ./datasets/"$bname".dimacs -nice -$2 -w Results/"$bname".dimacs.tree &&
+./bin/serial_wis -f ./datasets/"$bname".dimacs -nice -$2 -w Results/"$bname"."$2".dimacs.tree &&
 
 ## Process tree to HRGs
 
-python b1_dimacs_tree_to_cliquetree.py -t Results/"$bname".dimacs.tree
+python b1_dimacs_tree_to_cliquetree.py -t Results/"$bname"."$2".dimacs.tree
