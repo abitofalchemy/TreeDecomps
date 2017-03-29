@@ -50,7 +50,7 @@ def rules_overlap_between_files(files):
     print cdf.shape
     return
 
-data_files_dir = "/Users/saguinag/Theory/Grammars/ProdRules"
+data_files_dir = "ProdRules"
 files = glob(data_files_dir+'/*.bz2')
 
 rules_per_file(files)

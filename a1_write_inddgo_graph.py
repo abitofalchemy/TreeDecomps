@@ -53,7 +53,7 @@ def nx_edges_to_nddgo_graph (G, sampling=False):
     if os.path.exists(ofname): print 'Wrote: ./{}'.format(ofname)
 
 def map_original_node_ids(f):
-  df = pd.read_csv(f,header=None, delimiter="\t")
+  df = pd.read_csv(f,header=None, delimiter="\t",comments="%")
   # df = df.head(10)
   nf = pd.concat([df[0], df[1]])
   nf.drop_duplicates()
@@ -85,10 +85,13 @@ if __name__ == '__main__':
   if len(gname) <=3:
     gname = os.path.basename(fname).split('.')[0]
   print "... ", gname
-  mapping_d = map_original_node_ids(fname)
-  G1 = nx.read_edgelist(fname, comments="%", data=False, nodetype=int)
+  if args['sampling']: 
+    mapping_d = map_original_node_ids(fname)
+    G1 = nx.read_edgelist(fname, comments="%", data=False, nodetype=int)
 
-  G = nx.relabel_nodes(G1, mapping_d)
+    G = nx.relabel_nodes(G1, mapping_d)
+  else:
+    G = nx.read_edgelist(fname, comments="%", data=False, nodetype=int)
 
   G.name = gname
   print "... info", nx.info(G)

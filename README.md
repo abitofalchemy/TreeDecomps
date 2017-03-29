@@ -7,6 +7,7 @@ graph grammars.
 
 Date   | Notes
 -------|-------
+29Mar17| Work on the overlap data; the sampling is not working out so easily
 28Mar17| Try sampling smaller graphs and reference the original `sample_edgelist_tosubgraphs.py`
 27Mar17| The sampled graphs need to handle the node ids being much Larger than V.size
 19Mar17| Need to make sure the conversion to binarized tree works okay
