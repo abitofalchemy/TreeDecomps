@@ -85,7 +85,7 @@ if __name__ == '__main__':
   if len(gname) <=3:
     gname = os.path.basename(fname).split('.')[0]
   print "... ", gname
-  mapping_d = map_original_node_ids(fname)
+  if args['sampling']:  mapping_d = map_original_node_ids(fname)
   G1 = nx.read_edgelist(fname, comments="%", data=False, nodetype=int)
 
   G = nx.relabel_nodes(G1, mapping_d)

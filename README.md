@@ -1,43 +1,41 @@
 # Tree Decompositions
 
-We investigate the effect of different tree decompositions on
-graph grammars.
+We investigate the effect of different tree decompositions on 
+graph grammars. 
 
 ## StarLog
-
-Date   | Notes
--------|-------
-28Mar17| Try sampling smaller graphs and reference the original `sample_edgelist_tosubgraphs.py`
-27Mar17| The sampled graphs need to handle the node ids being much Larger than V.size
-19Mar17| Need to make sure the conversion to binarized tree works okay
-08Mar16| plot/show the progression from the BoardExample file to the binarized version and test other graphs
+- 30Mar17: Looking at overlaps using isomorphism
+- 28Mar17: Working on getting sampled graphs to generate trees
+- 27Mar17: The sampled graphs need to handle the node ids being much Larger than |V|
+- 23Mar17: 
+- 19Mar17: Need to make sure the conversion to binarized tree works okay
+- 08Mar16: plot/show the progression from the BoardExample file to 
+  the binarized version and test other graphs
 
 
 # Experiments
 
 ## How to Run Experiments
 
-- Setup the graphs (edgelist network datasets)
+- Setup the graphs (edgelist network datasets) 
   `./setup_working_graphs.sh`
 
 - Run from a script to generate clique trees given a dataset and POE heuristic
   `./experiments.sh datasets/out.ucidata-zachary mcs`
 
 ## POE Heuristic Results
-- mind : generates an elim. ordering using min degree heuristic
-- mmd : generates an elim. ordering using multiple min degree heuristic
-- minf : generates an elim. ordering using min fill heuristic
-- bmf : generates an elim. ordering using a batched min fill heuristic
-- beta : generates an elim. ordering using the beta heuristic
-- metmmd : generates an elim. ordering using METIS mmd heuristic
-- metnnd : generates an elim. ordering using METS node ND heuristic
-- mcsm : generates an elim. ordering using mcsm euristic
-- mcs  : generates an elim. ordering using mcs
-- lexm : generates an elim. ordering using lex-m bfs heuristic
+-mind : generates an elim. ordering using min degree heuristic
+-mmd : generates an elim. ordering using multiple min degree heuristic
+-minf : generates an elim. ordering using min fill heuristic
+-bmf : generates an elim. ordering using a batched min fill heuristic
+-beta : generates an elim. ordering using the beta heuristic
+-metmmd : generates an elim. ordering using METIS mmd heuristic
+-metnnd : generates an elim. ordering using METS node ND heuristic
+-mcsm : generates an elim. ordering using mcsm euristic
+-mcs  : generates an elim. ordering using mcs
+-lexm : generates an elim. ordering using lex-m bfs heuristic
 
-## DataSets
-
-Dataset | mcs | mind |
+Dataset | mcs | mind | 
 --------|-----|------|
 jazz    |
 lesmis  |
