@@ -4,13 +4,16 @@ We investigate the effect of different tree decompositions on
 graph grammars. 
 
 ## StarLog
-- 30Mar17: Looking at overlaps using isomorphism
-- 28Mar17: Working on getting sampled graphs to generate trees
-- 27Mar17: The sampled graphs need to handle the node ids being much Larger than |V|
-- 23Mar17: 
-- 19Mar17: Need to make sure the conversion to binarized tree works okay
-- 08Mar16: plot/show the progression from the BoardExample file to 
-  the binarized version and test other graphs
+
+
+Date   | Notes
+-------|-------
+30Mar17| Looking at overlaps using isomorphism
+29Mar17| Work on the overlap data; the sampling is not working out so easily
+28Mar17| Try sampling smaller graphs and reference the original `sample_edgelist_tosubgraphs.py`
+27Mar17| The sampled graphs need to handle the node ids being much Larger than V.size
+19Mar17| Need to make sure the conversion to binarized tree works okay
+08Mar16| plot/show the progression from the BoardExample file to the binarized version and test other graphs
 
 
 # Experiments
@@ -45,6 +48,17 @@ zachary |
 
 [Main Workflow (Rstudio)](ctrlRtdecomp.Rmd)
 `python write_inddgo_graph.py -g ~/Theory/DataSets/out.brunson_southern-women_southern-women`
+
+## ProdRules Iso Test
+Files:
+`BoardEx.mcs.prules.bz2`
+`BoardEx.lexm.prules.bz2`
+
+mcs:
+`2  r1.1  a,b,c                          ['0,c:T', 'a:T', 'b:T']  0.25`
+lexm:
+`2  r1.1  a,b,c                          ['0,c:T', 'a:T', 'b:T']  0.25`
+
 
 
 # References

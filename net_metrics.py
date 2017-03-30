@@ -340,7 +340,8 @@ def degree_distribution_multiples(graphs):
           df = pd.DataFrame.from_dict(d.items())
           gb = df.groupby(by=[1]).count()
           dorig = pd.concat([dorig, gb], axis=1)  # Appends to bottom new DFs
-
+    # print np.min(d.keys())
+    # There appear to be nodes of degree 0, which means they are isolated nodes
     return dorig
 
 def hop_plot_multiples(graphs):
@@ -449,9 +450,14 @@ def network_properties(orig, net_mets, synth_graphs_lst, name='', out_tsv=False)
         # synthetic graph (HRG)
         synth_Deg = degree_distribution_multiples(synth_graphs_lst)
         print '\n... HRG G'
-        synth_Deg['kmean'] = synth_Deg.mean(axis=1)
-        mask = f(70, len(synth_Deg))
-        print synth_Deg['kmean'].loc[mask].to_string(header=False)
+        synth_Deg['meank'] = synth_Deg.mean(axis=1)
+        if 0: 
+          mask = f(70, len(synth_Deg))
+          print synth_Deg['meank'].loc[mask].to_string(header=False)
+          print synth_Deg.shape
+        synth_Deg['k'] = synth_Deg.index
+        for row in synth_Deg.iterrows():
+          if row[1].k>=1.0: print "%d\t%.3f" % (row[1].k, row[1].meank)
 
         # if out_tsv: synth_Deg.to_csv('Results/degree_synth_{}.tsv'.format(name),sep='\t',header=None, index=False)
         #if os.path.exists('Results/degree_synth_{}.tsv'.format(name)): print 'saved to disk'
@@ -483,7 +489,6 @@ def network_properties(orig, net_mets, synth_graphs_lst, name='', out_tsv=False)
         # df1.to_csv('Results/deg_dist_{}.tsv'.format(name),sep='\t', header=None, index=False)
         # if os.path.exists('Results/deg_dist_{}.tsv'.format(name)):
         #     print '... file written:','Results/deg_dist_{}.tsv'.format(name)
-
     if 'hops' in net_mets:
       print 'Hops'
       orig__Hop_Plot = hop_plot_multiples(orig)

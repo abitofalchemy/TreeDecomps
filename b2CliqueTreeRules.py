@@ -106,7 +106,7 @@ def dimacs_td_ct (tdfname):
 
   df = pd.DataFrame(rules)
 
-  outdf_fname = "/Users/saguinag/Theory/Grammars/ProdRules/"+tfname+".prules"
+  outdf_fname = "./ProdRules/"+tfname+".prules"
   if not os.path.isfile(outdf_fname+".bz2"):
     print '...',outdf_fname, "written"
     df.to_csv(outdf_fname+".bz2", compression="bz2")

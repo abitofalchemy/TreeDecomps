@@ -32,6 +32,7 @@ def peak_at_two_inpufiles (f1, f2):
   print pd.merge(df1, df2, how='inner', on=['rhs']).shape
 
 
+
 def rules_per_file (files):
   print "rules per file\n", "-" * 20
   for f in files:
@@ -144,6 +145,7 @@ def isomorphic_overlap(files):
       #   print df1.head(1)
       #   print df2.head(1)
 
+
 def get_parser ():
   parser = argparse.ArgumentParser(description='b2CliqueTreeRules.py: given a tree derive grammar rules')
   parser.add_argument('-p', action="store_true", default=False)
@@ -156,6 +158,7 @@ def main ():
   parser = get_parser()
   args = vars(parser.parse_args())
   in_path = args['graph']
+
   files = glob(in_path + '*.bz2')
 
   rules_per_file(files) # number of rules in file

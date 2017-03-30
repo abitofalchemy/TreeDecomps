@@ -11,7 +11,7 @@ python a1_write_inddgo_graph.py -g $1 &&
 
 ## dimacs to tree
 
-./bin/serial_wis -f ./datasets/"$bname".dimacs -nice -$2 -w Results/"$bname"."$2".dimacs.tree &&
+./bin/linux/serial_wis -f ./datasets/"$bname".dimacs -nice -$2 -w Results/"$bname"."$2".dimacs.tree &&
 
 ## Process tree to HRGs
 
