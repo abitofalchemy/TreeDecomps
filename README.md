@@ -49,6 +49,17 @@ zachary |
 [Main Workflow (Rstudio)](ctrlRtdecomp.Rmd)
 `python write_inddgo_graph.py -g ~/Theory/DataSets/out.brunson_southern-women_southern-women`
 
+## ProdRules Iso Test
+Files:
+`BoardEx.mcs.prules.bz2`
+`BoardEx.lexm.prules.bz2`
+
+mcs:
+`2  r1.1  a,b,c                          ['0,c:T', 'a:T', 'b:T']  0.25`
+lexm:
+`2  r1.1  a,b,c                          ['0,c:T', 'a:T', 'b:T']  0.25`
+
+
 
 # References
 - http://www.cs.princeton.edu/courses/archive/spr04/cos226/lectures/maxflow.4up.pdf
