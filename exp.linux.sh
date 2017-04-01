@@ -15,4 +15,5 @@ python a1_write_inddgo_graph.py -g $1 &&
 
 ## Process tree to HRGs
 
-python b1_dimacs_tree_to_cliquetree.py -t Results/"$bname"."$2".dimacs.tree
+python b1_dimacs_tree_to_cliquetree.py -t Results/"$bname"."$2".dimacs.tree > ~/Logs/"$bname"_"$2".log
+

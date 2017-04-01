@@ -7,9 +7,9 @@ bname="${bname#*.}"
 echo $bname
 
 # Clique Tree Rules
-python b2CliqueTreeRules.py -t Results/
+python b2CliqueTreeRules.py -t Results/ucidata-zachary.dimacs.tree
 
 # c0.prules.overlap.py
-
+python c0.prules.overlap.py -p -g Results/moreno_lesmis_lesmis
 
 

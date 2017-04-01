@@ -8,3 +8,5 @@ tmp_*
 *.sol
 *.graph
 *.comp
+datasets/out*
+ProdRules/*

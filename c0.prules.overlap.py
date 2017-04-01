@@ -87,17 +87,20 @@ def long_string_split(x):
   from itertools import combinations
   rhs_clean= [f[1:-1] for f in re.findall("'.+?'", x)]
   # print pd.merge(df, mdf, left_on='lhs', right_on='lhs', how='inner', sort=False).shape
-  G1 = nx.Graph()
+  G1 = nx.MultiGraph()
   for he in rhs_clean:
     epair,ewt = he.split(':')
     if ewt is "T":
       if len(epair.split(",")) == 1:  [G1.add_node(epair, label=ewt)]
-      else: [G1.add_edge(epair.split(",")[0], epair.split(",")[1], weight=ewt)]
+      else: [G1.add_edge(epair.split(",")[0], epair.split(",")[1], label=ewt)]
     elif ewt is "N":
       if len(epair.split(",")) == 1:  [G1.add_node(epair, label=ewt)]
-      else: [G1.add_edges_from(list(combinations(epair.split(","), 2)),weight=ewt )]
+      else: [G1.add_edges_from(list(combinations(epair.split(","), 2)),label=ewt )]
 
   return G1
+
+def label_match(x, y):
+  return x[0]['label'] == y[0]['label']
 
 
 def isomorphic_overlap(files):
@@ -124,7 +127,7 @@ def isomorphic_overlap(files):
       for t1 in df1.iterrows():
         for t2 in df2.iterrows():
           # print t1[1].rnbr, t2[1].rnbr
-          if nx.is_isomorphic(t2[1].rhsG, t1[1].rhsG):
+          if nx.is_isomorphic(t2[1].rhsG, t1[1].rhsG, edge_match=label_match):
             # isomorphic_rule_nbrs.append([os.path.basename(f1).split('.')[0],os.path.basename(f1).split('.')[1],
             #                             os.path.basename(f2).split('.')[1],t1[1].rnbr, t2[1].rnbr])
             # print t1[1][['rnbr','rhs']]
