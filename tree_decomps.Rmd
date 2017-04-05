@@ -1,0 +1,240 @@
+---
+title:  "Tree Decomposition"
+author: "S. Aguinaga"
+date:   "1/4/2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+htmltools::tagList(rmarkdown::html_dependency_font_awesome())
+```
+
+This is a workflow for experiments associated with Tree Decomposition on Graph Grammars.
+
+## Datasets
+List of graphs in edgelist (TSV) format
+
+```{r netfiles, echo=F}
+netfiles <-system("find ~/Theory/Datasets -name 'out.*'", intern=TRUE)
+print (netfiles)
+```
+
+## Convert edgelist files to INDDGO format
+
+```{r , echo=F}
+setwd('~/Research/TreeDecomps/')
+# system("find ~/Theory/Datasets -name 'out.*' | parallel '/Users/saguinag/anaconda2/bin/python write_inddgo_graph.py -g  {}'", intern=TRUE)
+```
+
+##  Baseline 
+
+### INDDGO to CTs
+- `dimacs_td_ct`
+  tree decomp to clique trees
+  
+  
+### INDDGO 
+- List DIMACS_file 
+  Files with symmetric adj lists. Here the files have a `.graph` extension.
+```{r todimacs, echo=F}
+graph_files <-system("find INDDGO/sample_graphs -name '*.graph'", intern=TRUE)
+print (graph_files)
+```
+
+- Computing the clique trees:
+
+- Elimination Order Options
+  mind  min degree heuristic
+  mmd   multiple min degree 
+  minf  min fill 
+  lexm  lex-m bfs heuristic
+
+- optimal MWIS value
+
+## Compute basic network properties
+
+The code below uses **networkx** to process input files and compute a battery of network properties tests.
+
+```{r pressure, echo=F}
+# network properties (http://stackoverflow.com/questions/10651640)
+# netpropsfun <- function(x) {
+#   system(sprintf("/Users/saguinag/anaconda2/bin/python netprops.py -d -g %s", x))
+# }
+# # on the netfiles, compute the net properties (minus modularity)
+# xc <- lapply(netfiles, netpropsfun)
+
+```
+
+##  Network Models
+
+### Generate synthetic graphs
+
+- HRG
+```{r hrgs, echo=F}
+# generate_hrg <- function(x) {
+#   # generate_hrg returns synth network in edge_list form
+#   system(sprintf("/Users/saguinag/anaconda2/bin/python gen_hrg.py -g %s", x), intern=TRUE)
+# }
+# hrg_flist <- lapply(netfiles, generate_hrg)
+# print (tail(hrg_flist[[2]], n=1))
+```
+
+- KRON
+
+## Compute Modularity
+
+Community clustering or modularity
+
+- Using the igraph library, we compute the modularity using `cluster_walktrap` and `membership`.
+```{r, echo=F}
+# library(igraph)
+# compute_modularity <- function(x) {
+#   el   <- read.table(x,comment.char = "%")
+#   gobj <- graph.data.frame(el, directed=FALSE)
+#   wc <- walktrap.community(gobj) # This is looking for structure in your graph
+#   modularity(wc) # The modularity score of that structure
+#   # membership(wc) # The membership of each vertex to groups found
+#   # return (gobj)
+# }
+```
+
+```{r , echo=F}
+# system('/Users/saguinag/anaconda2/bin/python ignxtst.py')
+# Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the
+#   R code that generated the plot.
+# http://stackoverflow.com/questions/25254151/using-igraph-in-python-for-community-detection-and-writing-community-number-for
+# https://lists.nongnu.org/archive/html/igraph-help/2007-09/msg00011.html
+# - Control:
+# - compute modularity on original graphs 
+if (0){
+   print_modularity <- function(mod){
+    sprintf("... modularity: %s",mod)
+  }
+  print ('Control: modularity of original graphs')
+  ctrls <- lapply(netfiles, compute_modularity)
+  lapply(ctrls, print_modularity)
+  
+  # - list newly created edgelist files in ./Results
+  print ('Synthetic: modularity of HRG graphs')
+  hfiles <- system("find ./Results -iname '*edgelist.bz2'", intern=TRUE)
+  gg <- lapply(hfiles, compute_modularity)
+  lapply(gg, print_modularity)
+  
+  # karate <- graph.famous("Zachary")
+  # wc <- walktrap.community(karate) # This is looking for structure in your graph
+  # modularity(wc) # The modularity score of that structure
+  # membership(wc) # The membership of each vertex to groups found
+  # plot(wc, karate) # Showing the network and the groups. 
+}
+```
+
+#   HRG vs TD and Elimination Orderings
+
+##  Baseline 
+We can work with a couple of toy graphs, the WikiExample (Wikipedias Tree Decomposition page example graph) and the BoardExample (described in our CIKM paper).
+
+```{r visualize, echo=F}
+library(intergraph)
+library(igraph)
+
+# note that the graphs converted to dimacs format can be read directly like this
+g <-  read.graph("INDDGO/sample_graphs/WikiExample.graph", format = "dimacs",directed=F)
+Coord<-tkplot(g, vertex.size=3, vertex.label=V(g)$role,vertex.color='darkgreen')
+MCoords <- tkplot.getcoords(Coord)
+plot(g, layout=MCoords, vertex.size=8, vertex.label=NA, vertex.color="lightblue")
+
+```
+Using `igraph` on the "BoardExample" toy graph
+```{r visplot, echo=F}
+library(igraph)
+# Graphs converted to dimacs format can be read directly like this
+g <-  read.graph("INDDGO/sample_graphs/board_example.graph", format = "dimacs",directed=F)
+V(g)$label.cex = 0.7
+plot(g)
+```
+Using INDDGO, we compute tree decomposition on this graph. It's visualization according to INDDGO show in the plot below.
+- `gavril` for tree decomposition 
+- `mind` for vertex elimination ordering
+
+```{r viztd, echo=F}
+# "find INDDGO/sample_graphs -name '*.graph' | parallel 'INDDGO/bin/serial_wis -f {} -gavril -mind -decompose_only -w {}.tree"
+# $ ./bin/serial_wis -f sample_graphs/board_example.graph -gavril -mind -decompose_only -gviz sample_g
+# Control - toy graph 
+system("./INDDGO/bin/serial_wis -f INDDGO/sample_graphs/board_example.graph -gavril -mind -decompose_only -gviz ./INDDGO/sample_graphs/viz.test", intern=T)
+library(Rgraphviz)
+g2 <- agread("./INDDGO/sample_graphs/viz.test", layout=TRUE)
+if (interactive())
+  plot(g2)
+```
+
+
+## In **HRG** the computed clique tree for the `BoardExample` is:
+
+This is computing using QuickBB algorithm which relies on MCS elimnation ordering.
+
+```
+frozenset([u'5', u'4', u'6']) # root
+|
++->	frozenset([u'3', u'5', u'4'])
+|   |
+|		+->frozenset([u'3', u'2', u'5', u'4'])
+|      |
+|			 +->frozenset([u'1', u'2', u'5'])
++->	frozenset([u'5', u'6'])
+    |
+		+->frozenset([u'6'])
+```
+
+- Visualizing HRGtree topology
+```{r graphvizit, echo=F}
+
+```
+
+## Workflow
+Experiments:
+- Need input graphs to be in .graph form?
+
+`./INDDGO/bin/serial_wis -f INDDGO/sample_graphs/board_example.graph -gavril -mind -decompose_only -gviz ./INDDGO/sample_graphs/viz.test`
+
+`python write_inddgo_graph.py -g ~/Theory/DataSets/out.brunson_southern-women_southern-women`
+
+## ProdRules Iso Test
+Files:
+`BoardEx.mcs.prules.bz2`
+`BoardEx.lexm.prules.bz2`
+
+mcs:
+`2  r1.1  a,b,c                          ['0,c:T', 'a:T', 'b:T']  0.25`
+lexm:
+`2  r1.1  a,b,c                          ['0,c:T', 'a:T', 'b:T']  0.25`
+
+
+
+
+# One Liners
+- ` python -c "import networkx as nx; g=nx.read_edgelist('datasets/out.ucidata-zachary', comments='%'); print nx.info(g);"`
+- `$ tail +3  datasets/sampled_subgraph_200_0.dimacs | sort -t$'\t' -k3 -nr ls`
+
+## POE Heuristic Results
+
+-mind : generates an elim. ordering using min degree heuristic
+-mmd : generates an elim. ordering using multiple min degree heuristic
+-minf : generates an elim. ordering using min fill heuristic
+-bmf : generates an elim. ordering using a batched min fill heuristic
+-beta : generates an elim. ordering using the beta heuristic
+-metmmd : generates an elim. ordering using METIS mmd heuristic
+-metnnd : generates an elim. ordering using METS node ND heuristic
+-mcsm : generates an elim. ordering using mcsm euristic
+-mcs  : generates an elim. ordering using mcs
+-lexm : generates an elim. ordering using lex-m bfs heuristic
+
+
+
+
+# Reference Links
+- [Net Viz in R](http://kateto.net/network-visualization)
+- [maxflow](http://www.cs.princeton.edu/courses/archive/spr04/cos226/lectures/maxflow.4up.pdf)
+- http://sahandsaba.com/thirty-python-language-features-and-tricks-you-may-not-know.html
+- [book mcs tid bit](https://books.google.com/books?id=NFm7BQAAQBAJ&pg=PA186&lpg=PA186&dq=python+algorithm+maximum+cardinality+search+sample+code&source=bl&ots=YAod8M0QFx&sig=7xD9NF5EBK0cNwQgkD-nHkrcZVk&hl=en&sa=X&ved=0ahUKEwj7hqfJ99_SAhWBbSYKHecDCCwQ6AEIQjAG#v=onepage&q=python%20algorithm%20maximum%20cardinality%20search%20sample%20code&f=false)
+- http://code.activestate.com/recipes/221251-maximum-cardinality-matching-in-general-graphs/
+
