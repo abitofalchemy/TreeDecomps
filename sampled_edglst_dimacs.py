@@ -54,7 +54,6 @@ def nx_edges_to_nddgo_graph (G, sampling=False):
     if os.path.exists(ofname): print 'Wrote: ./{}'.format(ofname)
 
 def map_original_node_ids(f):
-  print ">", f
   df = pd.read_csv(f,header=None, delimiter="\t")
   nf = pd.concat([df[0], df[1]])
   nf.drop_duplicates()
@@ -97,7 +96,7 @@ def edgelist_to_nddgo_graph_dimacs(edge_list_fname):
     output_edges = lambda x: f.write("e\t{}\t{}\n".format(x[0], x[1]))
     df.apply(output_edges, axis=1)
   # f.write("e\t{}\t{}\n".format(e[0]+1,e[1]+1))
-  if os.path.exists(ofname): print 'Wrote: ./{}'.format(ofname)
+  if os.path.exists(ofname): print '... Wrote: ./{}'.format(ofname)
 
 
 def get_parser():

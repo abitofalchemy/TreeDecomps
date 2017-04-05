@@ -7,8 +7,8 @@ import pprint as pp
 import re
 import networkx as nx
 import argparse
-# import david as pcfg
 import graph_sampler as gs
+import math
 import tree_decomposition as td
 
 # prod_rules = {}
@@ -230,7 +230,7 @@ def probabilistic_hrg (G, num_samples=1, n=None):
 
 # def probabilistic_hrg_deriving_prod_rules(G, num_samples=1, n=None):
 # hrg_baseline.py
-def probabilistic_hrg_deriving_prod_rules (G, n=None, gname=""):
+def probabilistic_hrg_deriving_prod_rules (G, K=1, n=None, gname=""):
   '''
 	Rule extraction procedure
 
@@ -254,12 +254,12 @@ def probabilistic_hrg_deriving_prod_rules (G, n=None, gname=""):
   if DEBUG: print "--------------------"
 
   if num_nodes >= 500:
-    for j,Gprime in enumerate(gs.rwr_sample(G, 109, 200)):
+    for j,Gprime in enumerate(gs.rwr_sample(G, K, 200)):
       if gname is "":
         nx.write_edgelist(Gprime, '/tmp/sampled_subgraph_200_{}.tsv'.format(j), delimiter="\t", data=False)
       else:
         nx.write_edgelist(Gprime, '/tmp/{}{}.tsv'.format(gname, j), delimiter="\t", data=False)
-        print "... files written:", '/tmp/{}{}.tsv'.format(gname, j)
+        print "...  files written: /tmp/{}{}.tsv".format(gname, j)
 
   return
 
@@ -279,12 +279,14 @@ if __name__ == "__main__":
   print "... ", gname
   G = nx.read_edgelist(fname, comments="%", data=False)
   G.name = gname
-  print "... info", nx.info(G)
 
   num_nodes = G.number_of_nodes()
+  print num_nodes
+  k_subgraphs_nbr = int(math.ceil(.1*num_nodes/200))
+  print k_subgraphs_nbr
 
   prod_rules = {}
-  p_rules = probabilistic_hrg_deriving_prod_rules(G, gname=gname)
+  p_rules = probabilistic_hrg_deriving_prod_rules(G, K=k_subgraphs_nbr, gname=gname)
 
   exit(0)
 

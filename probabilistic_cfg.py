@@ -22,7 +22,7 @@ class Rule(object):
         n_symb = []
         for r in rhs:
             if r.endswith(":N"):
-                size = [chr(ord('a') + x) for x in range(0, r.count(",") + 1)]
+                size = [unichr(ord("a") + x) for x in range(0, r.count(",") + 1)]
                 str = ",".join(size)
                 n_symb.append(str)
             else:
@@ -80,8 +80,11 @@ class Grammar(object):
                         # we'll do unary rules later
                         if len(rule.cfg_rhs) == 1 and rule.cfg_rhs[0] in g.nonterminals:
                             continue
+                    try:
+                      nts = [nt_to_index[x] for x in rule.cfg_rhs if x in g.nonterminals]
+                    except UnicodeWarning:
+                      print "!!", x, type(x), g.nonterminals
 
-                    nts = [nt_to_index[x] for x in rule.cfg_rhs if x in g.nonterminals]
                     n = size - (len(rule.cfg_rhs) - len(nts))  # total size available for nonterminals
 
                     if len(nts) == 0:
