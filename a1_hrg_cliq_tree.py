@@ -48,6 +48,8 @@ def load_edgelist(gfname):
 
   if edglst.shape[1] == 3:
     edglst.columns = ['src', 'trg', 'wt']
+  elif edglst.shape[1] == 4:
+    edglst.columns = ['src', 'trg', 'wt','ts']
   else:
     edglst.columns = ['src', 'trg']
   g = nx.from_pandas_dataframe(edglst,source='src',target='trg')
@@ -56,10 +58,9 @@ def load_edgelist(gfname):
   return g
 
 if __name__ == '__main__':
-  fname = "/Users/saguinag/Theory/DataSets/out.ucidata-gama"
-  fname = "/Users/saguinag/Theory/DataSets/out.brunson_southern-women_southern-women"
-  G = load_edgelist(fname)
-  T = get_clique_tree(G)
-  print 'Done'
-
-02
+  print 'done'
+  # fname = "/Users/saguinag/Theory/DataSets/out.ucidata-gama"
+  # fname = "/Users/saguinag/Theory/DataSets/out.brunson_southern-women_southern-women"
+  # G = load_edgelist(fname)
+  # T = get_clique_tree(G)
+  # print 'Done'

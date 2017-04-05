@@ -1,20 +1,32 @@
 # Tree Decompositions
 
-We investigate the effect of different tree decompositions on 
+Investigating the effect of different tree decompositions on 
 graph grammars. 
+
+## Workflow (Rstudio)
+
+[Main Workflow (Rstudio)](tree_decomps.Rmd)
 
 ## StarLog
 
-
 Date   | Notes
--------|-------
+-------|------------------------------------------------------------------
+03Apr17| Got the isomorph working nees tuning; ToDo: Sampling: sampled.subgraphs.cliquetree.py
+03Apr17| isomorphic prod rules check; (1) within a set and (2) between sets; TODO: zoom in on zachary lexm and mcsm iso overlap; **within file, using iso check, use the resluting set to build graphs**
 30Mar17| Looking at overlaps using isomorphism
 29Mar17| Work on the overlap data; the sampling is not working out so easily
 28Mar17| Try sampling smaller graphs and reference the original `sample_edgelist_tosubgraphs.py`
 27Mar17| The sampled graphs need to handle the node ids being much Larger than V.size
 19Mar17| Need to make sure the conversion to binarized tree works okay
 08Mar16| plot/show the progression from the BoardExample file to the binarized version and test other graphs
-
+17Mar17| The workflow: 
+29Jan17| `dimacs_td_ct` ToDo: TD to Prod Rules from NDDGO
+17Jan17| INDDGO - Baseline TD plotting; Compute Network Statistics `gen_cliquetree` has issues for "set changed size during iteration" The problem is with `RuntimeError: Set changed size during iteration`  
+12Jan17| ToDo: TD to Prod Rules from NDDGO 
+07Jan17| Done: python call to generate hrg (hstar) graph objects
+10Jan17| ToDo: python call to generate kron graphs (??)
+11Jan17| Figure out how to take a TD from inddgo and derive a set of production rules
+11Jan17| Expand related work & experiments
 
 # Experiments
 
@@ -26,46 +38,7 @@ Date   | Notes
 - Run from a script to generate clique trees given a dataset and POE heuristic
   `./experiments.sh datasets/out.ucidata-zachary mcs`
 
-## POE Heuristic Results
--mind : generates an elim. ordering using min degree heuristic
--mmd : generates an elim. ordering using multiple min degree heuristic
--minf : generates an elim. ordering using min fill heuristic
--bmf : generates an elim. ordering using a batched min fill heuristic
--beta : generates an elim. ordering using the beta heuristic
--metmmd : generates an elim. ordering using METIS mmd heuristic
--metnnd : generates an elim. ordering using METS node ND heuristic
--mcsm : generates an elim. ordering using mcsm euristic
--mcs  : generates an elim. ordering using mcs
--lexm : generates an elim. ordering using lex-m bfs heuristic
-
-Dataset | mcs | mind | 
---------|-----|------|
-jazz    |
-lesmis  |
-zachary |
-
-## Workflow (Rstudio)
-
-[Main Workflow (Rstudio)](ctrlRtdecomp.Rmd)
-`python write_inddgo_graph.py -g ~/Theory/DataSets/out.brunson_southern-women_southern-women`
-
-## ProdRules Iso Test
-Files:
-`BoardEx.mcs.prules.bz2`
-`BoardEx.lexm.prules.bz2`
-
-mcs:
-`2  r1.1  a,b,c                          ['0,c:T', 'a:T', 'b:T']  0.25`
-lexm:
-`2  r1.1  a,b,c                          ['0,c:T', 'a:T', 'b:T']  0.25`
 
 
 
-# References
-- http://www.cs.princeton.edu/courses/archive/spr04/cos226/lectures/maxflow.4up.pdf
-- http://sahandsaba.com/thirty-python-language-features-and-tricks-you-may-not-know.html
-- [book mcs tid bit](https://books.google.com/books?id=NFm7BQAAQBAJ&pg=PA186&lpg=PA186&dq=python+algorithm+maximum+cardinality+search+sample+code&source=bl&ots=YAod8M0QFx&sig=7xD9NF5EBK0cNwQgkD-nHkrcZVk&hl=en&sa=X&ved=0ahUKEwj7hqfJ99_SAhWBbSYKHecDCCwQ6AEIQjAG#v=onepage&q=python%20algorithm%20maximum%20cardinality%20search%20sample%20code&f=false)
-- http://code.activestate.com/recipes/221251-maximum-cardinality-matching-in-general-graphs/
 
-# One Liners
-- ` python -c "import networkx as nx; g=nx.read_edgelist('datasets/out.ucidata-zachary', comments='%'); print nx.info(g);"`

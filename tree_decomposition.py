@@ -208,7 +208,9 @@ def new_visit(datree, graph, prod_rules, indent=0, parent=None, TD=False):
     except Exception, e:
         print str(e)
         traceback.print_exc()
-        new_visit(datree, graph, prod_rules)
+        print prod_rules
+        print itx
+        print rhs
 
     print " "*indent, " ".join(str(x) for x in node) # prints Tree
     for subtree in subtrees:

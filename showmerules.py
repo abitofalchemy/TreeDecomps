@@ -21,8 +21,8 @@ if __name__ == '__main__':
       with open("Results/out.txt", "a") as outf:
         outf.write("%s\n"%f)
       df1 = pd.read_csv(f, index_col=0, compression='bz2')
-      df1[[1,2]].to_csv("Results/out.txt", mode="a", header=False, sep="\t",index=False)
-
+      #df1[[1,2]].to_csv("Results/out.txt", mode="a", header=False, sep="\t",index=False)
+      print df1.to_string()
 
 
 
