@@ -212,7 +212,7 @@ def new_visit(datree, graph, prod_rules, indent=0, parent=None, TD=False):
         print itx
         print rhs
 
-    print " "*indent, " ".join(str(x) for x in node) # prints Tree
+    # print " "*indent, " ".join(str(x) for x in node) # prints Tree
     for subtree in subtrees:
         tv, subsubtrees = subtree
         new_visit(subtree, G, prod_rules, indent=indent+2, parent=node)
@@ -282,7 +282,7 @@ def add_to_prod_rules(production_rules, lhs, rhs, s):
         nodes.add(c[0])
         nodes.add(c[1])
     
-    print len(d.keys())
+    # print len(d.keys())
 
     for c in s:
         # print '  ',c
