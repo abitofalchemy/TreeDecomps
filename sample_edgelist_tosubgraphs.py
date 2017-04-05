@@ -230,7 +230,7 @@ def probabilistic_hrg (G, num_samples=1, n=None):
 
 # def probabilistic_hrg_deriving_prod_rules(G, num_samples=1, n=None):
 # hrg_baseline.py
-def probabilistic_hrg_deriving_prod_rules (G, n=None):
+def probabilistic_hrg_deriving_prod_rules (G, n=None, gname=""):
   '''
 	Rule extraction procedure
 
@@ -252,11 +252,14 @@ def probabilistic_hrg_deriving_prod_rules (G, n=None):
   if DEBUG: print "--------------------"
   if DEBUG: print "-Tree Decomposition-"
   if DEBUG: print "--------------------"
-  prod_rules = {}
+
   if num_nodes >= 500:
-    for j,Gprime in enumerate(gs.rwr_sample(G, 3, 200)):
-      nx.write_edgelist(Gprime, '/tmp/sampled_subgraph_200_{}.tsv'.format(j), delimiter="\t", data=False)
-      print "... files written"
+    for j,Gprime in enumerate(gs.rwr_sample(G, 109, 200)):
+      if gname is "":
+        nx.write_edgelist(Gprime, '/tmp/sampled_subgraph_200_{}.tsv'.format(j), delimiter="\t", data=False)
+      else:
+        nx.write_edgelist(Gprime, '/tmp/{}{}.tsv'.format(gname, j), delimiter="\t", data=False)
+        print "... files written:", '/tmp/{}{}.tsv'.format(gname, j)
 
   return
 
@@ -272,7 +275,7 @@ if __name__ == "__main__":
   fname = args['graph']
 
   print "... ", fname
-  gname = os.path.basename(fname).split('.')[1]
+  gname = os.path.basename(fname)
   print "... ", gname
   G = nx.read_edgelist(fname, comments="%", data=False)
   G.name = gname
@@ -281,7 +284,7 @@ if __name__ == "__main__":
   num_nodes = G.number_of_nodes()
 
   prod_rules = {}
-  p_rules = probabilistic_hrg_deriving_prod_rules(G)
+  p_rules = probabilistic_hrg_deriving_prod_rules(G, gname=gname)
 
   exit(0)
 

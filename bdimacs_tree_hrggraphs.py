@@ -85,45 +85,47 @@ def dimacs_td_ct (orig, tdfname):
 
     td.new_visit(T, G, prod_rules)
 
-    if DEBUG: print "--------------------"
-    if DEBUG: print "- Production Rules -"
-    if DEBUG: print "--------------------"
+  print len(prod_rules)
+  # out of the for loop
+  if 1: print "--------------------"
+  if 1: print "- Production Rules -"
+  if 1: print "--------------------"
 
-    for k in prod_rules.iterkeys():
-      if DEBUG: print k
-      s = 0
-      for d in prod_rules[k]:
-        s += prod_rules[k][d]
-      for d in prod_rules[k]:
-        prod_rules[k][d] = float(prod_rules[k][d]) / float(s)  # normailization step to create probs not counts.
-        if DEBUG: print '\t -> ', d, prod_rules[k][d]
+  for k in prod_rules.iterkeys():
+    if DEBUG: print k
+    s = 0
+    for d in prod_rules[k]:
+      s += prod_rules[k][d]
+    for d in prod_rules[k]:
+      prod_rules[k][d] = float(prod_rules[k][d]) / float(s)  # normailization step to create probs not counts.
+      if DEBUG: print '\t -> ', d, prod_rules[k][d]
 
-    rules = []
-    id = 0
-    for k, v in prod_rules.iteritems():
-      sid = 0
-      for x in prod_rules[k]:
-        rhs = re.findall("[^()]+", x)
-        rules.append(("r%d.%d" % (id, sid), "%s" % re.findall("[^()]+", k)[0], rhs, prod_rules[k][x]))
-        if DEBUG: print ("r%d.%d" % (id, sid), "%s" % re.findall("[^()]+", k)[0], rhs, prod_rules[k][x])
-        sid += 1
-      id += 1
-    # print rules
-    if 1: print "--------------------"
-    print '- P. Rules'
-    if 1: print "--------------------"
+  rules = []
+  id = 0
+  for k, v in prod_rules.iteritems():
+    sid = 0
+    for x in prod_rules[k]:
+      rhs = re.findall("[^()]+", x)
+      rules.append(("r%d.%d" % (id, sid), "%s" % re.findall("[^()]+", k)[0], rhs, prod_rules[k][x]))
+      if DEBUG: print ("r%d.%d" % (id, sid), "%s" % re.findall("[^()]+", k)[0], rhs, prod_rules[k][x])
+      sid += 1
+    id += 1
+  # print rules
+  if 1: print "--------------------"
+  print '- P. Rules'
+  if 1: print "--------------------"
 
-    g = pcfg.Grammar('S')
-    for (id, lhs, rhs, prob) in rules:
-      g.add_rule(pcfg.Rule(id, lhs, rhs, prob))
+  g = pcfg.Grammar('S')
+  for (id, lhs, rhs, prob) in rules:
+    g.add_rule(pcfg.Rule(id, lhs, rhs, prob))
 
-    # Synthetic Graphs
-    # print rules
-    hStars = xphrg.grow_exact_size_hrg_graphs_from_prod_rules(rules,
-                                                              graph_name,
-                                                              G.number_of_nodes(), 50)
-    metricx = ['degree', 'hops', 'clust', 'assort', 'kcore', 'eigen', 'gcd']
-    metrics.network_properties([G], metricx, hStars, name=graph_name, out_tsv=True)
+  # Synthetic Graphs
+  # print rules
+  hStars = xphrg.grow_exact_size_hrg_graphs_from_prod_rules(rules,
+                                                            graph_name,
+                                                            G.number_of_nodes(), 50)
+  metricx = ['degree', 'hops', 'clust', 'assort', 'kcore', 'eigen', 'gcd']
+  metrics.network_properties([G], metricx, hStars, name=graph_name, out_tsv=True)
 
   return
 
