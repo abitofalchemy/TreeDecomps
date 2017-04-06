@@ -50,7 +50,6 @@ def dimacs_td_ct (orig, tdfname):
   prod_rules = {}
 
   for tfname in files:
-    print tfname
     with open(tfname, 'r') as f:  # read tree decomp from inddgo
       lines = f.readlines()
       lines = [x.rstrip('\r\n') for x in lines]
@@ -85,8 +84,10 @@ def dimacs_td_ct (orig, tdfname):
 
     td.new_visit(T, G, prod_rules)
 
-  print len(prod_rules)
-  # out of the for loop
+    if 1: print "--------------------"
+    if 1: print "-", len(prod_rules)
+    if 1: print "--------------------"
+  exit()
   if 1: print "--------------------"
   if 1: print "- Production Rules -"
   if 1: print "--------------------"

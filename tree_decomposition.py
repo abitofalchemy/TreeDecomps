@@ -208,9 +208,6 @@ def new_visit(datree, graph, prod_rules, indent=0, parent=None, TD=False):
     except Exception, e:
         print str(e)
         traceback.print_exc()
-        print prod_rules
-        print itx
-        print rhs
 
     # print " "*indent, " ".join(str(x) for x in node) # prints Tree
     for subtree in subtrees:
@@ -248,7 +245,7 @@ def add_to_prod_rules(production_rules, lhs, rhs, s):
 
     for x in lhs:
         d[x]= letter
-        letter=chr(ord(letter) + 1)
+        letter=unichr(ord(letter) + 1)
 
     lhs_s = set()
     for x in lhs:
