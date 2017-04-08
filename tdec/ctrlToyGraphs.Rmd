@@ -1,0 +1,53 @@
+---
+title:  "ctrlKarate"
+author: "S.Aguinaga"
+date:   "1/17/2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Control Karate Club
+Using INDDGO to genrate basic TD.
+
+
+##  Control Board Example
+
+### Treewidth
+```{r boardex}
+# library(igraph)
+setwd('~/Research/TreeDecomps/')
+if (0){
+  system("find . -name 'B*graph' -type f | parallel ./bin/serial_wis '-f {} -gavril -mcsm -decomposeonly -w {}.tree'",
+         intern=TRUE)
+}
+# g <-  read.graph("INDDGO/sample_graphs/BoardEx.graph.dot.dimacs", format = "dimacs",directed=F)
+# V(g)$label.cex = 0.7
+# plot(g)
+library(Rgraphviz)
+g2 <- agread("./INDDGO/sample_graphs/BoardEx.graph.dot", layout=TRUE)
+if (interactive())
+  plot(g2)
+```
+
+```{r boardex}
+# library(igraph)
+setwd('~/Research/TreeDecomps/')
+if (0){
+  system("find . -name 'B*graph' -type f | parallel ./bin/serial_wis '-f {} -gavril -mcsm -decomposeonly -w {}.tree'",
+         intern=TRUE)
+}
+# g <-  read.graph("INDDGO/sample_graphs/BoardEx.graph.dot.dimacs", format = "dimacs",directed=F)
+# V(g)$label.cex = 0.7
+# plot(g)
+library(Rgraphviz)
+g2 <- agread("./INDDGO/sample_graphs/BoardEx.graph.dot", layout=TRUE)
+if (interactive())
+  plot(g2)
+```
+
+
+
+

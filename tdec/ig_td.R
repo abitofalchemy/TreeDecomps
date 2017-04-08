@@ -1,0 +1,6 @@
+library(igraph)
+setwd('/Users/saguinag/Research/TreeDecomps')
+# read.graph("./graph.txt", format="edgelist")
+iftbl <- read.table("/Users/saguinag/Theory/DataSets/out.BoardEx", comment.char="%")
+gg <- graph.data.frame(dd, directed=FALSE)
+plot(gg)

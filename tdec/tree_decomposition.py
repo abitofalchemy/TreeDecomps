@@ -203,13 +203,9 @@ def new_visit(datree, graph, prod_rules, indent=0, parent=None, TD=False):
     itx = parent & node if parent else set()
     rhs = get_production_rule(G, node, itx)
     s = [list(node & child) for child, _ in subtrees]
-    try:
-        add_to_prod_rules(prod_rules, itx, rhs, s)
-    except Exception, e:
-        print str(e)
-        traceback.print_exc()
+    add_to_prod_rules(prod_rules, itx, rhs, s)
 
-    # print " "*indent, " ".join(str(x) for x in node) # prints Tree
+#    print " "*indent, " ".join(str(x) for x in node) # prints Tree
     for subtree in subtrees:
         tv, subsubtrees = subtree
         new_visit(subtree, G, prod_rules, indent=indent+2, parent=node)
@@ -245,7 +241,7 @@ def add_to_prod_rules(production_rules, lhs, rhs, s):
 
     for x in lhs:
         d[x]= letter
-        letter=unichr(ord(letter) + 1)
+        letter=chr(ord(letter) + 1)
 
     lhs_s = set()
     for x in lhs:
@@ -278,16 +274,17 @@ def add_to_prod_rules(production_rules, lhs, rhs, s):
         rhs_term_dict.append( (",".join(str(x) for x in sorted(list(c))), "T") )
         nodes.add(c[0])
         nodes.add(c[1])
-    
+
     # print len(d.keys())
 
     for c in s:
         # print '  ',c
         # for x in sorted(c):
         #     print type(d[x])
-        rhs_term_dict.append( (",".join(str(d[x]) for x in sorted(c)), "N") ) # fails here
-        for x in c:
-            nodes.add(d[x])
+        rhs_term_dict.append( (",".join(str(d[x]) for x in sorted(c) if x in d.keys()), "N") ) # fails here
+        # for x in c:
+        #   nodes.add(d[x])
+        [nodes.add(d[x]) for x in c if x in d.keys()]
 
     for singletons in set(nx.nodes(rhs_s)).difference(nodes):
         rhs_term_dict.append( ( singletons, "T" ) )

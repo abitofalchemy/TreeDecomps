@@ -12,7 +12,7 @@ import networkx as nx
 import PHRG
 import probabilistic_cfg as pcfg
 import net_metrics as metrics
-import dataframe_from_temporal_edgelist as tdf
+import load_edgelist_from_dataframe as tdf
 import pprint as pp
 import argparse, traceback
 
@@ -105,34 +105,27 @@ def grow_exact_size_hrg_graphs_from_prod_rules(prod_rules, gname, n, runs=1):
   """
   if n <=0: sys.exit(1)
 
-  # print runs
-  # for i,x in enumerate(prod_rules):
-  #   print i,'  ', x
+  print runs
+  print n
+  print gname
+  for i,x in enumerate(prod_rules):
+    print i,'  ', x[:1]
   
   g = pcfg.Grammar('S')
   for (id, lhs, rhs, prob) in prod_rules:
     g.add_rule(pcfg.Rule(id, lhs, rhs, prob))
+  print '... pcfg.Grammar'
 
-  # # mask = (pddf['ts'] >= pddf['ts'].min()+ span*kSlice) & (pddf['ts'] < pddf['ts'].min()+ span*(kSlice +1))
-  # mask = (pddf['ts'] >= pddf['ts'].min()) & (pddf['ts'] < pddf['ts'].min() + span * (kSlice + 1))
-  # ldf = pddf.loc[mask]
-  #
-  # G = nx.from_pandas_dataframe(ldf, 'src', 'trg', ['ts'])
-  #
-  num_nodes = n
-  if DBG: print "Starting max size"
-  g.set_max_size(num_nodes)
-  if DBG: print "Done with max size"
-  #
-  # num_samples = 20
+  g.set_max_size(n)
+  print "Done with max size"
+
   if DBG: print '*' * 40
   hstars_lst = []
   for i in range(0, runs):
-    rule_list = g.sample(num_nodes)
+    rule_list = g.sample(n)
+    print 'g.sample'
     hstar = PHRG.grow(rule_list, g)[0]
     hstars_lst.append(hstar)
-
-  # print rule_list
 
   return hstars_lst
 

@@ -30,6 +30,7 @@ echo $bname
 
 #find /tmp/ -name "$bnameall"*.tsv -type f | parallel python sampled_edglst_dimacs.py --edglst {} &&
 
-find ./datasets -name "$bname"*.dimacs | parallel bin/linux/serial_wis -f {} -nice -lexm -w {}.tree
+find ./datasets -name "$bname"*.dimacs | parallel bin/mac/serial_wis -f {} -nice -lexm -w {}.tree && 
+./bdimacs_tree_hrggraphs.py --tree datasets/"$bname"  --orig $1
 
 echo "done."

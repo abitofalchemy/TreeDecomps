@@ -1,4 +1,3 @@
-Results/*
 .Rproj.user
 .Rhistory
 tmp_*
@@ -8,5 +7,8 @@ tmp_*
 *.sol
 *.graph
 *.comp
-datasets/out*
-ProdRules/*
+datasets/*
+ProdRules
+Results/*
+transbin
+

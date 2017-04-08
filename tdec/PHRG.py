@@ -1,14 +1,13 @@
-#!/usr/bin/env python
-__author__ = 'saguinag' + '@' + 'nd.edu'
-__version__ = "0.1.0"
+__author__ = ['Salvador Aguinaga', 'Rodrigo Palacios', 'David Chaing', 'Tim Weninger']
 
 import os
 import pprint as pp
 import re
+
 import networkx as nx
-import argparse
+
+import david as pcfg
 import graph_sampler as gs
-import math
 import tree_decomposition as td
 
 # prod_rules = {}
@@ -164,7 +163,8 @@ def probabilistic_hrg (G, num_samples=1, n=None):
       T = binarize(T)
       root = list(T)[0]
       root, children = T
-      td.new_visit(T, G, prod_rules, TD)
+      #td.new_visit(T, G, prod_rules, TD)
+      td.new_visit(T, G, prod_rules)
   else:
     T = td.quickbb(G)
     root = list(T)[0]
@@ -173,7 +173,8 @@ def probabilistic_hrg (G, num_samples=1, n=None):
     root = list(T)[0]
     root, children = T
 
-    td.new_visit(T, G, prod_rules, TD)
+    # td.new_visit(T, G, prod_rules, TD)
+    td.new_visit(T, G, prod_rules)
 
   if DEBUG: print
   if DEBUG: print "--------------------"
@@ -200,13 +201,14 @@ def probabilistic_hrg (G, num_samples=1, n=None):
       sid += 1
     id += 1
   # print rules
-  exit()
-
+  print 'P. Rules'
   g = pcfg.Grammar('S')
   for (id, lhs, rhs, prob) in rules:
-    # print type(id), type(lhs), type(rhs), type(prob)
+    #print type(id), type(lhs), type(rhs), type(prob)
+    print ' ', id, lhs, rhs, prob
     g.add_rule(pcfg.Rule(id, lhs, rhs, prob))
 
+  exit()
   if DEBUG: print "Starting max size"
   num_nodes = num_nodes
   num_samples = num_samples
@@ -219,7 +221,7 @@ def probabilistic_hrg (G, num_samples=1, n=None):
 
   for i in range(0, num_samples):
     rule_list = g.sample(num_nodes)
-    # print rule_list
+    pp.pprint (rule_list)
     hstar = grow(rule_list, g)[0]
     # print "H* nodes: " + str(hstar.number_of_nodes())
     # print "H* edges: " + str(hstar.number_of_edges())
@@ -230,7 +232,7 @@ def probabilistic_hrg (G, num_samples=1, n=None):
 
 # def probabilistic_hrg_deriving_prod_rules(G, num_samples=1, n=None):
 # hrg_baseline.py
-def probabilistic_hrg_deriving_prod_rules (G, K=1, n=None, gname=""):
+def probabilistic_hrg_deriving_prod_rules (G, n=None):
   '''
 	Rule extraction procedure
 
@@ -252,41 +254,116 @@ def probabilistic_hrg_deriving_prod_rules (G, K=1, n=None, gname=""):
   if DEBUG: print "--------------------"
   if DEBUG: print "-Tree Decomposition-"
   if DEBUG: print "--------------------"
-
+  prod_rules = {}
   if num_nodes >= 500:
-    for j,Gprime in enumerate(gs.rwr_sample(G, K, 200)):
-      if gname is "":
-        nx.write_edgelist(Gprime, '/tmp/sampled_subgraph_200_{}.tsv'.format(j), delimiter="\t", data=False)
-      else:
-        nx.write_edgelist(Gprime, '/tmp/{}{}.tsv'.format(gname, j), delimiter="\t", data=False)
-        print "...  files written: /tmp/{}{}.tsv".format(gname, j)
+    for Gprime in gs.rwr_sample(G, 2, 300):
+      T = td.quickbb(Gprime)
+      root = list(T)[0]
+      T = td.make_rooted(T, root)
+      T = binarize(T)
+      root = list(T)[0]
+      root, children = T
+      td.new_visit(T, G, prod_rules)
+  else:
+    T = td.quickbb(G)
+    root = list(T)[0]
+    T = td.make_rooted(T, root)
+    T = binarize(T)
+    root = list(T)[0]
+    root, children = T
+    td.new_visit(T, G, prod_rules)
+  # print (T)
+  # print type(root), type(children)
+  # print type(T), len(T), len(T[1])
+  # print [type(x) for x in T[1]]
+  # print (prod_rules)
 
-  return
+  #TODO from enumhrgtree import enum_hrg_tree
+  # enum_hrg_tree(T)
+  # exit()
 
-def get_parser():
-  parser = argparse.ArgumentParser(description="sample a large graph and write the subgraph to file")
-  parser.add_argument('-g', '--graph', required=True, help='input graph (edgelist)')
-  parser.add_argument('--version', action='version', version=__version__)
-  return parser
+  if DEBUG: print
+  if DEBUG: print "--------------------"
+  if DEBUG: print "- Production Rules -"
+  if DEBUG: print "--------------------"
+
+  for k in prod_rules.iterkeys():
+    if DEBUG: print k
+    s = 0
+    for d in prod_rules[k]:
+      s += prod_rules[k][d]
+    for d in prod_rules[k]:
+      prod_rules[k][d] = float(prod_rules[k][d]) / float(s)  # normailization step to create probs not counts.
+      if DEBUG: print '\t -> ', d, prod_rules[k][d]
+
+  # pp.pprint(prod_rules)
+
+  rules = []
+  id = 0
+  for k, v in prod_rules.iteritems():
+    sid = 0
+    for x in prod_rules[k]:
+      rhs = re.findall("[^()]+", x)
+      rules.append(("r%d.%d" % (id, sid), "%s" % re.findall("[^()]+", k)[0], rhs, prod_rules[k][x]))
+      if DEBUG: print ("r%d.%d" % (id, sid), "%s" % re.findall("[^()]+", k)[0], rhs, prod_rules[k][x])
+      sid += 1
+    id += 1
+
+  return rules
+
 
 if __name__ == "__main__":
-  parser = get_parser()
-  args = vars(parser.parse_args())
-  fname = args['graph']
+  # Example Graphs
+  # G = nx.star_graph(6)
+  # G = nx.ladder_graph(10)
+  # global prod_rules
+  # prod_rules ={}
+  # G = nx.karate_club_graph()
 
-  print "... ", fname
-  gname = os.path.basename(fname)
-  print "... ", gname
-  G = nx.read_edgelist(fname, comments="%", data=False)
-  G.name = gname
+  # G = nx.barabasi_albert_graph(1000,3)
+  # G = nx.connected_watts_strogatz_graph(200,8,.2)
+
+  # G = nx.read_edgelist("../Phoenix/demo_graphs/as20000102.txt")
+  # G = nx.read_edgelist("../Phoenix/demo_graphs/CA-GrQc.txt")
+  # G = nx.read_edgelist("../Phoenix/demo_graphs/Email-Enron.txt")
+  # G = nx.read_edgelist("../Phoenix/demo_graphs/Brightkite_edges.txt")
+
+  # Example From KDD Paper
+  # Graph is undirected
+  G = nx.Graph()
+  G.add_edge(1, 2)
+  G.add_edge(2, 3)
+  G.add_edge(2, 4)
+  G.add_edge(3, 4)
+  G.add_edge(3, 5)
+  G.add_edge(4, 6)
+  G.add_edge(5, 6)
+  G.add_edge(1, 5)
+
+  # G = nx.karate_club_graph()
+	# G = nx.krackhardt_kite_graph()
+	# G = nx.house_graph()
+  G = nx.read_edgelist('../THRGs/graphkpmg.el')
 
   num_nodes = G.number_of_nodes()
-  print num_nodes
-  k_subgraphs_nbr = int(math.ceil(.1*num_nodes/200))
-  print k_subgraphs_nbr
+  print num_nodes, 'nbr of nodes'
 
   prod_rules = {}
-  p_rules = probabilistic_hrg_deriving_prod_rules(G, K=k_subgraphs_nbr, gname=gname)
+  # p_rules = probabilistic_hrg(G)
+  p_rules = probabilistic_hrg_deriving_prod_rules(G)
 
-  exit(0)
-
+  g = pcfg.Grammar('S')
+  for (id, lhs, rhs, prob) in p_rules:
+     g.add_rule(pcfg.Rule(id, lhs, rhs, prob, False))
+  print '> prod rules added to Grammar g'#
+  g.set_max_size(num_nodes)
+  print '> max-size set.'
+  # print num_nodes
+  prod_rule_set = g.sample(num_nodes)
+# # if DEBUG: print list (prod_rule_set)
+# # hstar = pg.grow(prod_rules, prod1G_rule_set, num_nodes) # where did this come from?
+  hstar = pg.grow(rules,prod_rule_set, num_nodes)
+#  hstar = grow(prod_rule_set, g)[0]
+  print nx.info(hstar)
+  print 'compared to'
+  print nx.info(G)

@@ -17,12 +17,14 @@ import tdec.net_metrics as metrics
 import tdec.load_edgelist_from_dataframe as tdf
 import pprint as pp
 import argparse, traceback
+import tdec.graph_sampler as gs
+
 
 DBG = False
 
 def get_parser ():
     parser = argparse.ArgumentParser(description='Infer a model given a graph (derive a model)')
-    parser.add_argument('--gfname',  nargs=1, help='Filename of edgelist graph')
+    parser.add_argument('--orig',  required=True, nargs=1, help='Filename of edgelist graph')
     parser.add_argument('--chunglu', help='Generate chunglu graphs',action='store_true')
     parser.add_argument('--kron',    help='Generate Kronecker product graphs',action='store_true')
     parser.add_argument('--version', action='version', version=__version__)
@@ -344,7 +346,7 @@ def get_hrg_production_rules(edgelist_data_frame, graph_name):
   # deg_vcnt_to_disk(G, hStars)
 
   if 1:
-      metricx = ['degree']# ,'hops', 'clust', 'assort', 'kcore','eigen','gcd']
+      metricx = ['degree','hops', 'clust', 'assort', 'kcore','eigen','gcd']
       metrics.network_properties([G], metricx, hStars, name=graph_name, out_tsv=True)
 
 
@@ -353,7 +355,8 @@ if __name__ == '__main__':
   parser = get_parser()
   args = vars(parser.parse_args())
 
-  in_file   = args['g_fname'][0]
+  in_file   = args['orig'][0]
+
   datframes = tdf.Pandas_DataFrame_From_Edgelist([in_file])
   df = datframes[0]
   # g_name = os.path.basename(in_file).lstrip('out.')

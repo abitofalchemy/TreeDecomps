@@ -451,7 +451,7 @@ def network_properties(orig, net_mets, synth_graphs_lst, name='', out_tsv=False)
         synth_Deg = degree_distribution_multiples(synth_graphs_lst)
         print '\n... HRG G'
         synth_Deg['meank'] = synth_Deg.mean(axis=1)
-        if 0: 
+        if 0:
           mask = f(70, len(synth_Deg))
           print synth_Deg['meank'].loc[mask].to_string(header=False)
           print synth_Deg.shape
@@ -465,9 +465,13 @@ def network_properties(orig, net_mets, synth_graphs_lst, name='', out_tsv=False)
         # synth_Deg.max( axis=1).plot(ax=ax0,alpha=0.4, color='r')
         # synth_Deg.min( axis=1).plot(ax=ax0,alpha=0.4, color='r')
         ax0.fill_between(synth_Deg.index.values,
-                         synth_Deg.mean(axis=1) - synth_Deg.std(axis=1),
-                         synth_Deg.mean(axis=1) + synth_Deg.std(axis=1), color='r',alpha=0.25)
+                         synth_Deg.mean(axis=1) - synth_Deg.sem(axis=1),
+                         synth_Deg.mean(axis=1) + synth_Deg.sem(axis=1), color='r',alpha=0.25)
         synth_Deg.mean(axis=1).plot(ax=ax0, alpha=0.5, marker=".", color='r', label="Synth G")
+        # ax0.set_yscale('log')
+        ax0.set_xscale('log')
+        print orig__Deg.max().values[0]
+        ax0.set_xlim([1, orig__Deg.max().values[0]])
 
         if out_tsv:
           orig__Deg.mean(axis=1).to_csv('Results/degree_orig_{}.tsv'.format(name),sep='\t')

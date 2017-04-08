@@ -38,7 +38,7 @@ def load_edgelist(gfname):
   import pandas as pd
   try:
     edglst = pd.read_csv(gfname, comment='%', delimiter='\t')
-    print edglst.shape
+    # print edglst.shape
     if edglst.shape[1]==1: edglst = pd.read_csv(gfname, comment='%', delimiter="\s+")
 
   except Exception, e:
@@ -54,7 +54,6 @@ def load_edgelist(gfname):
     edglst.columns = ['src', 'trg']
   g = nx.from_pandas_dataframe(edglst,source='src',target='trg')
   g.name = os.path.basename(gfname)
-  print nx.info(g)
   return g
 
 if __name__ == '__main__':

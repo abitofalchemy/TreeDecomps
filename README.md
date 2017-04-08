@@ -11,6 +11,9 @@ graph grammars.
 
 Date   | Notes
 -------|------------------------------------------------------------------
+07Apr17| Working on refactoring the files to make it more usable; fixing issues with sampling; ToDo: process mult trees from sampling
+
+06Apr17| tree decomposition: 'fails here' issue of strange d[x] 
 03Apr17| Got the isomorph working nees tuning; ToDo: Sampling: sampled.subgraphs.cliquetree.py
 03Apr17| isomorphic prod rules check; (1) within a set and (2) between sets; TODO: zoom in on zachary lexm and mcsm iso overlap; **within file, using iso check, use the resluting set to build graphs**
 30Mar17| Looking at overlaps using isomorphism
@@ -40,5 +43,9 @@ Date   | Notes
 
 
 
+
+### sampling
+`python tredec.dimacs.tree.py --orig ~/Theory/DataSets/out.subelj_euroroad_euroroad --peoh mcs`
+`python tredec.samp.phrg.py --orig ~/Theory/DataSets/out.subelj_euroroad_euroroad --tree datasets/subelj_euroroad_euroroad`
 
 

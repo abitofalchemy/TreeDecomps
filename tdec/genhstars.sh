@@ -1,0 +1,1 @@
+/Users/saguinag/Theory/entropy/Scriptus/shells/genhstars.sh

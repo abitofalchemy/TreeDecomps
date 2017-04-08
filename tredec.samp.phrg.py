@@ -10,41 +10,74 @@ __version__ = "0.1.0"
 
 ## VersionLog:
 
-import net_metrics as metrics
+import tdec.net_metrics as metrics
 import argparse, traceback
 import os, sys
 import networkx as nx
 import re
 from collections import deque, defaultdict, Counter
-import tree_decomposition as td
-import PHRG as phrg
-import probabilistic_cfg as pcfg
-import exact_phrg as xphrg
-import a1_hrg_cliq_tree as nfld
-from a1_hrg_cliq_tree import load_edgelist
+import tdec.tree_decomposition as td
+import tdec.PHRG as phrg
+import tdec.probabilistic_cfg as pcfg
+#import exact_phrg as xphrg
+import tdec.a1_hrg_cliq_tree as nfld
+from tdec.a1_hrg_cliq_tree import load_edgelist
 import glob
 
 DEBUG = False
 
 
 def get_parser ():
-  parser = argparse.ArgumentParser(description='dimacs tree to hrg graph')
+  parser = argparse.ArgumentParser(description='dimacs tree *list* to hrg graph')
   parser.add_argument('--orig', required=True, help='input edge list for the original (reference) graph')
   parser.add_argument('--tree', required=True, help='input tree decomposition (dimacs file format)')
   parser.add_argument('--version', action='version', version=__version__)
   return parser
 
+def grow_exact_size_hrg_graphs_from_prod_rules(prod_rules, gname, n, runs=1):
+  """
+  Args:
+    rules: production rules (model)
+    gname: graph name
+    n:     target graph order (number of nodes)
+    runs:  how many graphs to generate
+
+  Returns: list of synthetic graphs
+
+  """
+  if n <=0: sys.exit(1)
+
+
+  g = pcfg.Grammar('S')
+  for (id, lhs, rhs, prob) in prod_rules:
+    g.add_rule(pcfg.Rule(id, lhs, rhs, prob))
+
+  print "n", n
+  num_nodes = n
+  if DEBUG: print "Starting max size"
+  g.set_max_size(num_nodes)
+  if DEBUG: print "Done with max size"
+
+  hstars_lst = []
+  for i in range(0, runs):
+    rule_list = g.sample(num_nodes)
+    hstar = phrg.grow(rule_list, g)[0]
+    hstars_lst.append(hstar)
+
+  return hstars_lst
+
 def dimacs_td_ct (orig, tdfname):
   """ tree decomp to clique-tree """
-  print '... input file:', tdfname
+  print '... input path:', tdfname
   fname = orig # original graph path
   graph_name = os.path.basename(fname)
-  gname = graph_name.split('.')[0]
+  gname = os.path.basename(fname).split(".")
+  gname = sorted(gname,reverse=True, key=len)[0]
 
   G = load_edgelist(fname) # load edgelist into a graph obj
   G.name = gname
 
-  if DEBUG: print nx.info(G)
+  print nx.info(G)
 
   files = glob.glob(tdfname+"*.dimacs.tree")
   prod_rules = {}
@@ -67,13 +100,10 @@ def dimacs_td_ct (orig, tdfname):
     for s, t in edges:
       tree[frozenset(cbags[s])].add(frozenset(cbags[t]))
       if DEBUG: print '.. # of keys in `tree`:', len(tree.keys())
-    if DEBUG: print tree.keys()
+
     root = list(tree)[0]
-    if DEBUG: print '.. Root:', root
     root = frozenset(cbags[1])
-    if DEBUG: print '.. Root:', root
     T = td.make_rooted(tree, root)
-    if DEBUG: print '.. T rooted:', len(T)
     # nfld.unfold_2wide_tuple(T) # lets me display the tree's frozen sets
 
     T = phrg.binarize(T)
@@ -87,7 +117,6 @@ def dimacs_td_ct (orig, tdfname):
     if 1: print "--------------------"
     if 1: print "-", len(prod_rules)
     if 1: print "--------------------"
-  exit()
   if 1: print "--------------------"
   if 1: print "- Production Rules -"
   if 1: print "--------------------"
@@ -108,24 +137,22 @@ def dimacs_td_ct (orig, tdfname):
     for x in prod_rules[k]:
       rhs = re.findall("[^()]+", x)
       rules.append(("r%d.%d" % (id, sid), "%s" % re.findall("[^()]+", k)[0], rhs, prod_rules[k][x]))
-      if DEBUG: print ("r%d.%d" % (id, sid), "%s" % re.findall("[^()]+", k)[0], rhs, prod_rules[k][x])
+      if 1: print ("r%d.%d" % (id, sid), "%s" % re.findall("[^()]+", k)[0], rhs, prod_rules[k][x])
       sid += 1
     id += 1
   # print rules
   if 1: print "--------------------"
-  print '- P. Rules'
+  print '- P. Rules',    len(rules)
   if 1: print "--------------------"
-
+  
   g = pcfg.Grammar('S')
   for (id, lhs, rhs, prob) in rules:
     g.add_rule(pcfg.Rule(id, lhs, rhs, prob))
 
   # Synthetic Graphs
   # print rules
-  hStars = xphrg.grow_exact_size_hrg_graphs_from_prod_rules(rules,
-                                                            graph_name,
-                                                            G.number_of_nodes(), 50)
-  metricx = ['degree', 'hops', 'clust', 'assort', 'kcore', 'eigen', 'gcd']
+  hStars = grow_exact_size_hrg_graphs_from_prod_rules(rules, graph_name, G.number_of_nodes(), 20)
+  metricx = ['degree', 'hops', 'clust', 'assort', 'kcore', 'gcd'] # 'eigen'
   metrics.network_properties([G], metricx, hStars, name=graph_name, out_tsv=True)
 
   return

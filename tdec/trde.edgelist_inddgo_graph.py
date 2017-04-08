@@ -15,9 +15,10 @@ import networkx as nx
 from datetime import datetime
 import pandas as pd
 import pprint as pp
+from PHRG import graph_checks
 
 
-def nx_edges_to_nddgo_graph (G, sampling=False):
+def nx_edges_to_nddgo_graph (G,n,m, sampling=False):
   if sampling:
 
     edges = G.edges()
@@ -28,7 +29,7 @@ def nx_edges_to_nddgo_graph (G, sampling=False):
 
     with open(ofname, 'w') as f:
       f.write('c {}\n'.format(G.name))
-      f.write('p edge\t{}\t{}\n'.format(G.number_of_nodes(), G.number_of_edges()))
+      f.write('p edge\t{}\t{}\n'.format(n,m))
       # for e in df.iterrows():
       output_edges = lambda x: f.write("e\t{}\t{}\n".format(x[0], x[1]))
       df.apply(output_edges, axis=1)
@@ -45,7 +46,7 @@ def nx_edges_to_nddgo_graph (G, sampling=False):
 
     with open(ofname, 'w') as f:
       f.write('c {}\n'.format(G.name))
-      f.write('p edge\t{}\t{}\n'.format(G.number_of_nodes(), G.number_of_edges()))
+      f.write('p edge\t{}\t{}\n'.format(n,m))
       # for e in df.iterrows():
       output_edges = lambda x: f.write("e\t{}\t{}\n".format(x[0], x[1]))
       df.apply(output_edges, axis=1)
@@ -92,10 +93,23 @@ if __name__ == '__main__':
   else:
     G = nx.read_edgelist(fname, comments="%", data=False, nodetype=int)
 
+  num_nodes = G.number_of_nodes()
+  num_edges = G.number_of_edges()
+
+
+
+  # +++ Graph Checks
+  if G is None: sys.exit(1)
+  G.remove_edges_from(G.selfloop_edges())
+  giant_nodes = max(nx.connected_component_subgraphs(G), key=len)
+  G = nx.subgraph(G, giant_nodes)
+  graph_checks(G)
+  # --- graph checks
+
   G.name = gname
   print "... info", nx.info(G)
   try:
-    nx_edges_to_nddgo_graph(G)
+    nx_edges_to_nddgo_graph(G, num_nodes, num_edges)
   except Exception, e:
     print 'ERROR, UNEXPECTED EXCEPTION'
     print str(e)

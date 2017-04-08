@@ -26,7 +26,7 @@ from   tdec.a1_hrg_cliq_tree import load_edgelist,unfold_2wide_tuple
 DEBUG = False
 
 def get_parser ():
-    parser = argparse.ArgumentParser(description='Take a clique tree and gen hrg graphs')
+    parser = argparse.ArgumentParser(description='Take a clique tree and genenerate HRG graphs')
     parser.add_argument('--clqtree', required=True, help='Input tree decomposition file (dimacs)')
     parser.add_argument('--orig', required=True, help='Reference graph file (edgelist)')
     parser.add_argument('--version', action='version', version=__version__)
@@ -67,7 +67,7 @@ def grow_exact_size_hrg_graphs_from_prod_rules(prod_rules, gname, n, runs=1):
 
 def dimacs_td_ct (tdfname, orig_fname):
   """ tree decomp to clique-tree """
-  print '... input file:', tdfname
+  print '... input path:', tdfname
   fname = tdfname
   graph_name = os.path.basename(fname)
   gname = graph_name.split('.')[0]

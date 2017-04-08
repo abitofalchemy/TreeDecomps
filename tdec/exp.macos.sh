@@ -5,14 +5,12 @@ bname=`basename "$1" | cut -d'.' -f1`
 bname=`basename "$1"`
 bname="${bname#*.}"
 echo $bname
-
+## To process the entire graph
 ## edgeslist to dimacs
-python a1_write_inddgo_graph.py -g $1 &&
+python trde.edgelist_inddgo_graph.py -g $1 &&
 
 ## dimacs to tree
-
 ./bin/mac/serial_wis -f ./datasets/"$bname".dimacs -nice -$2 -w Results/"$bname"."$2".dimacs.tree &&
 
 ## Process tree to HRGs
-
-python b1_dimacs_tree_to_cliquetree.py -t Results/"$bname"."$2".dimacs.tree
+./trde.dimacs_tree_2cliquetree.py --clqtree Results/"$bname"."$2".dimacs.tree --orig $1
