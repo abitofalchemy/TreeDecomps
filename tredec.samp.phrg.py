@@ -23,6 +23,8 @@ import tdec.probabilistic_cfg as pcfg
 import tdec.a1_hrg_cliq_tree as nfld
 from tdec.a1_hrg_cliq_tree import load_edgelist
 import glob
+from tdec.PHRG import graph_checks
+
 
 DEBUG = False
 
@@ -75,6 +77,16 @@ def dimacs_td_ct (orig, tdfname):
   gname = sorted(gname,reverse=True, key=len)[0]
 
   G = load_edgelist(fname) # load edgelist into a graph obj
+  N = G.number_of_nodes()
+  M = G.number_of_edges()
+  # +++ Graph Checks
+  if G is None: sys.exit(1)
+  G.remove_edges_from(G.selfloop_edges())
+  giant_nodes = max(nx.connected_component_subgraphs(G), key=len)
+  G = nx.subgraph(G, giant_nodes)
+  graph_checks(G)
+  # --- graph checks
+
   G.name = gname
 
   print nx.info(G)
@@ -144,15 +156,15 @@ def dimacs_td_ct (orig, tdfname):
   if 1: print "--------------------"
   print '- P. Rules',    len(rules)
   if 1: print "--------------------"
-  
+
   g = pcfg.Grammar('S')
   for (id, lhs, rhs, prob) in rules:
     g.add_rule(pcfg.Rule(id, lhs, rhs, prob))
 
   # Synthetic Graphs
-  # print rules
   hStars = grow_exact_size_hrg_graphs_from_prod_rules(rules, graph_name, G.number_of_nodes(), 20)
-  metricx = ['degree', 'hops', 'clust', 'assort', 'kcore', 'gcd'] # 'eigen'
+  # metricx = ['degree', 'hops', 'clust', 'assort', 'kcore', 'gcd'] # 'eigen'
+  metricx = ['gcd','avgdeg']
   metrics.network_properties([G], metricx, hStars, name=graph_name, out_tsv=True)
 
   return

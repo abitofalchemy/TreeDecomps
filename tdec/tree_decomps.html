@@ -128,6 +128,252 @@ $(document).ready(function () {
 <div id="datasets" class="section level2">
 <h2>Datasets</h2>
 <p>List of graphs in edgelist (TSV) format</p>
+<pre><code>##  [1] &quot;/Users/saguinag/Theory/Datasets/enron/out.enron&quot;                                      
+##  [2] &quot;/Users/saguinag/Theory/Datasets/moreno_vdb/out.moreno_vdb_vdb&quot;                        
+##  [3] &quot;/Users/saguinag/Theory/Datasets/out.arenas-jazz&quot;                                      
+##  [4] &quot;/Users/saguinag/Theory/Datasets/out.BoardEx&quot;                                          
+##  [5] &quot;/Users/saguinag/Theory/Datasets/out.brunson_southern-women_southern-women&quot;            
+##  [6] &quot;/Users/saguinag/Theory/Datasets/out.contact&quot;                                          
+##  [7] &quot;/Users/saguinag/Theory/Datasets/out.moreno_lesmis_lesmis&quot;                             
+##  [8] &quot;/Users/saguinag/Theory/Datasets/out.subelj_euroroad_euroroad&quot;                         
+##  [9] &quot;/Users/saguinag/Theory/Datasets/out.synth_dyn_graph&quot;                                  
+## [10] &quot;/Users/saguinag/Theory/Datasets/out.ucidata-gama&quot;                                     
+## [11] &quot;/Users/saguinag/Theory/Datasets/out.ucidata-zachary&quot;                                  
+## [12] &quot;/Users/saguinag/Theory/Datasets/sociopatterns-hypertext/out.sociopatterns-hypertext&quot;  
+## [13] &quot;/Users/saguinag/Theory/Datasets/sociopatterns-infectious/out.sociopatterns-infectious&quot;</code></pre>
+</div>
+<div id="sampling-from-large-graphs" class="section level2">
+<h2>Sampling from large graphs</h2>
+<p>Subgraphs: <code>subelj_euroroad_euroroad</code> mcs</p>
+<table>
+<thead>
+<tr class="header">
+<th>K</th>
+<th>n</th>
+<th>rules</th>
+<th>GCD</th>
+<th>Avg k</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>2</td>
+<td>300</td>
+<td>1005</td>
+<td>4.96 (0.04)</td>
+<td></td>
+<td>Baseline (2.5120)</td>
+</tr>
+<tr class="even">
+<td>3</td>
+<td>256</td>
+<td>1162</td>
+<td>3.51 (0.85)</td>
+<td></td>
+<td>-</td>
+</tr>
+<tr class="odd">
+<td>3</td>
+<td>256</td>
+<td>1213</td>
+<td>3.83 (1.14)</td>
+<td>1.14</td>
+<td>-</td>
+</tr>
+<tr class="even">
+<td>2</td>
+<td><strong>256</strong></td>
+<td>861</td>
+<td>3.45 (0.88)</td>
+<td>1.58</td>
+<td><strong>25 pct</strong></td>
+</tr>
+<tr class="odd">
+<td>3</td>
+<td>200</td>
+<td>919</td>
+<td>4.26 (0.55)</td>
+<td>1.52</td>
+<td>50 pct</td>
+</tr>
+<tr class="even">
+<td>3</td>
+<td>200</td>
+<td>982</td>
+<td>1.95 (1.32)</td>
+<td>1.62</td>
+<td>50 pct</td>
+</tr>
+<tr class="odd">
+<td>3</td>
+<td>200</td>
+<td>951</td>
+<td>4.76 (0.32)</td>
+<td>1.33</td>
+<td>2nd run; 50 pct</td>
+</tr>
+<tr class="even">
+<td>2</td>
+<td>200</td>
+<td>629</td>
+<td>3.42 (0.98)</td>
+<td>1.76</td>
+<td>3rd run; <strong>25 pct</strong> of the graph</td>
+</tr>
+<tr class="odd">
+<td>5</td>
+<td>128</td>
+<td>979</td>
+<td>4.7 (0.35)</td>
+<td>1.54</td>
+<td>50 pct of graph nodes</td>
+</tr>
+<tr class="even">
+<td>9</td>
+<td>64</td>
+<td>692</td>
+<td>4.85 (0.26)</td>
+<td>1.19</td>
+<td>50 pct</td>
+</tr>
+<tr class="odd">
+<td>9</td>
+<td>32</td>
+<td>203</td>
+<td>-</td>
+<td>-</td>
+<td>25 pct coverage, but unable to grow graphs</td>
+</tr>
+<tr class="even">
+<td>17</td>
+<td>32</td>
+<td>389</td>
+<td>-</td>
+<td>-</td>
+<td>50 pct coverage, but unable to grow graphs</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="convert-edgelist-files-to-inddgo-format" class="section level2">
+<h2>Convert edgelist files to INDDGO format</h2>
+</div>
+<div id="baseline" class="section level2">
+<h2>Baseline</h2>
+<div id="inddgo-to-cts" class="section level3">
+<h3>INDDGO to CTs</h3>
+<ul>
+<li><code>dimacs_td_ct</code> tree decomp to clique trees</li>
+</ul>
+</div>
+<div id="inddgo" class="section level3">
+<h3>INDDGO</h3>
+<ul>
+<li>List DIMACS_file Files with symmetric adj lists. Here the files have a <code>.graph</code> extension.</li>
+</ul>
+<pre><code>## Warning: running command 'find INDDGO/sample_graphs -name '*.graph'' had
+## status 1</code></pre>
+<pre><code>## character(0)
+## attr(,&quot;status&quot;)
+## [1] 1</code></pre>
+<ul>
+<li><p>Converting the edgelist to dimacs format is done after removing unconnected components. This is done by getting the original # of nodes and edges and usin that to write the dimcas file. ** Might help to do keep the original nbr of edges **</p></li>
+<li><p>Computing the clique trees:</p></li>
+<li><p>Elimination Order Options mind min degree heuristic mmd multiple min degree minf min fill lexm lex-m bfs heuristic</p></li>
+<li><p>optimal MWIS value</p></li>
+</ul>
+</div>
+</div>
+<div id="compute-basic-network-properties" class="section level2">
+<h2>Compute basic network properties</h2>
+<p>The code below uses <strong>networkx</strong> to process input files and compute a battery of network properties tests.</p>
+</div>
+<div id="network-models" class="section level2">
+<h2>Network Models</h2>
+<div id="generate-synthetic-graphs" class="section level3">
+<h3>Generate synthetic graphs</h3>
+<ul>
+<li><p>HRG</p></li>
+<li><p>KRON</p></li>
+</ul>
+</div>
+</div>
+<div id="compute-modularity" class="section level2">
+<h2>Compute Modularity</h2>
+<p>Community clustering or modularity</p>
+<ul>
+<li>Using the igraph library, we compute the modularity using <code>cluster_walktrap</code> and <code>membership</code>.</li>
+</ul>
+</div>
+<div id="hrg-vs-td-and-elimination-orderings" class="section level1">
+<h1>HRG vs TD and Elimination Orderings</h1>
+<div id="baseline-1" class="section level2">
+<h2>Baseline</h2>
+<p>We can work with a couple of toy graphs, the WikiExample (Wikipedias Tree Decomposition page example graph) and the BoardExample (described in our CIKM paper).</p>
+<pre><code>## 
+## Attaching package: 'igraph'</code></pre>
+<pre><code>## The following objects are masked from 'package:stats':
+## 
+##     decompose, spectrum</code></pre>
+<pre><code>## The following object is masked from 'package:base':
+## 
+##     union</code></pre>
+<p>Using <code>igraph</code> on the “BoardExample” toy graph</p>
+<p>Using INDDGO, we compute tree decomposition on this graph. It’s visualization according to INDDGO show in the plot below. - <code>gavril</code> for tree decomposition - <code>mind</code> for vertex elimination ordering</p>
+</div>
+<div id="in-hrg-the-computed-clique-tree-for-the-boardexample-is" class="section level2">
+<h2>In <strong>HRG</strong> the computed clique tree for the <code>BoardExample</code> is:</h2>
+<p>This is computing using QuickBB algorithm which relies on MCS elimnation ordering.</p>
+<pre><code>frozenset([u'5', u'4', u'6']) # root
+|
++-&gt; frozenset([u'3', u'5', u'4'])
+|   |
+|       +-&gt;frozenset([u'3', u'2', u'5', u'4'])
+|      |
+|            +-&gt;frozenset([u'1', u'2', u'5'])
++-&gt; frozenset([u'5', u'6'])
+    |
+        +-&gt;frozenset([u'6'])</code></pre>
+<ul>
+<li>Visualizing HRGtree topology</li>
+</ul>
+</div>
+<div id="workflow" class="section level2">
+<h2>Workflow</h2>
+<p>Experiments:</p>
+<ul>
+<li>Need input graphs to be in .graph form?</li>
+</ul>
+<p><code>./INDDGO/bin/serial_wis -f INDDGO/sample_graphs/board_example.graph -gavril -mind -decompose_only -gviz ./INDDGO/sample_graphs/viz.test</code></p>
+<p><code>python write_inddgo_graph.py -g ~/Theory/DataSets/out.brunson_southern-women_southern-women</code></p>
+</div>
+<div id="prodrules-iso-test" class="section level2">
+<h2>ProdRules Iso Test</h2>
+<p>Files: <code>BoardEx.mcs.prules.bz2</code> <code>BoardEx.lexm.prules.bz2</code></p>
+<p>mcs: <code>2  r1.1  a,b,c                          ['0,c:T', 'a:T', 'b:T']  0.25</code> lexm: <code>2  r1.1  a,b,c                          ['0,c:T', 'a:T', 'b:T']  0.25</code></p>
+</div>
+</div>
+<div id="one-liners" class="section level1">
+<h1>One Liners</h1>
+<ul>
+<li><code>python -c &quot;import networkx as nx; g=nx.read_edgelist('datasets/out.ucidata-zachary', comments='%'); print nx.info(g);&quot;</code></li>
+<li><code>$ tail +3  datasets/sampled_subgraph_200_0.dimacs | sort -t$'\t' -k3 -nr ls</code></li>
+</ul>
+<div id="poe-heuristic-results" class="section level2">
+<h2>POE Heuristic Results</h2>
+<p>-mind : generates an elim. ordering using min degree heuristic -mmd : generates an elim. ordering using multiple min degree heuristic -minf : generates an elim. ordering using min fill heuristic -bmf : generates an elim. ordering using a batched min fill heuristic -beta : generates an elim. ordering using the beta heuristic -metmmd : generates an elim. ordering using METIS mmd heuristic -metnnd : generates an elim. ordering using METS node ND heuristic -mcsm : generates an elim. ordering using mcsm euristic -mcs : generates an elim. ordering using mcs -lexm : generates an elim. ordering using lex-m bfs heuristic</p>
+</div>
+</div>
+<div id="reference-links" class="section level1">
+<h1>Reference Links</h1>
+<ul>
+<li><a href="http://kateto.net/network-visualization">Net Viz in R</a></li>
+<li><a href="http://www.cs.princeton.edu/courses/archive/spr04/cos226/lectures/maxflow.4up.pdf">maxflow</a></li>
+<li><a href="http://sahandsaba.com/thirty-python-language-features-and-tricks-you-may-not-know.html" class="uri">http://sahandsaba.com/thirty-python-language-features-and-tricks-you-may-not-know.html</a></li>
+<li><a href="https://books.google.com/books?id=NFm7BQAAQBAJ&amp;pg=PA186&amp;lpg=PA186&amp;dq=python+algorithm+maximum+cardinality+search+sample+code&amp;source=bl&amp;ots=YAod8M0QFx&amp;sig=7xD9NF5EBK0cNwQgkD-nHkrcZVk&amp;hl=en&amp;sa=X&amp;ved=0ahUKEwj7hqfJ99_SAhWBbSYKHecDCCwQ6AEIQjAG#v=onepage&amp;q=python%20algorithm%20maximum%20cardinality%20search%20sample%20code&amp;f=false">book mcs tid bit</a></li>
+<li><a href="http://code.activestate.com/recipes/221251-maximum-cardinality-matching-in-general-graphs/" class="uri">http://code.activestate.com/recipes/221251-maximum-cardinality-matching-in-general-graphs/</a></li>
+</ul>
 </div>
 
 

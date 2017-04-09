@@ -438,6 +438,14 @@ def network_properties(orig, net_mets, synth_graphs_lst, name='', out_tsv=False)
     if not os.path.exists('./Results'):
       os.makedirs('./Results')
 
+    if 'avgdeg' in net_mets:
+        print 'Average Degree'
+        print "  %.3f" % np.mean(orig[0].degree().values())
+        deg_val = pd.Series()
+        for g in synth_graphs_lst:
+          deg_val=pd.concat([deg_val, pd.Series(g.degree().values())])
+        print "  %.3f" % np.mean(deg_val)
+
     if 'degree' in net_mets:
         print 'Degree'
         orig__Deg = degree_distribution_multiples(orig)

@@ -11,4 +11,8 @@ datasets/*
 ProdRules
 Results/*
 transbin
+.DS_Store
+.RData
+.idea/
+.ipynb_checkpoints/
 

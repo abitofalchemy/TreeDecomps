@@ -132,6 +132,8 @@ def dimacs_td_ct (tdfname, orig_fname):
   print '- rules.len', len(rules)
   print "--------------------"
 
+
+
   g = pcfg.Grammar('S')
   for (id, lhs, rhs, prob) in rules:
     g.add_rule(pcfg.Rule(id, lhs, rhs, prob))
@@ -142,7 +144,7 @@ def dimacs_td_ct (tdfname, orig_fname):
   for i in range(10):
     print g.sample(G.number_of_nodes())
 
-  hStars = grow_exact_size_hrg_graphs_from_prod_rules(rules, graph_name, G.number_of_nodes(), 10)
+  hStars = grow_exact_size_hrg_graphs_from_prod_rules(rules, graph_name, G.number_of_nodes(), 20)
   metricx = ['degree', 'hops', 'clust', 'assort', 'kcore', 'eigen', 'gcd']
   metrics.network_properties([G], metricx, hStars, name=graph_name, out_tsv=True)
 
