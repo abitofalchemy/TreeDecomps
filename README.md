@@ -41,8 +41,13 @@ Date   | Notes
 - Run from a script to generate clique trees given a dataset and POE heuristic
   `./experiments.sh datasets/out.ucidata-zachary mcs`
 
+- Find Jaccard Similarity between pairs of Production Rules from each of the 
+  Tree decomposition heuristics.
+  `python tredec.isomorph_dimacs_tree.py --orig datasets/out.ucidata-zachary --pathfrag datasets/ucidata-zachary_`
 
-
+### Jaccard Dist
+- http://stackoverflow.com/questions/11911252/python-jaccard-distance-using-word-intersection-but-not-character-intersection
+- [Jaccard Similarity](http://infolab.stanford.edu/~ullman/mmds/ch3.pdf)
 
 ### sampling
 `python tredec.dimacs.tree.py --orig ~/Theory/DataSets/out.subelj_euroroad_euroroad --peoh mcs`
