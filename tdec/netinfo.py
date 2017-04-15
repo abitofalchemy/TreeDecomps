@@ -2,6 +2,7 @@
 import networkx as nx
 import os, sys
 import load_edgelist_from_dataframe as dfe
+from numpy import mean 
 
 
 if len(sys.argv)>1:
@@ -19,6 +20,6 @@ except  Exception, e:
 
 if df.empty:
   g = nx.read_edgelist(ifile,comments="%")
-print g.number_of_nodes(), g.number_of_edges(),'\t',
+print g.number_of_nodes(), g.number_of_edges(), "%.2f" % mean(g.degree().values()), '\t',
 print os.path.basename(ifile)
 

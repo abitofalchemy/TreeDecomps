@@ -75,9 +75,9 @@ def gen_clique_tree (fname,tw):
         treewidth(root, children,tw)
     print '___ {}'.format(fname)
     print '    Treewidth:', np.max([len(x)-1 for x in tw])
-    print '    Tree:'
     if not tw:
-        wct.walk_ct(root, children, '\t') # print the tree to stdout
+      print '    Tree:'
+      wct.walk_ct(root, children, '\t') # print the tree to stdout
 
 
 def get_parser ():
