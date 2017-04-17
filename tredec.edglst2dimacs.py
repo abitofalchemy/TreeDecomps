@@ -14,15 +14,12 @@ from tdec.PHRG import graph_checks
 import subprocess
 import math
 import tdec.graph_sampler as gs
-import platform 
 
 global args
 
 def get_parser ():
     parser = argparse.ArgumentParser(description='Given an edgelist and PEO heuristic perform tree decomposition')
     parser.add_argument('--orig', required=True, help='input the reference graph in edgelist format')
-    parser.add_argument('--peoh', required=True, help='Var. elim method such as mcs, lexm, mind, minf, etc')
-    parser.add_argument('-tw', action='store_true',  default=False, required=False, help='print treewidth from one of several var elim methods')
     parser.add_argument('--version', action='version', version=__version__)
     return parser
 
@@ -31,10 +28,7 @@ def dimacs_nddgo_tree(dimacsfnm_lst, heuristic):
 
     for dimacsfname in dimacsfnm_lst:
         nddgoout = ""
-        if platform.system() == "Linux":
-          args = ["bin/linux/serial_wis -f {} -nice -{} -w {}.tree".format(dimacsfname, heuristic, dimacsfname)]
-        else:
-          args = ["bin/mac/serial_wis -f {} -nice -{} -w {}.tree".format(dimacsfname, heuristic, dimacsfname)]
+        args = ["bin/mac/serial_wis -f {} -nice -{} -w {}.tree".format(dimacsfname, heuristic, dimacsfname)]
         while not nddgoout:
             popen = subprocess.Popen(args, stdout=subprocess.PIPE, shell=True)
             popen.wait()
@@ -142,15 +136,15 @@ def nx_edges_to_nddgo_graph_sampling(graph, n, m, peo_h):
 
     return basefname
 
-def edgelist_dimacs_graph(orig_graph, peo_h):
+def edgelist_dimacs_graph(orig_graph, peo_h=""):
     fname = orig_graph
     gname = os.path.basename(fname).split(".")
     gname = sorted(gname,reverse=True, key=len)[0]
 
     G = nx.read_edgelist(fname, comments="%", data=False, nodetype=int)
-    # print "...",  G.number_of_nodes(), G.number_of_edges()
+    print "...",  G.number_of_nodes(), G.number_of_edges()
     # from numpy import max
-    # print "...",  max(G.nodes()) ## to handle larger 300K+ nodes with much larger labels
+    print "...",  max(G.nodes()) ## to handle larger 300K+ nodes with much larger labels
 
     N = max(G.nodes())
     M = G.number_of_edges()
@@ -164,54 +158,20 @@ def edgelist_dimacs_graph(orig_graph, peo_h):
 
     G.name = gname
 
-    # print "...",  G.number_of_nodes(), G.number_of_edges()
-    if G.number_of_nodes() > 500:
-        return (nx_edges_to_nddgo_graph_sampling(G, n=N, m=M, peo_h=peo_h), gname)
-    else:
-        return (nx_edges_to_nddgo_graph(G, n=N, m=M, peoh=peo_h), gname)
+    print "...",  G.number_of_nodes(), G.number_of_edges()
+    ## process the whole graph ##
+    ## ----------------------- ##
+    return (nx_edges_to_nddgo_graph(G, n=N, m=M, peoh=peo_h), gname)
 
-def print_treewidth (in_dimacs, var_elim):
-    nddgoout = ""
-    args = ["bin/mac/serial_wis -f {} -nice -{} -width".format(in_dimacs, var_elim)]
-    while not nddgoout:
-        popen = subprocess.Popen(args, stdout=subprocess.PIPE, shell=True)
-        popen.wait()
-        # output = popen.stdout.read()
-        out, err = popen.communicate()
-        nddgoout = out.split('\n')
-    print nddgoout
-    return nddgoout
 
 def main ():
     parser = get_parser()
     args = vars(parser.parse_args())
 
+    # edglst_dimacs_tree_phrg(args['orig'], args['peoh'])  # gen synth graph
+    dimacs_g, gname = edgelist_dimacs_graph(args['orig'])
 
 
-    dimacs_g, gname = edgelist_dimacs_graph(args['orig'], args['peoh'])
-
-    if args['tw']:
-        print_treewidth(dimacs_g[0], args['peoh'])
-    else:
-        if len(dimacs_g) == 1:
-            dimacs_t = dimacs_nddgo_tree(dimacs_g, args['peoh'])
-        else:
-            import time
-            time.sleep(2)
-            subgraphs_lst= glob.glob(dimacs_g+"*dimacs")
-            # process multi subgraphs
-            dimacs_t = dimacs_nddgo_tree(subgraphs_lst, args['peoh']) # pass list of subgraphs
-        print dimacs_t, args['orig']
-    # args = ["echo", "--clqtree {}".format(dimacs_t),\
-    #         "--orig {}".format(args['orig'])]
-    # out = ""
-    # # while not out:
-    # popen = subprocess.Popen(args, stdout=subprocess.PIPE, shell=True)
-    # popen.wait()
-    # # output = popen.stdout.read()
-    # out, err = popen.communicate()
-    # nddgoout = out.split('\n')
-    # print nddgoout
 
 if __name__ == '__main__':
     try:
