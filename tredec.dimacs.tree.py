@@ -14,13 +14,14 @@ from tdec.PHRG import graph_checks
 import subprocess
 import math
 import tdec.graph_sampler as gs
-import platform 
+import platform
 
 global args
 
 def get_parser ():
-    parser = argparse.ArgumentParser(description='Given an edgelist and PEO heuristic perform tree decomposition')
-    parser.add_argument('--orig', required=True, help='input the reference graph in edgelist format')
+    parser = argparse.ArgumentParser(description='Given an edgelist and PEO heuristic perform tree decomposition. Example: '
+                                                 '"python tredec.dimacs.tree.py --orig out.filename --peoh mcs"')
+    parser.add_argument('--orig', required=True, help='Input/reference graph in edgelist format (or tar.bz2)')
     parser.add_argument('--peoh', required=True, help='Var. elim method such as mcs, lexm, mind, minf, etc')
     parser.add_argument('-tw', action='store_true',  default=False, required=False, help='print treewidth from one of several var elim methods')
     parser.add_argument('--version', action='version', version=__version__)
@@ -147,7 +148,13 @@ def edgelist_dimacs_graph(orig_graph, peo_h):
     gname = os.path.basename(fname).split(".")
     gname = sorted(gname,reverse=True, key=len)[0]
 
-    G = nx.read_edgelist(fname, comments="%", data=False, nodetype=int)
+    if ".tar.bz2" in fname:
+        from tdec.read_tarbz2 import read_tarbz2_file
+        edglst = read_tarbz2_file(fname)
+        df = pd.DataFrame(edglst,dtype=int)
+        G = nx.from_pandas_dataframe(df,source=0, target=1)
+    else:
+        G = nx.read_edgelist(fname, comments="%", data=False, nodetype=int)
     # print "...",  G.number_of_nodes(), G.number_of_edges()
     # from numpy import max
     # print "...",  max(G.nodes()) ## to handle larger 300K+ nodes with much larger labels

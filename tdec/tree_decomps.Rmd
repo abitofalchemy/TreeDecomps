@@ -32,11 +32,20 @@ K | n   | rules | GCD         | Avg k| Notes|
 3 | 200 | 919   | 4.26 (0.55) | 1.52 | 50 pct  
 3 | 200 | 982   | 1.95 (1.32) | 1.62 | 50 pct
 3 | 200 | 951   | 4.76 (0.32) | 1.33 | 2nd run; 50 pct
-2 | 200 | 629   | 3.42 (0.98) | 1.76 | 3rd run; **25 pct** of the graph 
-5 | 128 | 979   | 4.7	(0.35)  | 1.54 | 50 pct of graph nodes 
+2 | 200 | 629   | 3.42 (0.98) | 1.76 | 3rd run; **25 pct** of the graph
+5 | 128 | 979   | 4.7	(0.35)  | 1.54 | 50 pct of graph nodes
 9 | 64  | 692   | 4.85 (0.26) | 1.19 | 50 pct
 9 | 32  | 203   | - | - | 25 pct coverage, but unable to grow graphs
 17| 32  | 389   | - | - | 50 pct coverage, but unable to grow graphs
+
+## Var elimination rule overlap using RHS isomorphic check
+
+* Setup:
+  1. Generate a group of tree decompositions:
+
+  2. For a given dataset, list the tree files:
+  `ls datasets/ucidata-zachary_`
+  ` python tredec.isomorph_dimacs_tree.py --orig datasets/out.ucidata-zachary --pathfrag datasets/ucidata-zachary_`
 
 ## Convert edgelist files to INDDGO format
 
@@ -45,15 +54,15 @@ K | n   | rules | GCD         | Avg k| Notes|
 # # system("find ~/Theory/Datasets -name 'out.*' | parallel '/Users/saguinag/anaconda2/bin/python write_inddgo_graph.py -g  {}'", intern=TRUE)
 ```
 
-##  Baseline 
+##  Baseline
 
 ### INDDGO to CTs
 - `dimacs_td_ct`
   tree decomp to clique trees
-  
-  
-### INDDGO 
-- List DIMACS_file 
+
+
+### INDDGO
+- List DIMACS_file
   Files with symmetric adj lists. Here the files have a `.graph` extension.
 ```{r todimacs, echo=F}
 graph_files <-system("find INDDGO/sample_graphs -name '*.graph'", intern=TRUE)
@@ -61,15 +70,15 @@ print (graph_files)
 ```
 
 - Converting the edgelist to dimacs format is done after removing unconnected components.
-  This is done by getting the original # of nodes and edges and usin that to write the 
+  This is done by getting the original # of nodes and edges and usin that to write the
   dimcas file. ** Might help to do keep the original nbr of edges **
 
 - Computing the clique trees:
 
 - Elimination Order Options
   mind  min degree heuristic
-  mmd   multiple min degree 
-  minf  min fill 
+  mmd   multiple min degree
+  minf  min fill
   lexm  lex-m bfs heuristic
 
 - optimal MWIS value
@@ -128,7 +137,7 @@ Community clustering or modularity
 # http://stackoverflow.com/questions/25254151/using-igraph-in-python-for-community-detection-and-writing-community-number-for
 # https://lists.nongnu.org/archive/html/igraph-help/2007-09/msg00011.html
 # - Control:
-# - compute modularity on original graphs 
+# - compute modularity on original graphs
 if (0){
    print_modularity <- function(mod){
     sprintf("... modularity: %s",mod)
@@ -136,24 +145,24 @@ if (0){
   print ('Control: modularity of original graphs')
   ctrls <- lapply(netfiles, compute_modularity)
   lapply(ctrls, print_modularity)
-  
+
   # - list newly created edgelist files in ./Results
   print ('Synthetic: modularity of HRG graphs')
   hfiles <- system("find ./Results -iname '*edgelist.bz2'", intern=TRUE)
   gg <- lapply(hfiles, compute_modularity)
   lapply(gg, print_modularity)
-  
+
   # karate <- graph.famous("Zachary")
   # wc <- walktrap.community(karate) # This is looking for structure in your graph
   # modularity(wc) # The modularity score of that structure
   # membership(wc) # The membership of each vertex to groups found
-  # plot(wc, karate) # Showing the network and the groups. 
+  # plot(wc, karate) # Showing the network and the groups.
 }
 ```
 
 #   HRG vs TD and Elimination Orderings
 
-##  Baseline 
+##  Baseline
 We can work with a couple of toy graphs, the WikiExample (Wikipedias Tree Decomposition page example graph) and the BoardExample (described in our CIKM paper).
 
 ```{r visualize, echo=F}
@@ -176,13 +185,13 @@ Using `igraph` on the "BoardExample" toy graph
 # plot(g)
 ```
 Using INDDGO, we compute tree decomposition on this graph. It's visualization according to INDDGO show in the plot below.
-- `gavril` for tree decomposition 
+- `gavril` for tree decomposition
 - `mind` for vertex elimination ordering
 
 ```{r viztd, echo=F}
 # "find INDDGO/sample_graphs -name '*.graph' | parallel 'INDDGO/bin/serial_wis -f {} -gavril -mind -decompose_only -w {}.tree"
 # $ ./bin/serial_wis -f sample_graphs/board_example.graph -gavril -mind -decompose_only -gviz sample_g
-# Control - toy graph 
+# Control - toy graph
 # system("./INDDGO/bin/serial_wis -f INDDGO/sample_graphs/board_example.graph -gavril -mind -decompose_only -gviz ./INDDGO/sample_graphs/viz.test", intern=T)
 # library(Rgraphviz)
 # g2 <- agread("./INDDGO/sample_graphs/viz.test", layout=TRUE)
@@ -261,4 +270,3 @@ lexm:
 - http://sahandsaba.com/thirty-python-language-features-and-tricks-you-may-not-know.html
 - [book mcs tid bit](https://books.google.com/books?id=NFm7BQAAQBAJ&pg=PA186&lpg=PA186&dq=python+algorithm+maximum+cardinality+search+sample+code&source=bl&ots=YAod8M0QFx&sig=7xD9NF5EBK0cNwQgkD-nHkrcZVk&hl=en&sa=X&ved=0ahUKEwj7hqfJ99_SAhWBbSYKHecDCCwQ6AEIQjAG#v=onepage&q=python%20algorithm%20maximum%20cardinality%20search%20sample%20code&f=false)
 - http://code.activestate.com/recipes/221251-maximum-cardinality-matching-in-general-graphs/
-
