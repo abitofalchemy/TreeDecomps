@@ -69,16 +69,17 @@ def gen_clique_tree (fname,tw):
     G.name = fname
 
     root, children =  hrg_clique_tree(G)
+    # print '___ {}'.format(fname)
 
     if tw:
-        tw=[]
-        treewidth(root, children,tw)
-    print '___ {}'.format(fname)
-    print '    Treewidth:', np.max([len(x)-1 for x in tw])
-    if not tw:
+        twdth=[]
+        treewidth(root, children,twdth)
+        # print '    Treewidth:', np.max([len(x)-1 for x in twdth])
+        return np.max([len(x)-1 for x in twdth])
+    else:
       print '    Tree:'
       wct.walk_ct(root, children, '\t') # print the tree to stdout
-
+      return
 
 def get_parser ():
   parser = argparse.ArgumentParser(description='gen_hrg: Generate synthetic graph using HRG model')
@@ -89,10 +90,15 @@ def get_parser ():
 
 
 def main ():
-  parser = get_parser()
-  args = vars(parser.parse_args())
+    parser = get_parser()
+    args = vars(parser.parse_args())
 
-  gen_clique_tree(args['graph'],args['tw'])  #
+    tw_lst = []
+    print '... {}'.format(args['graph'])
+    for i in range(50):
+      tw_lst.append(gen_clique_tree(args['graph'],args['tw']))  #
+    print np.mean(tw_lst), np.std(tw_lst)
+
 
 
 if __name__ == '__main__':

@@ -2,6 +2,7 @@ import networkx as nx
 import os
 import tree_decomposition as td
 import PHRG as hrg
+import numpy as np
 
 def graph_checks(G):
     ## Target number of nodes
@@ -68,7 +69,6 @@ def listit(t):
     return list(map(listit, t)) if isinstance(t, (list, tuple)) else len(t)
 
 
-import numpy as np
-import tst
+#import tst
 # # print tst.s0flat(T)
-print '... Treewidth:', np.max([len(x) for x in tst.flatten(T)])-1
+print '... Treewidth:', np.max([len(x) for x in flatten(T)])-1
