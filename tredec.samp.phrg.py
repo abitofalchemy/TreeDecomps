@@ -54,7 +54,6 @@ def grow_exact_size_hrg_graphs_from_prod_rules(prod_rules, gname, n, runs=1):
   for (id, lhs, rhs, prob) in prod_rules:
     g.add_rule(pcfg.Rule(id, lhs, rhs, prob))
 
-  print "n", n
   num_nodes = n
   if DEBUG: print "Starting max size"
   g.set_max_size(num_nodes)
@@ -79,6 +78,7 @@ def dimacs_td_ct (orig, tdfname):
   G = load_edgelist(fname) # load edgelist into a graph obj
   N = G.number_of_nodes()
   M = G.number_of_edges()
+  print nx.info(G)
   # +++ Graph Checks
   if G is None: sys.exit(1)
   G.remove_edges_from(G.selfloop_edges())
@@ -156,10 +156,9 @@ def dimacs_td_ct (orig, tdfname):
   if 1: print "--------------------"
   print '- P. Rules',    len(rules)
   if 1: print "--------------------"
-
-  g = pcfg.Grammar('S')
-  for (id, lhs, rhs, prob) in rules:
-    g.add_rule(pcfg.Rule(id, lhs, rhs, prob))
+  #g = pcfg.Grammar('S')
+  #for (id, lhs, rhs, prob) in rules:
+  #  g.add_rule(pcfg.Rule(id, lhs, rhs, prob))
 
   # Synthetic Graphs
   hStars = grow_exact_size_hrg_graphs_from_prod_rules(rules, graph_name, G.number_of_nodes(), 20)

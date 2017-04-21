@@ -23,7 +23,7 @@ def get_parser ():
                                                  '"python tredec.dimacs.tree.py --orig out.filename --peoh mcs"')
     parser.add_argument('--orig', required=True, help='Input/reference graph in edgelist format (or tar.bz2)')
     parser.add_argument('--peoh', required=True, help='Var. elim method such as mcs, lexm, mind, minf, etc')
-    parser.add_argument('-tw', action='store_true',  default=False, required=False, help='print treewidth from one of several var elim methods')
+    parser.add_argument('-tw', action='store_true',  default=False, required=False, help='print treewidth given var elim method')
     parser.add_argument('--version', action='version', version=__version__)
     return parser
 
@@ -143,7 +143,7 @@ def nx_edges_to_nddgo_graph_sampling(graph, n, m, peo_h):
 
     return basefname
 
-def edgelist_dimacs_graph(orig_graph, peo_h):
+def edgelist_dimacs_graph(orig_graph, peo_h, prn_tw = False):
     fname = orig_graph
     gname = os.path.basename(fname).split(".")
     gname = sorted(gname,reverse=True, key=len)[0]
@@ -172,14 +172,17 @@ def edgelist_dimacs_graph(orig_graph, peo_h):
     G.name = gname
 
     # print "...",  G.number_of_nodes(), G.number_of_edges()
-    if G.number_of_nodes() > 500:
+    if G.number_of_nodes() > 500 and not prn_tw:
         return (nx_edges_to_nddgo_graph_sampling(G, n=N, m=M, peo_h=peo_h), gname)
     else:
         return (nx_edges_to_nddgo_graph(G, n=N, m=M, peoh=peo_h), gname)
 
 def print_treewidth (in_dimacs, var_elim):
     nddgoout = ""
-    args = ["bin/mac/serial_wis -f {} -nice -{} -width".format(in_dimacs, var_elim)]
+    if platform.system() == "Linux":
+      args = ["bin/linux/serial_wis -f {} -nice -{} -width".format(in_dimacs, var_elim)]
+    else:
+      args = ["bin/mac/serial_wis -f {} -nice -{} -width".format(in_dimacs, var_elim)]
     while not nddgoout:
         popen = subprocess.Popen(args, stdout=subprocess.PIPE, shell=True)
         popen.wait()
@@ -192,13 +195,14 @@ def print_treewidth (in_dimacs, var_elim):
 def main ():
     parser = get_parser()
     args = vars(parser.parse_args())
-
-
-
-    dimacs_g, gname = edgelist_dimacs_graph(args['orig'], args['peoh'])
+    # edgelist to dimacs, if tw then do not sample for a large graph and try to derive
+    # a clique tree / tree decomposition using the given var. elim heuristic
+    dimacs_g, gname = edgelist_dimacs_graph(args['orig'], args['peoh'], args['tw'])
 
     if args['tw']:
         print_treewidth(dimacs_g[0], args['peoh'])
+        if len(dimacs_g) == 1:
+            dimacs_t = dimacs_nddgo_tree(dimacs_g, args['peoh'])
     else:
         if len(dimacs_g) == 1:
             dimacs_t = dimacs_nddgo_tree(dimacs_g, args['peoh'])

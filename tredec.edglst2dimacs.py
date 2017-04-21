@@ -141,7 +141,13 @@ def edgelist_dimacs_graph(orig_graph, peo_h=""):
     gname = os.path.basename(fname).split(".")
     gname = sorted(gname,reverse=True, key=len)[0]
 
-    G = nx.read_edgelist(fname, comments="%", data=False, nodetype=int)
+    if "tar.bz2" in orig_graph:
+      from tdec.read_tarbz2 import read_tarbz2_file
+      edglst = read_tarbz2_file(fname)
+      df = pd.DataFrame(edglst,dtype=int)
+      G = nx.from_pandas_dataframe(df,source=0, target=1)
+    else:
+      G = nx.read_edgelist(fname, comments="%", data=False, nodetype=int)
     print "...",  G.number_of_nodes(), G.number_of_edges()
     # from numpy import max
     print "...",  max(G.nodes()) ## to handle larger 300K+ nodes with much larger labels

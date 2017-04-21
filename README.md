@@ -3,8 +3,6 @@
 Investigating the effect of different tree decompositions on 
 graph grammars. 
 
-## Workflow (Rstudio)
-
 [Main Workflow (Rstudio)](tree_decomps.Rmd)
 
 ## StarLog
@@ -35,12 +33,12 @@ Date   | Notes
 
 ## How to Run Experiments
 
-- Setup the graphs (edgelist network datasets) 
-  `./setup_working_graphs.sh`
+- Download the datasets; run script `download_datasets.sh` for details
 
-- Run from a script to generate clique trees given a dataset and POE heuristic
-  `./experiments.sh datasets/out.ucidata-zachary mcs`
-
+- Run from a script to generate clique trees given a dataset and variable elimination heuristic (poeh)
+  `tdec/exp.linux.sh datasets/out.ucidata-zachary` This script converts and edglist to `.dimacs` and uses that to run INDDGO to generate a tree decomposition. The script passes as one of the arguments each of the variable elimination heuristics we selected for this project. 
+  * to run a single example do:
+    `python  tredec.dimacs.tree.py --orig datasets/out.ucidata-zachary --peoh mcs` this will sample if the graph exceeds 500 nodes. To avoid sampling, do `python  tredec.dimacs.tree.py --orig datasets/out.ucidata-zachary --peoh mcs -tw` this will print the treewidth and  
 - Find Jaccard Similarity between pairs of Production Rules from each of the 
   Tree decomposition heuristics.
   `python tredec.isomorph_dimacs_tree.py --orig datasets/out.ucidata-zachary --pathfrag datasets/ucidata-zachary_`

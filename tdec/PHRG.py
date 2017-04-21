@@ -201,11 +201,11 @@ def probabilistic_hrg (G, num_samples=1, n=None):
       sid += 1
     id += 1
   # print rules
-  print 'P. Rules'
+  # print 'P. Rules'
   g = pcfg.Grammar('S')
   for (id, lhs, rhs, prob) in rules:
     #print type(id), type(lhs), type(rhs), type(prob)
-    print ' ', id, lhs, rhs, prob
+    # print ' ', id, lhs, rhs, prob
     g.add_rule(pcfg.Rule(id, lhs, rhs, prob))
 
   exit()
@@ -221,7 +221,7 @@ def probabilistic_hrg (G, num_samples=1, n=None):
 
   for i in range(0, num_samples):
     rule_list = g.sample(num_nodes)
-    pp.pprint (rule_list)
+    # pp.pprint (rule_list)
     hstar = grow(rule_list, g)[0]
     # print "H* nodes: " + str(hstar.number_of_nodes())
     # print "H* edges: " + str(hstar.number_of_edges())
@@ -346,7 +346,7 @@ if __name__ == "__main__":
   G = nx.read_edgelist('../THRGs/graphkpmg.el')
 
   num_nodes = G.number_of_nodes()
-  print num_nodes, 'nbr of nodes'
+  # nprint num_nodes, 'nbr of nodes'
 
   prod_rules = {}
   # p_rules = probabilistic_hrg(G)
@@ -364,6 +364,6 @@ if __name__ == "__main__":
 # # hstar = pg.grow(prod_rules, prod1G_rule_set, num_nodes) # where did this come from?
   hstar = pg.grow(rules,prod_rule_set, num_nodes)
 #  hstar = grow(prod_rule_set, g)[0]
-  print nx.info(hstar)
-  print 'compared to'
+  # print nx.info(hstar)
+  # print 'compared to'
   print nx.info(G)

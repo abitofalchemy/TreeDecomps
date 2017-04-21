@@ -50,7 +50,7 @@ def grow_exact_size_hrg_graphs_from_prod_rules(prod_rules, gname, n, runs=1):
   for (id, lhs, rhs, prob) in prod_rules:
     g.add_rule(pcfg.Rule(id, lhs, rhs, prob))
 
-  print "n", n
+  #print "n", n
   num_nodes = n
   if DEBUG: print "Starting max size"
   g.set_max_size(num_nodes)
@@ -67,12 +67,12 @@ def grow_exact_size_hrg_graphs_from_prod_rules(prod_rules, gname, n, runs=1):
 
 def dimacs_td_ct (tdfname, orig_fname):
   """ tree decomp to clique-tree """
-  print '... input path:', tdfname
+  if DEBUG: print '... input path:', tdfname
   fname = tdfname
   graph_name = os.path.basename(fname)
   gname = graph_name.split('.')[0]
   gfname = "datasets/out." + gname
-  print '...', gfname
+  if DEBUG: print '...', gfname
 
   G = load_edgelist(orig_fname); print '... graph loaded'
 
@@ -102,12 +102,12 @@ def dimacs_td_ct (tdfname, orig_fname):
   unfold_2wide_tuple(T) # lets me display the tree's frozen sets
 
   prod_rules = {}
-  print '... td.new_visit'
+  if DEBUG: print '... td.new_visit'
   td.new_visit(T, G, prod_rules)
 
-  print "--------------------"
-  print "- Production Rules -"
-  print "--------------------"
+  if DEBUG: print "--------------------"
+  if DEBUG: print "- Production Rules -"
+  if DEBUG: print "--------------------"
 
   for k in prod_rules.iterkeys():
     if DEBUG: print k
@@ -125,24 +125,24 @@ def dimacs_td_ct (tdfname, orig_fname):
     for x in prod_rules[k]:
       rhs = re.findall("[^()]+", x)
       rules.append(("r%d.%d" % (id, sid), "%s" % re.findall("[^()]+", k)[0], rhs, prod_rules[k][x]))
-      print ("r%d.%d" % (id, sid), "%s" % re.findall("[^()]+", k)[0], rhs, prod_rules[k][x])
+      if DEBUG: print ("r%d.%d" % (id, sid), "%s" % re.findall("[^()]+", k)[0], rhs, prod_rules[k][x])
       sid += 1
     id += 1
-  print "--------------------"
-  print '- rules.len', len(rules)
-  print "--------------------"
+  if DEBUG: print "--------------------"
+  if DEBUG: print '- rules.len', len(rules)
+  if DEBUG: print "--------------------"
 
 
 
   g = pcfg.Grammar('S')
   for (id, lhs, rhs, prob) in rules:
     g.add_rule(pcfg.Rule(id, lhs, rhs, prob))
-  print 'Grammar g loaded.'
+  if DEBUG: print 'Grammar g loaded.'
 
   # Synthetic Graphs
   g.set_max_size(G.number_of_nodes())
   for i in range(10):
-    print g.sample(G.number_of_nodes())
+    if DEBUG: print g.sample(G.number_of_nodes())
 
   hStars = grow_exact_size_hrg_graphs_from_prod_rules(rules, graph_name, G.number_of_nodes(), 20)
   metricx = ['degree', 'hops', 'clust', 'assort', 'kcore', 'eigen', 'gcd']
