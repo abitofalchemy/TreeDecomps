@@ -2,12 +2,14 @@ import collections
 
 import networkx as nx
 import numpy as np
-
+import num_to_word as ntw
 
 class Rule(object):
     def __init__(self, id, lhs, rhs, prob, translate=True):
         self.id = id
         self.lhs = lhs
+        if lhs == 'S':
+            print
         if translate:
             self.rhs = rhs
             self.cfg_rhs = self.hrg_to_cfg(lhs, rhs)
@@ -22,8 +24,8 @@ class Rule(object):
         n_symb = []
         for r in rhs:
             if r.endswith(":N"):
-                size = [chr(ord('a') + x) for x in range(0, r.count(",") + 1)]
-                str = ",".join(size)
+                size = [ntw.num_to_word(x) for x in range(0, r.count(",") + 1)]
+                str = ",".join(sorted(size))
                 n_symb.append(str)
             else:
                 for x in r.split(":")[0].split(","):
@@ -146,8 +148,11 @@ class Grammar(object):
                 s = 0.
                 for rule in g.by_lhs[lhs]:
                     p = np.log(rule.prob)
-
-                    nts = [nt_to_index[x] for x in rule.cfg_rhs if x in g.nonterminals]
+                    nts = []
+                    for x in rule.cfg_rhs:
+                        if x in g.nonterminals:
+                            nts.append ( nt_to_index[x])
+                    #nts = [nt_to_index[x] for x in rule.cfg_rhs if x in g.nonterminals]
                     n = lhs_size - (len(rule.cfg_rhs) - len(nts))  # total size available for nonterminals
 
                     if len(nts) == 0:

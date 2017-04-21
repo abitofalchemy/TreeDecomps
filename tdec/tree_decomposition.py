@@ -233,15 +233,15 @@ def get_production_rule(G, child, itx):
     #return lhs, rhs
     return rhs
 
-
+import num_to_word as ntw
 def add_to_prod_rules(production_rules, lhs, rhs, s):
     prod_rules = production_rules
-    letter='a'
+    letter=0
     d = {}
 
     for x in lhs:
-        d[x]= letter
-        letter=chr(ord(letter) + 1)
+        d[x]= ntw.num_to_word(letter)
+        letter += 1
 
     lhs_s = set()
     for x in lhs:

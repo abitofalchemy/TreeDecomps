@@ -142,7 +142,7 @@ def dimacs_td_ct (tdfname, orig_fname):
   # Synthetic Graphs
   g.set_max_size(G.number_of_nodes())
   for i in range(10):
-    if DEBUG: print g.sample(G.number_of_nodes())
+    print g.sample(G.number_of_nodes())
 
   hStars = grow_exact_size_hrg_graphs_from_prod_rules(rules, graph_name, G.number_of_nodes(), 20)
   metricx = ['degree', 'hops', 'clust', 'assort', 'kcore', 'eigen', 'gcd']

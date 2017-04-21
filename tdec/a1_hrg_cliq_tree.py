@@ -37,7 +37,7 @@ def get_clique_tree(g):
 def load_edgelist(gfname):
   import pandas as pd
   try:
-    edglst = pd.read_csv(gfname, comment='%', delimiter='\t')
+    edglst = pd.read_csv(gfname, comment='%', delimiter='\s+')
     # print edglst.shape
     if edglst.shape[1]==1: edglst = pd.read_csv(gfname, comment='%', delimiter="\s+")
 
