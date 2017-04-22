@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 __version__="0.1.0"
 
 # ToDo:
@@ -20,9 +21,9 @@ global args
 
 def get_parser ():
     parser = argparse.ArgumentParser(description='Given an edgelist and PEO heuristic perform tree decomposition. Example: '
-                                                 '"python tredec.dimacs.tree.py --orig out.filename --peoh mcs"')
+                                                 '"python tredec.dimacs.tree.py --orig out.filename --varel mcs"')
     parser.add_argument('--orig', required=True, help='Input/reference graph in edgelist format (or tar.bz2)')
-    parser.add_argument('--peoh', required=True, help='Var. elim method such as mcs, lexm, mind, minf, etc')
+    parser.add_argument('--varel', required=True, help='Var. elim method such as mcs, lexm, mind, minf, etc')
     parser.add_argument('-tw', action='store_true',  default=False, required=False, help='print treewidth given var elim method')
     parser.add_argument('--version', action='version', version=__version__)
     return parser
@@ -67,9 +68,9 @@ def load_edgelist(gfname):
   g.name = os.path.basename(gfname)
   return g
 
-def nx_edges_to_nddgo_graph (G,n,m, sampling=False, peoh=""):
-    # print args['peoh']
-    ofname = 'datasets/{}_{}.dimacs'.format(G.name, peoh)
+def nx_edges_to_nddgo_graph (G,n,m, sampling=False, varel=""):
+    # print args['varel']
+    ofname = 'datasets/{}_{}.dimacs'.format(G.name, varel)
     # print '...', ofname
 
     if sampling:
@@ -175,7 +176,7 @@ def edgelist_dimacs_graph(orig_graph, peo_h, prn_tw = False):
     if G.number_of_nodes() > 500 and not prn_tw:
         return (nx_edges_to_nddgo_graph_sampling(G, n=N, m=M, peo_h=peo_h), gname)
     else:
-        return (nx_edges_to_nddgo_graph(G, n=N, m=M, peoh=peo_h), gname)
+        return (nx_edges_to_nddgo_graph(G, n=N, m=M, varel=peo_h), gname)
 
 def print_treewidth (in_dimacs, var_elim):
     nddgoout = ""
@@ -197,21 +198,21 @@ def main ():
     args = vars(parser.parse_args())
     # edgelist to dimacs, if tw then do not sample for a large graph and try to derive
     # a clique tree / tree decomposition using the given var. elim heuristic
-    dimacs_g, gname = edgelist_dimacs_graph(args['orig'], args['peoh'], args['tw'])
+    dimacs_g, gname = edgelist_dimacs_graph(args['orig'], args['varel'], args['tw'])
 
     if args['tw']:
-        print_treewidth(dimacs_g[0], args['peoh'])
+        print_treewidth(dimacs_g[0], args['varel'])
         if len(dimacs_g) == 1:
-            dimacs_t = dimacs_nddgo_tree(dimacs_g, args['peoh'])
+            dimacs_t = dimacs_nddgo_tree(dimacs_g, args['varel'])
     else:
         if len(dimacs_g) == 1:
-            dimacs_t = dimacs_nddgo_tree(dimacs_g, args['peoh'])
+            dimacs_t = dimacs_nddgo_tree(dimacs_g, args['varel'])
         else:
             import time
             time.sleep(2)
             subgraphs_lst= glob.glob(dimacs_g+"*dimacs")
             # process multi subgraphs
-            dimacs_t = dimacs_nddgo_tree(subgraphs_lst, args['peoh']) # pass list of subgraphs
+            dimacs_t = dimacs_nddgo_tree(subgraphs_lst, args['varel']) # pass list of subgraphs
         print dimacs_t, args['orig']
     # args = ["echo", "--clqtree {}".format(dimacs_t),\
     #         "--orig {}".format(args['orig'])]
