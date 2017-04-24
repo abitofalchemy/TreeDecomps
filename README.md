@@ -3,7 +3,35 @@
 Investigating the effect of different tree decompositions on 
 graph grammars. 
 
-[Main Workflow (Rstudio)](tree_decomps.Rmd)
+## How to Run Experiments
+- Generate a tree decomposition using "minf" variable elimination algorithm
+  `./tredec.dimacs.tree.py --orig datasets/out.contact --peoh minf`
+
+- Print treewidth & compute a tree decomposition given the variable elimination using flag: `varel`
+  `./tredec.dimacs.tree.py --orig datasets/out.contact -peoh minf -tw`
+
+- Generate HRG graphs from the tree decomposition (`.dimacs.tree` file) generated in one of the above steps.
+  `./tredec.phrg.py --orig datasets/out.contact --clqtree datasets/contact_minf.dimacs.tree`
+
+- Batch processing on DSG1:
+Tree decompositions: `tdec/exp.linux.sh datasets/out.contact`
+HRG graph geneation: `tdec/exp.metrics.sh datasets/out.contact`
+Jaccard Similarity:  `./tredec.isomorph_dimacs_tree.py --orig datasets/out.contact --pathfrag datasets/contact_` Jaccard Similarity b/w pairs of Production Rules from each of the Tree decomposition heuristics.
+
+### Jaccard Dist
+- http://stackoverflow.com/questions/11911252/python-jaccard-distance-using-word-intersection-but-not-character-intersection
+- [Jaccard Similarity](http://infolab.stanford.edu/~ullman/mmds/ch3.pdf)
+
+### sampling
+`python tredec.dimacs.tree.py --orig ~/Theory/DataSets/out.subelj_euroroad_euroroad --peoh mcs`
+`python tredec.samp.phrg.py --orig ~/Theory/DataSets/out.subelj_euroroad_euroroad --tree datasets/subelj_euroroad_euroroad`
+
+## Battery of Datasets
+- Download the datasets; run script `download_datasets.sh` for details
+
+
+## 
+<!--[Main Workflow (Rstudio)](tree_decomps.Rmd)-->
 
 ## StarLog
 
@@ -29,26 +57,9 @@ Date   | Notes
 11Jan17| Figure out how to take a TD from inddgo and derive a set of production rules
 11Jan17| Expand related work & experiments
 
-# Experiments
 
-## How to Run Experiments
-
-- Download the datasets; run script `download_datasets.sh` for details
-
-- Run from a script to generate clique trees given a dataset and variable elimination heuristic (poeh)
-  `tdec/exp.linux.sh datasets/out.ucidata-zachary` This script converts and edglist to `.dimacs` and uses that to run INDDGO to generate a tree decomposition. The script passes as one of the arguments each of the variable elimination heuristics we selected for this project. 
-  * to run a single example do:
-    `python  tredec.dimacs.tree.py --orig datasets/out.ucidata-zachary --peoh mcs` this will sample if the graph exceeds 500 nodes. To avoid sampling, do `python  tredec.dimacs.tree.py --orig datasets/out.ucidata-zachary --peoh mcs -tw` this will print the treewidth and  
-- Find Jaccard Similarity between pairs of Production Rules from each of the 
-  Tree decomposition heuristics.
-  `python tredec.isomorph_dimacs_tree.py --orig datasets/out.ucidata-zachary --pathfrag datasets/ucidata-zachary_`
-
-### Jaccard Dist
-- http://stackoverflow.com/questions/11911252/python-jaccard-distance-using-word-intersection-but-not-character-intersection
-- [Jaccard Similarity](http://infolab.stanford.edu/~ullman/mmds/ch3.pdf)
-
-### sampling
-`python tredec.dimacs.tree.py --orig ~/Theory/DataSets/out.subelj_euroroad_euroroad --peoh mcs`
-`python tredec.samp.phrg.py --orig ~/Theory/DataSets/out.subelj_euroroad_euroroad --tree datasets/subelj_euroroad_euroroad`
-
+<!--- Run from a script to generate clique trees given a dataset and variable elimination heuristic (poeh)-->
+<!--`tdec/exp.linux.sh datasets/out.ucidata-zachary` This script converts and edglist to `.dimacs` and uses that to run INDDGO to generate a tree decomposition. The script passes as one of the arguments each of the variable elimination heuristics we selected for this project. -->
+<!--* to run a single example do:-->
+<!--`python  tredec.dimacs.tree.py --orig datasets/out.ucidata-zachary --peoh mcs` this will sample if the graph exceeds 500 nodes. To avoid sampling, do `python  tredec.dimacs.tree.py --orig datasets/out.ucidata-zachary --peoh mcs -tw` this will print the treewidth and  -->
 

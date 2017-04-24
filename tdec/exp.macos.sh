@@ -15,4 +15,4 @@ echo $bname
 # ## Process tree to HRGs
 # ./trde.dimacs_tree_2cliquetree.py --clqtree Results/"$bname"."$2".dimacs.tree --orig $1
 
-python tredec.dimacs.tree.py --orig  $1 --peoh $2
+cat tdec/heuristics | parallel python "tredec.dimacs.tree.py --orig '$1' --varel {}"
