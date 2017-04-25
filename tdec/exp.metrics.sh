@@ -9,4 +9,4 @@ echo $bname
 #   Arguments:
 #   original (reference) dataset in eddgelist format
 #   
-find datasets -name "$bname"_*dimacs.tree | parallel python "tredec.phrg.py --orig '$1' --clqtree" {} ">" {}.log
+find datasets -name "$bname"_*dimacs.tree | parallel python "td.phrg.py --orig '$1' --clqtree" {} ">" {}.log

@@ -19,7 +19,7 @@ from collections import defaultdict
 from itertools import combinations
 from glob import glob
 from json import dumps
-
+import numpy as np
 import networkx as nx
 import pandas as pd
 
@@ -39,7 +39,7 @@ def get_parser ():
   return parser
 
 def listify_rhs(rhs_rule):
-  print type(rhs_rule), len(rhs_rule)
+  if DBG: print type(rhs_rule), len(rhs_rule)
   rhs_clean= [f[1:-1] for f in re.findall("'.+?'", rhs_rule)]
   return rhs_clean
 
@@ -117,10 +117,15 @@ def isomorphic_test_from_dimacs_tree(orig, tdfname, gname=""):
   prod_rules = {}
   stacked_df = pd.DataFrame()
 
+  mat_dict = {}
+  for i,x in enumerate(sorted(files)):
+    mat_dict[os.path.basename(x).split(".")[0].split("_")[-1]]=i
+    if DBG: print os.path.basename(x).split(".")[0].split("_")[-1]
+
   for tfname in files:
     tname = os.path.basename(tfname).split(".")
     tname = "_".join(tname[:2])
-    
+
     with open(tfname, 'r') as f:  # read tree decomp from inddgo
       lines = f.readlines()
       lines = [x.rstrip('\r\n') for x in lines]
@@ -151,7 +156,7 @@ def isomorphic_test_from_dimacs_tree(orig, tdfname, gname=""):
     # print ">>",len(T)
 
     td.new_visit(T, G, prod_rules)
-    
+
 
     for k in prod_rules.iterkeys():
       if DBG: print k
@@ -180,8 +185,11 @@ def isomorphic_test_from_dimacs_tree(orig, tdfname, gname=""):
     df['cate'] = tname
     stacked_df = pd.concat([df, stacked_df])
 
-  jaccard_coeff_isomorphic_rules_check(stacked_df)
-
+  np_sqr_mtrx = jaccard_coeff_isomorphic_rules_check(stacked_df, mat_dict)
+  print gname
+  df = pd.DataFrame(np_sqr_mtrx, columns=[x for x in sorted(mat_dict.keys())])
+  df.index = sorted(mat_dict.keys())
+  df.to_csv("Results/{}_isom.tsv".format(gname), sep=",")
 
 def label_match(x, y):
   return x[0]['label'] == y[0]['label']
@@ -225,28 +233,37 @@ def jacc_dist_for_pair_dfrms(df1, df2):
   if DBG: print  dumps(ruleprob2sum, indent=4, sort_keys=True)
   if DBG: print "len(df1) + len(df2)", len(df1),len(df2)
   if DBG: print "Overlapping rules  ", len(ruleprob2sum.keys()), sum([len(x) for x in ruleprob2sum.values()])
-  print "Jaccard Sim:\t", (len(ruleprob2sum.keys())+sum([len(x) for x in ruleprob2sum.values()]))/ float(len(df1) + len(df2))
-
+  if DBG: print "Jaccard Sim:\t", (len(ruleprob2sum.keys())+sum([len(x) for x in ruleprob2sum.values()]))/ float(len(df1) + len(df2))
+  return (len(ruleprob2sum.keys())+sum([len(x) for x in ruleprob2sum.values()]))/ float(len(df1) + len(df2))
 
 def jaccard_coeff_isomorphic_rules_check_forfilepair(pr_grpby, mdf):
-  print pr_grpby[0], pr_grpby[1],
-  jacc_dist_for_pair_dfrms(mdf[mdf['cate']==pr_grpby[0]], \
+  if DBG: print pr_grpby[0], pr_grpby[1],
+  return jacc_dist_for_pair_dfrms(mdf[mdf['cate']==pr_grpby[0]], \
                            mdf[mdf['cate']==pr_grpby[1]] )
 
 
-def jaccard_coeff_isomorphic_rules_check(dfrm):
+def jaccard_coeff_isomorphic_rules_check(dfrm, headers_d):
   if dfrm.empty: return
 
   dfrm.columns = ['rnbr', 'lhs', 'rhs', 'pr', 'cate']
   gb = dfrm.groupby(['cate']).groups
   if DBG: print gb.keys()
-  for p in combinations(gb.keys(), 2):
-    if DBG: print p
-    jaccard_coeff_isomorphic_rules_check_forfilepair(p, dfrm)
-  
+  sqr_mtrx = np.zeros(shape=(len(headers_d),len(headers_d)))
+
+  for p in combinations(sorted(gb.keys()), 2):
+    if DBG: print [x.split("_")[1] for x in p],
+    if DBG: print [headers_d[x.split("_")[1]] for x in p] #[0].split("_")[-1]
+    j = headers_d[p[0].split("_")[1]]
+    i = headers_d[p[1].split("_")[1]]
+    sqr_mtrx[i,j] = jaccard_coeff_isomorphic_rules_check_forfilepair(p, dfrm)
+    # break
+    # sqr_mtrx[[headers_d[x.split("_")[1]] for x in p]] = jaccard_coeff_isomorphic_rules_check_forfilepair(p, dfrm)
+
+  print sqr_mtrx
+  return sqr_mtrx # numpy.savetxt("foo.csv", a, delimiter=",")
 
   exit()
-  
+
   seen_rules = defaultdict(list)
   ruleprob2sum = defaultdict(list)
   cnrules = []
