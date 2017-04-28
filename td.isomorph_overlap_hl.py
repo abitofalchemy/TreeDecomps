@@ -169,6 +169,8 @@ def isomorphic_test_from_dimacs_tree (orig, tdfname, gname=""):
     # print ">>",len(T)
 
     td.new_visit(T, G, prod_rules)
+    from json import dumps
+    #print dumps(prod_rules, indent=4, sort_keys=True)
 
     for k in prod_rules.iterkeys():
       if DBG: print k
@@ -183,6 +185,8 @@ def isomorphic_test_from_dimacs_tree (orig, tdfname, gname=""):
     if DBG: print '- Prod. Rules'
     if DBG: print "--------------------"
     rules = []
+    #print dumps(prod_rules, indent=4, sort_keys=True)
+
     id = 0
     for k, v in prod_rules.iteritems():
       sid = 0
@@ -210,7 +214,7 @@ def isomorphic_test_from_dimacs_tree (orig, tdfname, gname=""):
 
   print "\nIsomorphic intersection of the prod rules\n", "~" * 20
   print "  ", iso_interx.shape
-  if args['verb']: print iso_interx.to_string()
+  # print iso_interx.to_string()
   #   # print k,v
   #   sid = 0
   #   for ix, r in iso_intxn[iso_intxn['lhs']==k].iterrows():

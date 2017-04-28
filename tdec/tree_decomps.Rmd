@@ -265,6 +265,7 @@ lexm:
 
 
 # Reference Links
+- [Jaccard Sim](http://infolab.stanford.edu/~ullman/mmds/ch3.pdf)
 - [Net Viz in R](http://kateto.net/network-visualization)
 - [maxflow](http://www.cs.princeton.edu/courses/archive/spr04/cos226/lectures/maxflow.4up.pdf)
 - http://sahandsaba.com/thirty-python-language-features-and-tricks-you-may-not-know.html

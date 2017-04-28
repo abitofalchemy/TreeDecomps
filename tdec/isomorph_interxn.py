@@ -247,7 +247,6 @@ def isomorph_intersection_2dfstacked(dfx):
     for k2, v2 in seen_rules.iteritems():
       if k2[1] in k: # weird that I have to use "in"
         rhs_els += 1 + len(v2)
-      # print "%d.%d" % ()
     # print "  ", rhs_els
     lhs_counts_dict[k]=rhs_els
 
@@ -260,8 +259,20 @@ def isomorph_intersection_2dfstacked(dfx):
     df_interx.append(df_union.loc[k[0]].values)
 
   df_interx = pd.DataFrame(df_interx)
-  df_interx = df_interx.sort_values(by=[1])
-  # print
+  # df_interx = df_interx.sort_values(by=[1])
+
+  print df_interx.to_string()
+  gb = df_interx.groupby([2]).groups
+  id = 0
+  for k,v in gb.iteritems():
+    sid=0
+    for w in v:
+      # print "r%d.%d" % (id,sid)
+      df_interx.set_value(w, [1], "r%d.%d" % (id,sid))
+      sid += 1
+    id += 1
+  print df_interx.to_string()
+
   # print dfx[ dfx['iso'] == True ] # this is the union of the rules
   # print df_interx# this is the intersetion with modified probs
   # df_interx = df_interx.reset_index(drop=True)
