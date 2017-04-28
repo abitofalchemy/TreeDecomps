@@ -15,4 +15,4 @@ transbin
 .RData
 .idea/
 .ipynb_checkpoints/
-
+*.pdf
