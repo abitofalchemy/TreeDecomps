@@ -25,6 +25,7 @@ DBG = False
 def get_parser ():
     parser = argparse.ArgumentParser(description='Infer a model given a graph (derive a model)')
     parser.add_argument('--orig',  required=True, nargs=1, help='Filename of edgelist graph')
+    parser.add_argument('-tw',  required=False, action='store_true', default=False, help='Print tw')
     parser.add_argument('--chunglu', help='Generate chunglu graphs',action='store_true')
     parser.add_argument('--kron',    help='Generate Kronecker product graphs',action='store_true')
     parser.add_argument('--version', action='version', version=__version__)
@@ -264,8 +265,23 @@ def plot_g_hstars(orig_graph, synthetic_graphs):
     #
     plt.savefig('tmpfig', bbox_inches='tight')
 
+def treewidth(parent, children,twlst ):
+  twlst.append(parent)
+  for x in children:
+    if isinstance(x, (tuple,list)):
+      treewidth(x[0],x[1],twlst)
+    else:
+      print type(x), len(x)
 
-def get_hrg_production_rules(edgelist_data_frame, graph_name):
+def print_treewdith(tree):
+  root, children = tree
+  print " computing tree width"
+  twdth=[]
+  treewidth(root, children,twdth)
+  print '    Treewidth:', np.max([len(x)-1 for x in twdth])
+
+
+def get_hrg_production_rules(edgelist_data_frame, graph_name, tw=False):
   from tdec.growing import derive_prules_from
 
   df = edgelist_data_frame
@@ -314,6 +330,10 @@ def get_hrg_production_rules(edgelist_data_frame, graph_name):
     # td.new_visit(T, G, prod_rules, TD)
     td.new_visit(T, G, prod_rules)
 
+  if tw:
+    print_treewdith(T);
+    exit()
+  
   if DBG: print
   if DBG: print "--------------------"
   if DBG: print "- Production Rules -"
@@ -371,7 +391,7 @@ if __name__ == '__main__':
       sys.exit(0)
 
   try:
-    get_hrg_production_rules(df,g_name)
+    get_hrg_production_rules(df,g_name, args['tw'])
   except  Exception, e:
     print 'ERROR, UNEXPECTED SAVE PLOT EXCEPTION'
     print str(e)
