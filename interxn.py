@@ -20,7 +20,7 @@ import networkx as nx
 import pandas as pd
 import numpy as np
 import tdec.PHRG as phrg
-# import tdec.net_metrics as metrics
+import tdec.net_metrics as metrics
 import tdec.probabilistic_cfg as pcfg
 # import tdec.tree_decomposition as td
 # from   tdec.a1_hrg_cliq_tree import load_edgelist,unfold_2wide_tuple
@@ -159,13 +159,21 @@ def grow_exact_size_hrg_graphs_from_prod_rules(prod_rules, gname, n, runs=1):
 
 # if __name__ == '__main__':
 print len(sys.argv)
-if len(sys.argv)<2:
+if len(sys.argv)<3:
     print "provide input production rules file: ./Results/*.bz2"
+    print "example: python interxn.py ./Results/dsname_file.bz2 dsname"
     sys.exit(1)
 
 df = pd.read_csv(sys.argv[1], index_col=0, compression='bz2')
 # df = pd.read_csv(sys.argv[1], index_col=0, sep="\t")
 # df= df[df['cate']=="ucidata-gama_minf_dimacs"]
+f_ds = "/data/saguinag/datasets/out.{}".format(sys.argv[2])
+graph_name= sys.argv[2]
+gdf = pd.read_csv(f_ds, header=None, comment="%", sep="\t")
+G = nx.from_pandas_dataframe(gdf, 0, 1)
+num_nodes = G.number_of_nodes()
+
+
 rules = []
 for ix,row in df.iterrows():
     id = row[1]
@@ -212,14 +220,18 @@ for (id, lhs, rhs, prob) in rules:
 
 print 'Grammar g loaded.'
 # Synthetic Graphs
-g.set_max_size(16)
-for i in range(10):
-    rule_list = g.sample(16)
-    hStar = phrg.grow(rule_list, g)[0]
-    print i, hStar.number_of_nodes(), hStar.number_of_edges()
+#num_nodes = int(sys.argv[-1])
+g.set_max_size(num_nodes)
 
-# metricx = ['degree', 'hops', 'clust', 'assort', 'kcore', 'eigen', 'gcd']
-# metrics.network_properties([G], metricx, hStars, name=graph_name, out_tsv=True)
+hStars = []
+for i in range(20):
+    rule_list = g.sample(num_nodes)
+    hstar = phrg.grow(rule_list, g)[0]
+    hStars.append(hstar)
+    print i, hstar.number_of_nodes(), hstar.number_of_edges()
+
+metricx = ['degree', 'hops', 'clust', 'gcd']
+metrics.network_properties([G], metricx, hStars, name=graph_name, out_tsv=True)
 
 # parser = get_parser()
 # args = vars(parser.parse_args())

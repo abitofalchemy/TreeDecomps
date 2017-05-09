@@ -27,7 +27,9 @@ def get_parser ():
     parser.add_argument('--orig',  required=True, nargs=1, help='Filename of edgelist graph')
     parser.add_argument('--chunglu', help='Generate chunglu graphs',action='store_true')
     parser.add_argument('--kron',    help='Generate Kronecker product graphs',action='store_true')
+    parser.add_argument('-tw', action='store_true', default=False, required=False, help="print xphrg (mcs) tw")
     parser.add_argument('--version', action='version', version=__version__)
+
     return parser
 
 def Hstar_Graphs_Control (G, graph_name, axs):
@@ -265,7 +267,7 @@ def plot_g_hstars(orig_graph, synthetic_graphs):
     plt.savefig('tmpfig', bbox_inches='tight')
 
 
-def get_hrg_production_rules(edgelist_data_frame, graph_name):
+def get_hrg_production_rules(edgelist_data_frame, graph_name, tw=False):
   from tdec.growing import derive_prules_from
 
   df = edgelist_data_frame
@@ -313,6 +315,10 @@ def get_hrg_production_rules(edgelist_data_frame, graph_name):
 
     # td.new_visit(T, G, prod_rules, TD)
     td.new_visit(T, G, prod_rules)
+  
+  if tw:
+    print_treewidth(T)
+    exit()
 
   if DBG: print
   if DBG: print "--------------------"
@@ -371,7 +377,7 @@ if __name__ == '__main__':
       sys.exit(0)
 
   try:
-    get_hrg_production_rules(df,g_name)
+    get_hrg_production_rules(df,g_name, args['tw'])
   except  Exception, e:
     print 'ERROR, UNEXPECTED SAVE PLOT EXCEPTION'
     print str(e)
