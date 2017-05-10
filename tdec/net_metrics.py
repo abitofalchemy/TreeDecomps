@@ -20,6 +20,8 @@ import collections
 from collections import Counter
 from random import sample
 import math
+from threading import Timer
+import platform
 
 def draw_ugander_graphlet_plot(orig_g, mG, ergm=[], rmat=[]):
     df = pd.DataFrame(mG)
@@ -1107,37 +1109,44 @@ def draw_kcore_decomposition(orig_g_M, chunglu_M, HRG_M, pHRG_M, kron_M):
 
 
 def external_rage(G,netname):
-    import subprocess
-    import networkx as nx
-    from pandas import DataFrame
-    from os.path import expanduser
+		import subprocess
+		import networkx as nx
+		from pandas import DataFrame
+		from os.path import expanduser
 
-    # giant_nodes = max(nx.connected_component_subgraphs(G), key=len)
-    giant_nodes = sorted(nx.connected_component_subgraphs(G), key=len, reverse=True)
+		# giant_nodes = max(nx.connected_component_subgraphs(G), key=len)
+		giant_nodes = sorted(nx.connected_component_subgraphs(G), key=len, reverse=True)
 
-    G = nx.subgraph(G, giant_nodes[0])
-    netname = netname.split('.')[0]
-    tmp_file = "tmp_{}.txt".format(netname)
-    with open(tmp_file, 'w') as tmp:
-        for e in G.edges():
-            tmp.write(str(int(e[0])+1) + ' ' + str(int(e[1])+1) + '\n')
+		G = nx.subgraph(G, giant_nodes[0])
+		netname = netname.split('.')[0]
+		tmp_file = "tmp_{}.txt".format(netname)
+		with open(tmp_file, 'w') as tmp:
+				for e in G.edges():
+						tmp.write(str(int(e[0])+1) + ' ' + str(int(e[1])+1) + '\n')
 
-    # args = ("wine", "./RAGE.exe", tmp_file)
-    # args = ("/Volumes/Lexar/SeptBackupMBP/ToolSet/rage/Source_RAGE_unix/RAGE", tmp_file)
-    # args = ("/data/cpennycu/rage/Source_RAGE_unix/RAGE", tmp_file)
-    # args = ("/home/saguinag/Software/rage/Source_RAGE_unix/RAGE", tmp_file)
-    if "Users" in expanduser('~').split('/'):
-      args = ("/Users/saguinag/Research/rage/Source_RAGE_unix/RAGE", tmp_file)
-    else:
-      args = ("/home/saguinag/Software/rage/Source_RAGE_unix/RAGE", tmp_file)
-    popen = subprocess.Popen(args, stdout=subprocess.PIPE)
-    popen.wait()
-    output = popen.stdout.read()
+		# sal updates
+		if platform.system() == "Linux":
+			args = ("./bin/linux/RAGE",  tmp_file)
+		elif platform.system() == "Darwin":
+			args = ("./bin/mac/RAGE",  tmp_file)
+		else:
+			args = ("../RAGE.exe",  tmp_file)
+#		popen = subprocess.Popen(args, stdout=subprocess.PIPE)
+#		popen.wait()
+#		output = popen.stdout.read()
+		proc = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+		kill_proc = lambda p: p.kill()
+		timer = Timer(600, kill_proc, [proc])
+		try:
+			timer.start()
+			output, stderr = proc.communicate()
+		finally:
+			timer.cancel()
 
-    # Results are hardcoded in the exe
-    df = DataFrame.from_csv("./Results/UNDIR_RESULTS_tmp_{}.csv".format(netname), header=0, sep=',', index_col=0)
-    df = df.drop('ASType', 1)
-    return df
+		# Results are hardcoded in the exe
+		df = DataFrame.from_csv("./Results/UNDIR_RESULTS_tmp_{}.csv".format(netname), header=0, sep=',', index_col=0)
+		df = df.drop('ASType', 1)
+		return df
 
 
 def tijana_eval_rgfd(G_df, H_df):

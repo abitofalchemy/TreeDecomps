@@ -21,14 +21,14 @@ import tdec.graph_sampler as gs
 
 
 DBG = False
-
+#~#~#~#~#~##~#~#~#~#~##~#~#~#~#~##~#~#~#~#~##~#~#~#~#~##~#~#~#~#~##~#~#~#~#~##~#~#~#~#~##~#~#~#~#~##~#~#~#~100
 def get_parser ():
     parser = argparse.ArgumentParser(description='Infer a model given a graph (derive a model)')
     parser.add_argument('--orig',  required=True, nargs=1, help='Filename of edgelist graph')
-    parser.add_argument('-tw',  required=False, action='store_true', default=False, help='Print tw')
     parser.add_argument('--chunglu', help='Generate chunglu graphs',action='store_true')
     parser.add_argument('--kron',    help='Generate Kronecker product graphs',action='store_true')
-    parser.add_argument('-tw', action='store_true', default=False, required=False, help="print xphrg (mcs) tw")
+    parser.add_argument('--samp',    help='Sample sg>dur>gg2targetN', action='store_true')
+    parser.add_argument('-tw', action='store_true', default=False, required=False, help="print xphrg mcs tw")
     parser.add_argument('--version', action='version', version=__version__)
 
     return parser
@@ -99,36 +99,37 @@ def pandas_dataframes_from_edgelists (el_files):
   return list_of_dataframes
 
 def grow_exact_size_hrg_graphs_from_prod_rules(prod_rules, gname, n, runs=1):
-  """
-  Args:
-    rules: production rules (model)
-    gname: graph name
-    n:     target graph order (number of nodes)
-    runs:  how many graphs to generate
+	"""
+	Args:
+		rules: production rules (model)
+		gname: graph name
+		n:     target graph order (number of nodes)
+		runs:  how many graphs to generate
 
-  Returns: list of synthetic graphs
+	Returns: list of synthetic graphs
 
-  """
-  if n <=0: sys.exit(1)
+	"""
+	if n <=0: sys.exit(1)
 
 
-  g = pcfg.Grammar('S')
-  for (id, lhs, rhs, prob) in prod_rules:
-    g.add_rule(pcfg.Rule(id, lhs, rhs, prob))
+	g = pcfg.Grammar('S')
+	for (id, lhs, rhs, prob) in prod_rules:
+		g.add_rule(pcfg.Rule(id, lhs, rhs, prob))
 
-  print "n", n
-  num_nodes = n
-  if DBG: print "Starting max size"
-  g.set_max_size(num_nodes)
-  if DBG: print "Done with max size"
+	print "pr", len(prod_rules), 
+	print "n", n
+	num_nodes = n
+	if DBG: print "Starting max size"
+	g.set_max_size(num_nodes)
+	if DBG: print "Done with max size"
 
-  hstars_lst = []
-  for i in range(0, runs):
-    rule_list = g.sample(num_nodes)
-    hstar = phrg.grow(rule_list, g)[0]
-    hstars_lst.append(hstar)
+	hstars_lst = []
+	for i in range(0, runs):
+		rule_list = g.sample(num_nodes)
+		hstar = phrg.grow(rule_list, g)[0]
+		hstars_lst.append(hstar)
 
-  return hstars_lst
+	return hstars_lst
 
 def pwrlaw_plot (xdata, ydata, yerr):
     from scipy import linspace, randn, log10, optimize, sqrt
@@ -283,124 +284,127 @@ def print_treewdith(tree):
   print '    Treewidth:', np.max([len(x)-1 for x in twdth])
 
 
-def get_hrg_production_rules(edgelist_data_frame, graph_name, tw=False):
-  from tdec.growing import derive_prules_from
+def get_hrg_production_rules(edgelist_data_frame, graph_name, tw=False, n_subg=2,n_nodes=300):
+	from tdec.growing import derive_prules_from
 
-  df = edgelist_data_frame
-  print df.shape[1]
-  if df.shape[1] >=3:
-    G = nx.from_pandas_dataframe(df, 'src', 'trg', ['ts'])  # whole graph
-  else:
-    G = nx.from_pandas_dataframe(df, 'src', 'trg')
-  G.name = graph_name
-  # pos = nx.spring_layout(G)
-  # prules = derive_prules_from([G])
+	df = edgelist_data_frame
+	if df.shape[1] == 4:
+		G = nx.from_pandas_dataframe(df, 'src', 'trg', edge_attr=True)  # whole graph
+	elif df.shape[1] ==3:
+		G = nx.from_pandas_dataframe(df, 'src', 'trg', ['ts'])  # whole graph
+	else:
+		G = nx.from_pandas_dataframe(df, 'src', 'trg')
+	G.name = graph_name
 
-  G.remove_edges_from(G.selfloop_edges())
-  giant_nodes = max(nx.connected_component_subgraphs(G), key=len)
-  G = nx.subgraph(G, giant_nodes)
+	G.remove_edges_from(G.selfloop_edges())
+	giant_nodes = max(nx.connected_component_subgraphs(G), key=len)
+	G = nx.subgraph(G, giant_nodes)
 
-  num_nodes = G.number_of_nodes()
+#		if n==0:
+	num_nodes = G.number_of_nodes()
 
+	phrg.graph_checks(G)
 
-  phrg.graph_checks(G)
+	if DBG: print
+	if DBG: print "--------------------"
+	if DBG: print "-Tree Decomposition-"
+	if DBG: print "--------------------"
 
-  if DBG: print
-  if DBG: print "--------------------"
-  if DBG: print "-Tree Decomposition-"
-  if DBG: print "--------------------"
+	prod_rules = {}
+	K = n_subg
+	n = n_nodes
+	if num_nodes >= 500:
+		print 'Grande'
+		for Gprime in gs.rwr_sample(G, K, n):
+			T = td.quickbb(Gprime)
+			root = list(T)[0]
+			T = td.make_rooted(T, root)
+			T = phrg.binarize(T)
+			root = list(T)[0]
+			root, children = T
+			#td.new_visit(T, G, prod_rules, TD)
+			td.new_visit(T, G, prod_rules)
+	else:
+		T = td.quickbb(G)
+		root = list(T)[0]
+		T = td.make_rooted(T, root)
+		T = phrg.binarize(T)
+		root = list(T)[0]
+		root, children = T
 
-  prod_rules = {}
-  if num_nodes >= 500:
-    for Gprime in gs.rwr_sample(G, 2, 300):
-      T = td.quickbb(Gprime)
-      root = list(T)[0]
-      T = td.make_rooted(T, root)
-      T = phrg.binarize(T)
-      root = list(T)[0]
-      root, children = T
-      #td.new_visit(T, G, prod_rules, TD)
-      td.new_visit(T, G, prod_rules)
-  else:
-    T = td.quickbb(G)
-    root = list(T)[0]
-    T = td.make_rooted(T, root)
-    T = phrg.binarize(T)
-    root = list(T)[0]
-    root, children = T
+		# td.new_visit(T, G, prod_rules, TD)
+		td.new_visit(T, G, prod_rules)
 
-    # td.new_visit(T, G, prod_rules, TD)
-    td.new_visit(T, G, prod_rules)
-  
-  if tw:
-    print_treewidth(T)
-    exit()
-
-  if tw:
-    print_treewdith(T);
-    exit()
-  
-  if DBG: print
-  if DBG: print "--------------------"
-  if DBG: print "- Production Rules -"
-  if DBG: print "--------------------"
-
-  for k in prod_rules.iterkeys():
-    if DBG: print k
-    s = 0
-    for d in prod_rules[k]:
-      s += prod_rules[k][d]
-    for d in prod_rules[k]:
-      prod_rules[k][d] = float(prod_rules[k][d]) / float(s)  # normailization step to create probs not counts.
-      if DBG: print '\t -> ', d, prod_rules[k][d]
-
-  rules = []
-  id = 0
-  for k, v in prod_rules.iteritems():
-    sid = 0
-    for x in prod_rules[k]:
-      rhs = re.findall("[^()]+", x)
-      rules.append(("r%d.%d" % (id, sid), "%s" % re.findall("[^()]+", k)[0], rhs, prod_rules[k][x]))
-      if DBG: print ("r%d.%d" % (id, sid), "%s" % re.findall("[^()]+", k)[0], rhs, prod_rules[k][x])
-      sid += 1
-    id += 1
-
-  # Synthetic Graphs
-  hStars = grow_exact_size_hrg_graphs_from_prod_rules(rules, graph_name, G.number_of_nodes(),10)
-  print '... hStart graphs:',len(hStars)
-  # plot_g_hstars(G,hStars)
-  # deg_vcnt_to_disk(G, hStars)
-
-  if 1:
-      metricx = ['degree','hops', 'clust', 'assort', 'kcore','eigen','gcd']
-      metrics.network_properties([G], metricx, hStars, name=graph_name, out_tsv=True)
+	if tw:
+		print_treewidth(T)
+		exit()
 
 
+	if DBG: print
+	if DBG: print "--------------------"
+	if DBG: print "- Production Rules -"
+	if DBG: print "--------------------"
+
+	for k in prod_rules.iterkeys():
+		if DBG: print k
+		s = 0
+		for d in prod_rules[k]:
+			s += prod_rules[k][d]
+		for d in prod_rules[k]:
+			prod_rules[k][d] = float(prod_rules[k][d]) / float(s)  # normailization step to create probs not counts.
+			if DBG: print '\t -> ', d, prod_rules[k][d]
+
+	rules = []
+	id = 0
+	for k, v in prod_rules.iteritems():
+		sid = 0
+		for x in prod_rules[k]:
+			rhs = re.findall("[^()]+", x)
+			rules.append(("r%d.%d" % (id, sid), "%s" % re.findall("[^()]+", k)[0], rhs, prod_rules[k][x]))
+			if DBG: print ("r%d.%d" % (id, sid), "%s" % re.findall("[^()]+", k)[0], rhs, prod_rules[k][x])
+			sid += 1
+		id += 1
+
+	'''
+	Graph Generation of Synthetic Graphs
+	Grow graphs usigng the union of rules from sampled sugbgraphs to predict the target order of the 
+	original graph
+	'''
+	hStars = grow_exact_size_hrg_graphs_from_prod_rules(rules, graph_name, G.number_of_nodes(),10)
+	print '... hStart graphs:',len(hStars)
+	
+	
+	if 0:
+			metricx = ['degree','hops', 'clust', 'assort', 'kcore','eigen','gcd']
+			metricx = ['degree','gcd']
+			metrics.network_properties([G], metricx, hStars, name=graph_name, out_tsv=False)
 
 if __name__ == '__main__':
-  parser = get_parser()
-  args = vars(parser.parse_args())
+	parser = get_parser()
+	args = vars(parser.parse_args())
 
-  in_file   = args['orig'][0]
-
-  datframes = tdf.Pandas_DataFrame_From_Edgelist([in_file])
-  df = datframes[0]
-  # g_name = os.path.basename(in_file).lstrip('out.')
-  g_name = os.path.basename(in_file).split('.')[1]
-
-  print '...', g_name
-  if args['chunglu']:
-      print 'Generate chunglu graphs given an edgelist'
-      sys.exit(0)
-  elif args['kron']:
-      print 'Generate chunglu graphs given an edgelist'
-      sys.exit(0)
-
-  try:
-    get_hrg_production_rules(df,g_name, args['tw'])
-  except  Exception, e:
-    print 'ERROR, UNEXPECTED SAVE PLOT EXCEPTION'
-    print str(e)
-    traceback.print_exc()
-    os._exit(1)
-  sys.exit(0)
+	# load orig file into DF and get the dataset name into g_name
+	datframes = tdf.Pandas_DataFrame_From_Edgelist(args['orig'])
+	df = datframes[0]
+	g_name = [x for x in os.path.basename(args['orig'][0]).split('.') if len(x)>3][0]
+	
+	
+	if args['chunglu']:
+			print 'Generate chunglu graphs given an edgelist'
+			sys.exit(0)
+	elif args['kron']:
+			print 'Generate chunglu graphs given an edgelist'
+			sys.exit(0)
+	elif args['samp']:
+		print 'Sample K subgraphs of n nodes'
+		K = 500
+		n = 25
+		get_hrg_production_rules(df,g_name,n_subg=K, n_nodes=n)
+	try:
+		get_hrg_production_rules(df,g_name, args['tw'])
+	except  Exception, e:
+		print 'ERROR, UNEXPECTED SAVE PLOT EXCEPTION'
+		print str(e)
+		traceback.print_exc()
+		os._exit(1)
+	sys.exit(0)

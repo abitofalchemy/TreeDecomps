@@ -9,7 +9,7 @@ class Rule(object):
         self.id = id
         self.lhs = lhs
         if lhs == 'S':
-            print
+            print ".",
         if translate:
             self.rhs = rhs
             self.cfg_rhs = self.hrg_to_cfg(lhs, rhs)
