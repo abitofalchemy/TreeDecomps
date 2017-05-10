@@ -28,7 +28,9 @@ def get_parser ():
     parser.add_argument('-tw',  required=False, action='store_true', default=False, help='Print tw')
     parser.add_argument('--chunglu', help='Generate chunglu graphs',action='store_true')
     parser.add_argument('--kron',    help='Generate Kronecker product graphs',action='store_true')
+    parser.add_argument('-tw', action='store_true', default=False, required=False, help="print xphrg (mcs) tw")
     parser.add_argument('--version', action='version', version=__version__)
+
     return parser
 
 def Hstar_Graphs_Control (G, graph_name, axs):
@@ -329,6 +331,10 @@ def get_hrg_production_rules(edgelist_data_frame, graph_name, tw=False):
 
     # td.new_visit(T, G, prod_rules, TD)
     td.new_visit(T, G, prod_rules)
+  
+  if tw:
+    print_treewidth(T)
+    exit()
 
   if tw:
     print_treewdith(T);

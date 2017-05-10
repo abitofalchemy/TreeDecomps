@@ -218,10 +218,8 @@ def isomorph_intersection_2dfstacked(dfx):
       G1 = rhs_tomultigraph(dfx.loc[x]['rhs'])
       G2 = rhs_tomultigraph(dfx.loc[y]['rhs'])
       # test if their RHS are isomorphic
-      if nx.is_isomorphic(G1, G2, edge_match=label_match):
-        # print x, y, lhs1, ':', lhs2
-        # print seen_rules.values()
-        # print x, y
+      # if nx.is_isomorphic(G1, G2, edge_match=label_match):
+      if nx.faster_could_be_isomorphic(G1, G2):
         if (dfx.loc[y]['iso']==False):
           seen_rules[(x,dfx.loc[x]['lhs'])].append(y)
           dfx.set_value(x, 'iso', True)
@@ -238,7 +236,7 @@ def isomorph_intersection_2dfstacked(dfx):
   lhs_cnt = Counter()
   for x,y in seen_rules.keys():
     lhs_cnt[y] += 1
-  print lhs_cnt
+  # print lhs_cnt
   print
   lhs_counts_dict = {}
   for k in lhs_cnt.keys(): # compute totals for each lhs
@@ -261,7 +259,7 @@ def isomorph_intersection_2dfstacked(dfx):
   df_interx = pd.DataFrame(df_interx)
   # df_interx = df_interx.sort_values(by=[1])
 
-  print df_interx.to_string()
+  # print df_interx.to_string()
   gb = df_interx.groupby([2]).groups
   id = 0
   for k,v in gb.iteritems():
@@ -271,7 +269,7 @@ def isomorph_intersection_2dfstacked(dfx):
       df_interx.set_value(w, [1], "r%d.%d" % (id,sid))
       sid += 1
     id += 1
-  print df_interx.to_string()
+  # print df_interx.to_string()
 
   # print dfx[ dfx['iso'] == True ] # this is the union of the rules
   # print df_interx# this is the intersetion with modified probs

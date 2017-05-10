@@ -224,7 +224,7 @@ def jacc_dist_for_pair_dfrms(df1, df2):
       rhs2 = conc_df[conc_df['rnbr'] == seen_rules[r[1]['lhs']][0]]['rhs'].values[0]
       G1 = rhs_tomultigraph(rhs1)
       G2 = rhs_tomultigraph(rhs2)
-      if nx.is_isomorphic(G1, G2, edge_match=label_match):
+      if nx.faster_could_be_isomorphic(G1, G2):
         # print ' ',r[1]['rnbr'], r[1]['rhs'], '::', df1[df1['rnbr'] == seen_rules[r[1]['lhs']][0]]['rhs'].values
         if DBG: print ' <-curr', seen_rules[r[1]['lhs']][0], ':', conc_df[conc_df['rnbr'] == seen_rules[r[1]['lhs']][0]]['rnbr'].values, conc_df[conc_df['rnbr'] == seen_rules[r[1]['lhs']][0]]['cate'].values
         ruleprob2sum[seen_rules[r[1]['lhs']][0]].append(r[1]['rnbr'])
@@ -289,7 +289,7 @@ def jaccard_coeff_isomorphic_rules_check(dfrm, headers_d):
       rhs2 = dfrm[dfrm['rnbr'] == seen_rules[r[1]['lhs']][0]]['rhs'].values[0]
       G1 = rhs_tomultigraph(rhs1)
       G2 = rhs_tomultigraph(rhs2)
-      if nx.is_isomorphic(G1, G2, edge_match=label_match):
+      if nx.faster_could_be_isomorphic(G1, G2):
         # print ' ',r[1]['rnbr'], r[1]['rhs'], '::', df1[df1['rnbr'] == seen_rules[r[1]['lhs']][0]]['rhs'].values
         if DBG: print ' <-curr', seen_rules[r[1]['lhs']][0], ':', dfrm[dfrm['rnbr'] == seen_rules[r[1]['lhs']][0]]['rnbr'].values, dfrm[dfrm['rnbr'] == seen_rules[r[1]['lhs']][0]]['cate'].values
         ruleprob2sum[seen_rules[r[1]['lhs']][0]].append(r[1]['rnbr'])
@@ -342,7 +342,8 @@ def isomorphic_check(prules, name):
       rhs2 = df1[df1['rnbr'] == seen_rules[r[1]['lhs']][0]]['rhs'].values[0]
       G1 = rhs_tomultigraph(rhs1)
       G2 = rhs_tomultigraph(rhs2)
-      if nx.is_isomorphic(G1, G2, edge_match=label_match):
+      # if nx.is_isomorphic(G1, G2, edge_match=label_match):
+      if nx.faster_could_be_isomorphic(G1, G2):
         # print ' ',r[1]['rnbr'], r[1]['rhs'], '::', df1[df1['rnbr'] == seen_rules[r[1]['lhs']][0]]['rhs'].values
         if DBG: print ' <-curr', seen_rules[r[1]['lhs']][0], ':', df1[df1['rnbr'] == seen_rules[r[1]['lhs']][0]][
           'rnbr'].values

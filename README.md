@@ -4,14 +4,24 @@ Investigating the effect of different tree decompositions on
 graph grammars. 
 
 ## How to Run Experiments
-- Generate a tree decomposition using "minf" variable elimination algorithm
+- Tree decomposition
+  Generate a tree decomposition using "minf" variable elimination algorithm
   `./tredec.dimacs.tree.py --orig datasets/out.contact --peoh minf`
 
-- Print treewidth & compute a tree decomposition given the variable elimination using flag: `varel`
+- Treewidth
+  Print treewidth & compute a tree decomposition given the variable elimination using flag: `varel`
   `./tredec.dimacs.tree.py --orig datasets/out.contact -peoh minf -tw`
 
 - Generate HRG graphs from the tree decomposition (`.dimacs.tree` file) generated in one of the above steps.
   `./tredec.phrg.py --orig datasets/out.contact --clqtree datasets/contact_minf.dimacs.tree`
+
+- xPHRG treewidth (tw)
+  ``
+- Jaccard Sim
+  `python td.isom_jaccard_sim.py --orig /data/saguinag/datasets/les_Mis/moreno_lesmis/out.moreno_lesmis_lesmis  --pathfrag datasets/moreno_lesmis_lesmis` 
+
+  For batch generation, use this on dsg1:
+  `cat tdec/maindatasets | parallel tdec/exp.jaccard.sh {}`  
 
 - Batch processing on DSG1:
 Tree decompositions: `tdec/exp.linux.sh datasets/out.contact`
@@ -21,6 +31,11 @@ Jaccard Similarity:  `./tredec.isomorph_dimacs_tree.py --orig datasets/out.conta
 ### Jaccard Dist
 - http://stackoverflow.com/questions/11911252/python-jaccard-distance-using-word-intersection-but-not-character-intersection
 - [Jaccard Similarity](http://infolab.stanford.edu/~ullman/mmds/ch3.pdf)
+
+### Graph gen from the intersection of isomorphic rules
+- `python interxn.py Results/moreno_vdb_vdb_isom_in ## 
+terxn.bz2 moreno_vdb_vdb`
+  With this line we can generate stats on a given group of production rules
 
 ### sampling
 `python tredec.dimacs.tree.py --orig ~/Theory/DataSets/out.subelj_euroroad_euroroad --peoh mcs`
@@ -37,6 +52,9 @@ Jaccard Similarity:  `./tredec.isomorph_dimacs_tree.py --orig datasets/out.conta
 
 Date   | Notes
 -------|------------------------------------------------------------------
+10May17| intrxn tweaked to handle any input dataset
+02May17| xphrg tw print for any input => integrated into `exact.phrg.py`
+       | Need to work on isomorphoids
 07Apr17| Working on refactoring the files to make it more usable; fixing issues with sampling; ToDo: process mult trees from sampling
 
 06Apr17| tree decomposition: 'fails here' issue of strange d[x] 

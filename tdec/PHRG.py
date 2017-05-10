@@ -366,4 +366,4 @@ if __name__ == "__main__":
 #  hstar = grow(prod_rule_set, g)[0]
   # print nx.info(hstar)
   # print 'compared to'
-  print nx.info(G)
+  # nprint nx.info(G)

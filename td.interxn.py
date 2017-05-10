@@ -20,8 +20,10 @@ import networkx as nx
 import pandas as pd
 import numpy as np
 import tdec.PHRG as phrg
-# import tdec.net_metrics as metrics
+import tdec.net_metrics as metrics
 import tdec.probabilistic_cfg as pcfg
+from tdec.load_edgelist_from_dataframe import Pandas_DataFrame_From_Edgelist
+
 # import tdec.tree_decomposition as td
 # from   tdec.a1_hrg_cliq_tree import load_edgelist,unfold_2wide_tuple
 #
@@ -164,15 +166,22 @@ if len(sys.argv)<2:
     sys.exit(1)
 
 df = pd.read_csv(sys.argv[1], index_col=0, compression='bz2')
-# df = pd.read_csv(sys.argv[1], index_col=0, sep="\t")
-# df= df[df['cate']=="ucidata-gama_minf_dimacs"]
+
+bn = os.path.basename(sys.argv[1]).split("isom")[0][:-1]
+f_ds = "/data/saguinag/datasets/out.{}".format(bn)
+graph_name= bn 
+gdf = Pandas_DataFrame_From_Edgelist([f_ds])[0]
+
+G = nx.from_pandas_dataframe(gdf, 'src', 'trg')
+num_nodes = G.number_of_nodes()
+
 rules = []
 for ix,row in df.iterrows():
     id = row[1]
     lhs = row[2]
     rhs = [x.strip("\'") for x in row[3].strip("\]\[").split(", ")]
     prob= row[4]
-    print (id, lhs, rhs, prob)
+    if 0: print (id, lhs, rhs, prob)
     rules.append((id, lhs, rhs, prob))
 
 # g = pcfg.Grammar('S')
@@ -212,14 +221,18 @@ for (id, lhs, rhs, prob) in rules:
 
 print 'Grammar g loaded.'
 # Synthetic Graphs
-g.set_max_size(16)
-for i in range(10):
-    rule_list = g.sample(16)
-    hStar = phrg.grow(rule_list, g)[0]
-    print i, hStar.number_of_nodes(), hStar.number_of_edges()
+#num_nodes = int(sys.argv[-1])
+g.set_max_size(num_nodes)
 
-# metricx = ['degree', 'hops', 'clust', 'assort', 'kcore', 'eigen', 'gcd']
-# metrics.network_properties([G], metricx, hStars, name=graph_name, out_tsv=True)
+hStars = []
+for i in range(20):
+    rule_list = g.sample(num_nodes)
+    hstar = phrg.grow(rule_list, g)[0]
+    hStars.append(hstar)
+    print i, hstar.number_of_nodes(), hstar.number_of_edges()
+
+metricx = ['degree', 'hops', 'clust', 'gcd']
+metrics.network_properties([G], metricx, hStars, name=graph_name, out_tsv=True)
 
 # parser = get_parser()
 # args = vars(parser.parse_args())

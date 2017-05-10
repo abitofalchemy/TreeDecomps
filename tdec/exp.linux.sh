@@ -8,7 +8,7 @@ bname="${bname#*.}"
 
 ## edgeslist to dimacs
 ## dimacs to tree
-cat tdec/heuristics | parallel python "tredec.dimacs.tree.py --orig '$1' --varel {}"
+cat tdec/heuristics | parallel python "td.dimacs.tree.py --orig '$1' --varel {}"
 
 ## Process tree to HRGs
 ## python b1_dimacs_tree_to_cliquetree.py -t Results/"$bname"."$2".dimacs.tree > ~/Logs/"$bname"_"$2".log

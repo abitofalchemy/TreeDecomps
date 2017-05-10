@@ -39,6 +39,7 @@ def get_parser ():
   parser.add_argument('--pathfrag', required=True, help='Input dimacs tree path fragment')
   parser.add_argument('-verb', action='store_true', default=False, required=False,
                       help='Verbose (dev log info)')
+
   parser.add_argument('--version', action='version', version=__version__)
   return parser
 
@@ -204,7 +205,8 @@ def isomorphic_test_from_dimacs_tree (orig, tdfname, gname=""):
   print "\nStacked prod rules\n", "~" * 20
   print "  ", stacked_df.shape
   if args['verb']: print stacked_df.to_string()
-  stacked_df.to_csv("Results/stacked_df.tsv", sep="\t")
+  stacked_df.to_csv("Results/{}_stacked_df.tsv".format(gname), sep="\t")
+  if os.path.exists("Results/{}_stacked_df.tsv".format(gname)): print 'Wrote:', "Results/{}_stacked_df.tsv".format(gname)
 
   print "\nisomorphic union of the rules (_mod probs)\n", "~" * 20
   stacked_df.columns = ['rnbr', 'lhs', 'rhs', 'pr', df['cate'].name]
@@ -214,7 +216,9 @@ def isomorphic_test_from_dimacs_tree (orig, tdfname, gname=""):
 
   print "\nIsomorphic intersection of the prod rules\n", "~" * 20
   print "  ", iso_interx.shape
-  # print iso_interx.to_string()
+  print iso_interx.to_string()
+  iso_interx.to_csv('Results/{}_isom_interxn.bz2'.format(gname), compression="bz2")
+  if os.path.exists('Results/{}_isom_interxn.bz2'.format(gname)): print 'Wrote:', 'Results/{}_isom_interxn.bz2'.format(gname)
   #   # print k,v
   #   sid = 0
   #   for ix, r in iso_intxn[iso_intxn['lhs']==k].iterrows():

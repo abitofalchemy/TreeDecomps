@@ -1,4 +1,4 @@
-__author__ = ['Salvador Aguinaga', 'Rodrigo Palacios', 'David Chaing', 'Tim Weninger']
+__author__ = ['Salvador Aguinaga', 'Rodrigo Palacios', 'David Chiang', 'Tim Weninger']
 
 import networkx as nx
 import matplotlib
@@ -459,7 +459,7 @@ def network_properties(orig, net_mets, synth_graphs_lst, name='', out_tsv=False)
         synth_Deg = degree_distribution_multiples(synth_graphs_lst)
         print '\n... HRG G'
         synth_Deg['meank'] = synth_Deg.mean(axis=1)
-        if 0:
+        if 1:
           mask = f(70, len(synth_Deg))
           print synth_Deg['meank'].loc[mask].to_string(header=False)
           print synth_Deg.shape
@@ -574,7 +574,7 @@ def network_properties(orig, net_mets, synth_graphs_lst, name='', out_tsv=False)
       print synth_kcore.mean(axis=1).to_string(header=False)
 
     if 'eigen' in net_mets:
-      print '\neigenvec'
+      print '\nEigenval'
       orig__eigenvec = eigenvector_multiples(orig)
       synth_eigenvec = eigenvector_multiples(synth_graphs_lst)
 
@@ -587,9 +587,16 @@ def network_properties(orig, net_mets, synth_graphs_lst, name='', out_tsv=False)
       synth_eigenvec.mean(axis=1).to_csv('Results/eigenv_hrg_{}.tsv'.format(name),sep='\t')
       ax5.set_title('eigenvector', y=0.9)
       print '... Orig G'
+      Y = synth_eigenvec.mean(axis=1)
+      A = np.random.choice(synth_eigenvec.index, 70, replace=False)
+      A = np.linspace(synth_eigenvec.index.min(), synth_eigenvec.index.max(), 70)
+      A = [(int(x), Y.loc[int(x)]) for x in A]
+
       print orig__eigenvec.mean(axis=1).to_string(header=False)
       print '\n... Synth G'
-      print synth_eigenvec.mean(axis=1).to_string(header=False)
+      for x,y in A:
+        print "{}\t{}".format(x,y)
+
 
     import pprint as pp
     if 'gcd' in net_mets:
