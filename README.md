@@ -32,6 +32,11 @@ Jaccard Similarity:  `./tredec.isomorph_dimacs_tree.py --orig datasets/out.conta
 - http://stackoverflow.com/questions/11911252/python-jaccard-distance-using-word-intersection-but-not-character-intersection
 - [Jaccard Similarity](http://infolab.stanford.edu/~ullman/mmds/ch3.pdf)
 
+### Graph gen from the intersection of isomorphic rules
+- `python interxn.py Results/moreno_vdb_vdb_isom_in ## 
+terxn.bz2 moreno_vdb_vdb`
+  With this line we can generate stats on a given group of production rules
+
 ### sampling
 `python tredec.dimacs.tree.py --orig ~/Theory/DataSets/out.subelj_euroroad_euroroad --peoh mcs`
 `python tredec.samp.phrg.py --orig ~/Theory/DataSets/out.subelj_euroroad_euroroad --tree datasets/subelj_euroroad_euroroad`
@@ -47,6 +52,7 @@ Jaccard Similarity:  `./tredec.isomorph_dimacs_tree.py --orig datasets/out.conta
 
 Date   | Notes
 -------|------------------------------------------------------------------
+10May17| intrxn tweaked to handle any input dataset
 02May17| xphrg tw print for any input => integrated into `exact.phrg.py`
        | Need to work on isomorphoids
 07Apr17| Working on refactoring the files to make it more usable; fixing issues with sampling; ToDo: process mult trees from sampling

@@ -22,6 +22,8 @@ import numpy as np
 import tdec.PHRG as phrg
 import tdec.net_metrics as metrics
 import tdec.probabilistic_cfg as pcfg
+from tdec.load_edgelist_from_dataframe import Pandas_DataFrame_From_Edgelist
+
 # import tdec.tree_decomposition as td
 # from   tdec.a1_hrg_cliq_tree import load_edgelist,unfold_2wide_tuple
 #
@@ -159,20 +161,19 @@ def grow_exact_size_hrg_graphs_from_prod_rules(prod_rules, gname, n, runs=1):
 
 # if __name__ == '__main__':
 print len(sys.argv)
-if len(sys.argv)<3:
+if len(sys.argv)<2:
     print "provide input production rules file: ./Results/*.bz2"
-    print "example: python interxn.py ./Results/dsname_file.bz2 dsname"
     sys.exit(1)
 
 df = pd.read_csv(sys.argv[1], index_col=0, compression='bz2')
-# df = pd.read_csv(sys.argv[1], index_col=0, sep="\t")
-# df= df[df['cate']=="ucidata-gama_minf_dimacs"]
-f_ds = "/data/saguinag/datasets/out.{}".format(sys.argv[2])
-graph_name= sys.argv[2]
-gdf = pd.read_csv(f_ds, header=None, comment="%", sep="\t")
-G = nx.from_pandas_dataframe(gdf, 0, 1)
-num_nodes = G.number_of_nodes()
 
+bn = os.path.basename(sys.argv[1]).split("isom")[0][:-1]
+f_ds = "/data/saguinag/datasets/out.{}".format(bn)
+graph_name= bn 
+gdf = Pandas_DataFrame_From_Edgelist([f_ds])[0]
+
+G = nx.from_pandas_dataframe(gdf, 'src', 'trg')
+num_nodes = G.number_of_nodes()
 
 rules = []
 for ix,row in df.iterrows():
@@ -180,7 +181,7 @@ for ix,row in df.iterrows():
     lhs = row[2]
     rhs = [x.strip("\'") for x in row[3].strip("\]\[").split(", ")]
     prob= row[4]
-    print (id, lhs, rhs, prob)
+    if 0: print (id, lhs, rhs, prob)
     rules.append((id, lhs, rhs, prob))
 
 # g = pcfg.Grammar('S')
