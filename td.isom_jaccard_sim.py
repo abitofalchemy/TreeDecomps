@@ -27,6 +27,7 @@ import tdec.PHRG as phrg
 import tdec.tree_decomposition as td
 from tdec.PHRG import graph_checks
 from   tdec.a1_hrg_cliq_tree import load_edgelist
+from tdec.signature import signature 
 
 DBG=False
 
@@ -37,6 +38,10 @@ def get_parser ():
   parser.add_argument('--pathfrag', required=True, help='Input dimacs tree path fragment')
   parser.add_argument('--version', action='version', version=__version__)
   return parser
+
+def Log_Info(str_to_print="")
+    if len(str_to_print)<8:
+        print "~"*8
 
 def listify_rhs(rhs_rule):
   if DBG: print type(rhs_rule), len(rhs_rule)
@@ -249,7 +254,7 @@ def jaccard_coeff_isomorphic_rules_check(dfrm, headers_d):
   gb = dfrm.groupby(['cate']).groups
   if DBG: print gb.keys()
   sqr_mtrx = np.zeros(shape=(len(headers_d),len(headers_d)))
-  
+
   for p in combinations(sorted(gb.keys()), 2):
     if DBG: print [x.split("_")[1] for x in p],
     if DBG: print [headers_d[x.split("_")[1]] for x in p] #[0].split("_")[-1]
@@ -258,7 +263,7 @@ def jaccard_coeff_isomorphic_rules_check(dfrm, headers_d):
     sqr_mtrx[i,j] = jaccard_coeff_isomorphic_rules_check_forfilepair(p, dfrm)
     # break
     # sqr_mtrx[[headers_d[x.split("_")[1]] for x in p]] = jaccard_coeff_isomorphic_rules_check_forfilepair(p, dfrm)
-
+  Log_Info()
   print sqr_mtrx
   return sqr_mtrx # numpy.savetxt("foo.csv", a, delimiter=",")
 
@@ -369,6 +374,7 @@ def main ():
   isomorphic_test_from_dimacs_tree(args['orig'], args['pathfrag'], name)
 
 if __name__ == '__main__':
+  hello()
   try:
     main()
   except Exception, e:

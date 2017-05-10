@@ -16,3 +16,4 @@ transbin
 .idea/
 .ipynb_checkpoints/
 *.pdf
+utils/*
