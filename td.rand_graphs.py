@@ -203,13 +203,22 @@ def main ():
   print n_nodes_set
   print n_edges_set
   ba_gObjs = [nx.barabasi_albert_graph(n, np.random.choice(range(1,int(n)))) for n in n_nodes_set]
-
+  #~# 
+  #~# convert to dimacs graph 
   dimacs_gObjs = convert_nx_gObjs_to_dimacs_gObjs(ba_gObjs)
   var_el_m = ['lexm','mcs','mcsm','mind','minf','mmd']
+  #~# 
+  #~# decompose the given graphs
   tree_objs = tree_decomposition_with_varelims(dimacs_gObjs, var_el_m)
+  #~# 
+  #~# dimacs tree to HRG clique tree 
   clq_trees = convert_dimacs_tree_objs_to_hrg_clique_trees(tree_objs)
 
+  #~# 
+  #~# get stacked HRG prod rules
   stck_prod_rules = get_hrg_prod_rules(clq_trees)
+  #~# 
+  #~# get the isomophic overlap
   intxn_prod_rules = get_isom_overlap_in_stacked_prod_rules(stck_prod_rules)
 
 
