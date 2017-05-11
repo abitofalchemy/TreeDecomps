@@ -216,7 +216,6 @@ def isomorphic_test_from_dimacs_tree (orig, tdfname, gname=""):
 
   print "\nIsomorphic intersection of the prod rules\n", "~" * 20
   print "  ", iso_interx.shape
-  print iso_interx.to_string()
   iso_interx.to_csv('Results/{}_isom_interxn.bz2'.format(gname), compression="bz2")
   if os.path.exists('Results/{}_isom_interxn.bz2'.format(gname)): print 'Wrote:', 'Results/{}_isom_interxn.bz2'.format(gname)
   #   # print k,v
