@@ -80,3 +80,5 @@ Date   | Notes
 11Jan17| Figure out how to take a TD from inddgo and derive a set of production rules
 11Jan17| Expand related work & experiments
 10May17 | exact.phrg.py can samp subgs, deriv pr, graph gen synth of same size as the original
+12May17 | working on geting the stacked prod rules
+12May17 | Just need the isomorphic overlap

@@ -10,44 +10,51 @@ __version__ = "0.1.0"
 
 ## VersionLog:
 
-import net_metrics as metrics
+#import net_metrics as metrics
 import pandas as pd
 import argparse, traceback
 import os, sys
 import networkx as nx
 import re
 from collections import deque, defaultdict, Counter
-import tree_decomposition as td
-import PHRG as phrg
-import probabilistic_cfg as pcfg
-import exact_phrg as xphrg
-import a1_hrg_cliq_tree as nfld
-from a1_hrg_cliq_tree import load_edgelist
+import tdec.tree_decomposition as td
+import tdec.PHRG as phrg
+#import tdec.probabilistic_cfg as pcfg
+#import exact_phrg as xphrg
+#import a1_hrg_cliq_tree as nfld
+from tdec.a1_hrg_cliq_tree import load_edgelist
 
 DEBUG = False
 
 
 def get_parser ():
   parser = argparse.ArgumentParser(description='b2CliqueTreeRules.py: given a tree derive grammar rules')
-  parser.add_argument('-t', '--treedecomp', required=True, help='input tree decomposition (dimacs file format)')
+  parser.add_argument('-t', '--treedecomp',required=True, help='input tree decomposition (dimacs file format)')
   parser.add_argument('--version', action='version', version=__version__)
   return parser
 
-def dimacs_td_ct (tdfname):
+def dimacs_td_ct (tdfname, synthg=False):
   """ tree decomp to clique-tree """
+  if isinstance(tdfname, list): [dimacs_td_ct(f) for f in tdfname]
+  #  print '... input file:', tdfname
 
-  print '... input file:', tdfname
   fname = tdfname
   graph_name = os.path.basename(fname)
   gname = graph_name.split('.')[0]
-  gfname = "datasets/out." + gname
-  tdh = os.path.basename(fname).split('.')[1] # tree decomp heuristic
+  if synthg:
+    gfname = 'datasets/'+gname+".dimacs"
+  else:
+    gfname = "datasets/out." + gname
+  tdh = os.path.basename(fname).split('.')[-2] # tree decomp heuristic
   tfname = gname+"."+tdh
 
-  G = load_edgelist(gfname)
+  if synthg:
+    G = load_edgelist(tdfname.split('.')[0]+".dimacs")
+  else:
+    G = load_edgelist(gfname)
 
   if DEBUG: print nx.info(G)
-  print
+
   with open(fname, 'r') as f:  # read tree decomp from inddgo
     lines = f.readlines()
     lines = [x.rstrip('\r\n') for x in lines]
@@ -106,13 +113,15 @@ def dimacs_td_ct (tdfname):
 
   df = pd.DataFrame(rules)
 
-  outdf_fname = "./ProdRules/"+tfname+".prules"
-  if not os.path.isfile(outdf_fname+".bz2"):
-    print '...',outdf_fname, "written"
-    df.to_csv(outdf_fname+".bz2", compression="bz2")
+  outdf_fname = "ProdRules/"+tfname+"_prules.bz2"
+
+  if not os.path.isfile(outdf_fname):
+    #    print '...',outdf_fname, "written"
+    df.to_csv(outdf_fname, compression="bz2")
   else:
     print '...', outdf_fname, "file exists"
-  return
+
+  return outdf_fname
 
 
 def main ():
