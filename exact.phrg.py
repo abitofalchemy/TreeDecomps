@@ -109,6 +109,7 @@ def grow_exact_size_hrg_graphs_from_prod_rules(prod_rules, gname, n, runs=1):
 	Returns: list of synthetic graphs
 
 	"""
+	DBG = True
 	if n <=0: sys.exit(1)
 
 
@@ -116,15 +117,18 @@ def grow_exact_size_hrg_graphs_from_prod_rules(prod_rules, gname, n, runs=1):
 	for (id, lhs, rhs, prob) in prod_rules:
 		g.add_rule(pcfg.Rule(id, lhs, rhs, prob))
 
-	print "pr", len(prod_rules), 
-	print "n", n
+	print
+	print "Added rules HRG (pr", len(prod_rules),", n,", n,")"
+
 	num_nodes = n
 	if DBG: print "Starting max size"
 	g.set_max_size(num_nodes)
 	if DBG: print "Done with max size"
 
 	hstars_lst = []
+	print "  ",
 	for i in range(0, runs):
+		print '>',
 		rule_list = g.sample(num_nodes)
 		hstar = phrg.grow(rule_list, g)[0]
 		hstars_lst.append(hstar)
@@ -300,7 +304,6 @@ def get_hrg_production_rules(edgelist_data_frame, graph_name, tw=False, n_subg=2
 	giant_nodes = max(nx.connected_component_subgraphs(G), key=len)
 	G = nx.subgraph(G, giant_nodes)
 
-#		if n==0:
 	num_nodes = G.number_of_nodes()
 
 	phrg.graph_checks(G)
@@ -331,7 +334,6 @@ def get_hrg_production_rules(edgelist_data_frame, graph_name, tw=False, n_subg=2
 		T = phrg.binarize(T)
 		root = list(T)[0]
 		root, children = T
-
 		# td.new_visit(T, G, prod_rules, TD)
 		td.new_visit(T, G, prod_rules)
 
@@ -374,7 +376,7 @@ def get_hrg_production_rules(edgelist_data_frame, graph_name, tw=False, n_subg=2
 	print '... hStart graphs:',len(hStars)
 	
 	
-	if 0:
+	if 1:
 			metricx = ['degree','hops', 'clust', 'assort', 'kcore','eigen','gcd']
 			metricx = ['degree','gcd']
 			metrics.network_properties([G], metricx, hStars, name=graph_name, out_tsv=False)
@@ -400,11 +402,12 @@ if __name__ == '__main__':
 		K = 500
 		n = 25
 		get_hrg_production_rules(df,g_name,n_subg=K, n_nodes=n)
-	try:
-		get_hrg_production_rules(df,g_name, args['tw'])
-	except  Exception, e:
-		print 'ERROR, UNEXPECTED SAVE PLOT EXCEPTION'
-		print str(e)
-		traceback.print_exc()
-		os._exit(1)
+	else:
+		try:
+			get_hrg_production_rules(df,g_name, args['tw'])
+		except  Exception, e:
+			print 'ERROR, UNEXPECTED SAVE PLOT EXCEPTION'
+			print str(e)
+			traceback.print_exc()
+			os._exit(1)
 	sys.exit(0)

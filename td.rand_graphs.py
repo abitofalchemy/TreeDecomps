@@ -66,42 +66,7 @@ def load_edgelist(gfname):
   g.name = os.path.basename(gfname)
   return g
 
-def nx_edges_to_nddgo_graph (G,n,m, sampling=False, varel=""):
-	# print args['varel']
-	ofname = 'datasets/{}_{}.dimacs'.format(G.name, varel)
-	# print '...', ofname
 
-	if sampling:
-
-		edges = G.edges()
-		edges = [(int(e[0]), int(e[1])) for e in edges]
-		df = pd.DataFrame(edges)
-		df.sort_values(by=[0], inplace=True)
-
-		with open(ofname, 'w') as f:
-		  f.write('c {}\n'.format(G.name))
-		  f.write('p edge\t{}\t{}\n'.format(n,m))
-		  # for e in df.iterrows():
-		  output_edges = lambda x: f.write("e\t{}\t{}\n".format(x[0], x[1]))
-		  df.apply(output_edges, axis=1)
-		# f.write("e\t{}\t{}\n".format(e[0]+1,e[1]+1))
-		if os.path.exists(ofname): print 'Wrote: ./{}'.format(ofname)
-	else:
-		edges = G.edges()
-		edges = [(int(e[0]), int(e[1])) for e in edges]
-		df = pd.DataFrame(edges)
-		df.sort_values(by=[0], inplace=True)
-
-		with open(ofname, 'w') as f:
-		  f.write('c {}\n'.format(G.name))
-		  f.write('p edge\t{}\t{}\n'.format(n,m))
-		  # for e in df.iterrows():
-		  output_edges = lambda x: f.write("e\t{}\t{}\n".format(x[0], x[1]))
-		  df.apply(output_edges, axis=1)
-		# f.write("e\t{}\t{}\n".format(e[0]+1,e[1]+1))
-		if os.path.exists(ofname): print 'Wrote: ./{}'.format(ofname)
-
-	return [ofname]
 
 def nx_edges_to_nddgo_graph_sampling(graph, n, m, peo_h):
 	G = graph
@@ -191,6 +156,40 @@ def print_treewidth (in_dimacs, var_elim):
 	print nddgoout
 	return nddgoout
 
+def convert_nx_gObjs_to_dimacs_gObjs(nx_gObjs):
+  '''
+  Take list of graphs and convert to dimacs
+  '''
+  dimacs_glst=[]
+  for G in nx_gObjs:
+    N = max(G.nodes())
+    M = G.number_of_edges()
+    # +++ Graph Checks
+    if G is None: sys.exit(1)
+
+    G.remove_edges_from(G.selfloop_edges())
+    giant_nodes = max(nx.connected_component_subgraphs(G), key=len)
+    G = nx.subgraph(G, giant_nodes)
+    graph_checks(G)
+    # --- graph checks
+    G.name = "synthG_{}_{}".format(N,M)
+
+    from tdec.arbolera import nx_edges_to_nddgo_graph
+    dimacs_glst.append(nx_edges_to_nddgo_graph(G, n=N, m=M, save_g=True))
+
+  return dimacs_glst
+
+def tree_decomposition_with_varelims(dimacs_fnames, vElim):
+  '''
+  Tree decomp given a var elim
+  Args:
+    dimacs_fnames A list of filenames of corresponding dimacs graph format graphs
+    vElim         Variable elimination method to use with
+  '''
+  for f in dimacs_fnames:
+    print f
+    break
+
 def main ():
   # parser = get_parser()
   # args = vars(parser.parse_args())
@@ -205,12 +204,15 @@ def main ():
   ba_gObjs = [nx.barabasi_albert_graph(n, np.random.choice(range(1,int(n)))) for n in n_nodes_set]
   #~# 
   #~# convert to dimacs graph 
-  dimacs_gObjs = convert_nx_gObjs_to_dimacs_gObjs(ba_gObjs)
+  dimacs_gObjs = convert_nx_gObjs_to_dimacs_gObjs(ba_gObjs,)
   var_el_m = ['lexm','mcs','mcsm','mind','minf','mmd']
-  #~# 
+  print dimacs_gObjs
+
+  #~#
   #~# decompose the given graphs
   tree_objs = tree_decomposition_with_varelims(dimacs_gObjs, var_el_m)
-  #~# 
+  
+  #~#
   #~# dimacs tree to HRG clique tree 
   clq_trees = convert_dimacs_tree_objs_to_hrg_clique_trees(tree_objs)
 

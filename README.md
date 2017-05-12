@@ -47,6 +47,11 @@ terxn.bz2 moreno_vdb_vdb`
 
 ## 
 <!--[Main Workflow (Rstudio)](tree_decomps.Rmd)-->
+<!--- Run from a script to generate clique trees given a dataset and variable elimination heuristic (poeh)-->
+<!--`tdec/exp.linux.sh datasets/out.ucidata-zachary` This script converts and edglist to `.dimacs` and uses that to run INDDGO to generate a tree decomposition. The script passes as one of the arguments each of the variable elimination heuristics we selected for this project. -->
+<!--* to run a single example do:-->
+<!--`python  tredec.dimacs.tree.py --orig datasets/out.ucidata-zachary --peoh mcs` this will sample if the graph exceeds 500 nodes. To avoid sampling, do `python  tredec.dimacs.tree.py --orig datasets/out.ucidata-zachary --peoh mcs -tw` this will print the treewidth and  -->
+
 
 ## StarLog
 
@@ -74,10 +79,4 @@ Date   | Notes
 10Jan17| ToDo: python call to generate kron graphs (??)
 11Jan17| Figure out how to take a TD from inddgo and derive a set of production rules
 11Jan17| Expand related work & experiments
-
-
-<!--- Run from a script to generate clique trees given a dataset and variable elimination heuristic (poeh)-->
-<!--`tdec/exp.linux.sh datasets/out.ucidata-zachary` This script converts and edglist to `.dimacs` and uses that to run INDDGO to generate a tree decomposition. The script passes as one of the arguments each of the variable elimination heuristics we selected for this project. -->
-<!--* to run a single example do:-->
-<!--`python  tredec.dimacs.tree.py --orig datasets/out.ucidata-zachary --peoh mcs` this will sample if the graph exceeds 500 nodes. To avoid sampling, do `python  tredec.dimacs.tree.py --orig datasets/out.ucidata-zachary --peoh mcs -tw` this will print the treewidth and  -->
-
+10May17 | exact.phrg.py can samp subgs, deriv pr, graph gen synth of same size as the original
