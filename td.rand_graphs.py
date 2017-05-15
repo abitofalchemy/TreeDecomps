@@ -254,13 +254,56 @@ def get_isom_overlap_in_stacked_prod_rules(td_keys_lst, df ):
 																	df[df['cate']==comb[1]])
 		print "\t", js
 
+def graph_stats_and_visuals(gobjs=None):
+	"""
+	graph stats & visuals
+	:gobjs: input nx graph objects
+	:return: 
+	"""
+	import matplotlib
+	matplotlib.use('pdf')
+	import matplotlib.pyplot as plt
+	import matplotlib.pylab as pylab
+	params = {'legend.fontsize': 'small',
+						'figure.figsize': (1.6 * 7, 1.0 * 7),
+						'axes.labelsize': 'small',
+						'axes.titlesize': 'small',
+						'xtick.labelsize': 'small',
+						'ytick.labelsize': 'small'}
+	pylab.rcParams.update(params)
+	import matplotlib.gridspec as gridspec
+
+	print "BA G(V,E)"
+	if gobjs is None:
+		gobjs = glob("datasets/synthG*.dimacs")
+	dimacs_g = {}
+	for fl in gobjs:
+		with open(fl, 'r') as f:
+			l=f.readline()
+			l=f.readline().rstrip('\r\n')
+			bn = os.path.basename(fl)
+			dimacs_g[bn] = [int(x) for x in l.split()[-2:]]
+		print "%d\t%s" %(dimacs_g[bn][0], dimacs_g[bn][1])
+
+	print "BA Prod rules size"
+	for k in dimacs_g.keys():
+		fname = "ProdRules/"+k.split('.')[0]+".prs"
+		f_sz = np.loadtxt(fname, delimiter="\t", dtype=str)
+		print k, len(f_sz)
+		
 
 
 def main ():
 	# parser = get_parser()
 	# args = vars(parser.parse_args())
-	print "Hello" 
-	n_nodes_set = [math.pow(2,x) for x in range(5,7,1)]
+	print "Hello"
+	
+	#~#
+	#~# Graph stats and visualization
+	#	graph_stats_and_visuals()
+	#	exit()
+	
+	n_nodes_set = [math.pow(2,x) for x in range(7,8,1)]
 	n_edges_set = {}
 	for n in n_nodes_set:
 		n_edges_set[n] = nx.fast_gnp_random_graph(int(n), 0.75).number_of_edges()
@@ -268,11 +311,13 @@ def main ():
 
 	ba_gObjs = [nx.barabasi_albert_graph(n, np.random.choice(range(1,int(n)))) for n in n_nodes_set]
 
+
 	#~#
 	#~# convert to dimacs graph
 	print '~~~~ convert_nx_gObjs_to_dimacs_gObjs'
 	dimacs_gObjs = convert_nx_gObjs_to_dimacs_gObjs(ba_gObjs,)
-	#	print '1~'*3, len(dimacs_gObjs), dimacs_gObjs[0]
+
+
 
 	#~#
 	#~# decompose the given graphs

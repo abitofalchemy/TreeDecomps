@@ -84,3 +84,5 @@ Date   | Notes
 12May17 | Just need the isomorphic overlap
 14May17 | Need to fix, the Jaccard sim routine
 14May17 | Need to fix, the Jaccard sim routine
+15May17 | rand graph stats using tst-rand_gstats
+15May17 | Do a BA rand graph to HRG hstars control test
