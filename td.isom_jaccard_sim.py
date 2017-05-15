@@ -244,7 +244,7 @@ def jacc_dist_for_pair_dfrms(df1, df2):
 	
 	if DBG: print "len(ruleprob2sum)", len(ruleprob2sum)
 	if DBG: print	dumps(ruleprob2sum, indent=4, sort_keys=True)
-	print ruleprob2sum
+
 	if not DBG: print "Overlapping rules	", len(ruleprob2sum.keys()), sum([len(x) for x in ruleprob2sum.values()])
 	if DBG: print "Jaccard Sim:\t", (len(ruleprob2sum.keys())+sum([len(x) for x in ruleprob2sum.values()]))/ float(len(df1) + len(df2))
 	return (len(ruleprob2sum.keys())+sum([len(x) for x in ruleprob2sum.values()]))/ float(len(df1) + len(df2))

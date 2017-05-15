@@ -82,3 +82,5 @@ Date   | Notes
 10May17 | exact.phrg.py can samp subgs, deriv pr, graph gen synth of same size as the original
 12May17 | working on geting the stacked prod rules
 12May17 | Just need the isomorphic overlap
+14May17 | Need to fix, the Jaccard sim routine
+14May17 | Need to fix, the Jaccard sim routine
