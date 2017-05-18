@@ -461,7 +461,7 @@ def network_properties(orig, net_mets, synth_graphs_lst, name='', out_tsv=False)
         synth_Deg = degree_distribution_multiples(synth_graphs_lst)
         print '\n... HRG G'
         synth_Deg['meank'] = synth_Deg.mean(axis=1)
-        if 1:
+        if 0:
           mask = f(70, len(synth_Deg))
           print synth_Deg['meank'].loc[mask].to_string(header=False)
           print synth_Deg.shape

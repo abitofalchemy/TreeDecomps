@@ -33,7 +33,7 @@ def get_parser ():
 
     return parser
 
-def Hstar_Graphs_Control (G, graph_name, axs):
+def Hstar_Graphs_Control (G, graph_name, axs=None):
   # Derive the prod rules in a naive way, where
   prod_rules = phrg.probabilistic_hrg_learning(G)
   g = pcfg.Grammar('S')
@@ -64,7 +64,7 @@ def Hstar_Graphs_Control (G, graph_name, axs):
   #   axs.set_ylabel('Frequency')
   #   axs.set_xlabel('degree')
 
-  if 1:
+  if 0:
     # metricx = [ 'degree','hops', 'clust', 'assort', 'kcore','eigen','gcd']
     metricx = ['degree', 'gcd']
     # g = nx.from_pandas_dataframe(df, 'src', 'trg',edge_attr=['ts'])
@@ -378,7 +378,7 @@ def get_hrg_production_rules(edgelist_data_frame, graph_name, tw=False, n_subg=2
 	
 	if 1:
 			metricx = ['degree','hops', 'clust', 'assort', 'kcore','eigen','gcd']
-			metricx = ['degree','gcd']
+			metricx = ['degree','clust', 'hop', 'gcd']
 			metrics.network_properties([G], metricx, hStars, name=graph_name, out_tsv=False)
 
 if __name__ == '__main__':

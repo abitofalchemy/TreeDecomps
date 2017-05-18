@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 __version__="0.1.0"
-__name__="rand_graphs"
 
 # ToDo:
 # [] process mult dimacs.trees to hrg
@@ -294,8 +293,6 @@ def graph_stats_and_visuals(gobjs=None):
 
 
 def main ():
-	# parser = get_parser()
-	# args = vars(parser.parse_args())
 	print "Hello"
 	
 	#~#
@@ -303,14 +300,16 @@ def main ():
 	#	graph_stats_and_visuals()
 	#	exit()
 	
-	n_nodes_set = [math.pow(2,x) for x in range(7,8,1)]
+	n_nodes_set = [math.pow(2,x) for x in range(5,8,1)]
 	n_edges_set = {}
 	for n in n_nodes_set:
 		n_edges_set[n] = nx.fast_gnp_random_graph(int(n), 0.75).number_of_edges()
 
 
 	ba_gObjs = [nx.barabasi_albert_graph(n, np.random.choice(range(1,int(n)))) for n in n_nodes_set]
-
+	print [(g.number_of_nodes(), g.number_of_edges()) for g in ba_gObjs]
+	
+	exit()
 
 	#~#
 	#~# convert to dimacs graph
@@ -355,7 +354,7 @@ def main ():
 	for k in st_prs_d.keys():
 		df = st_prs_d[k]
 		gb = df.groupby(['cate']).groups.keys()
-#		print "	", gb
+	#		print "	", gb
 		get_isom_overlap_in_stacked_prod_rules(gb, df)
 
 	#~#
@@ -369,11 +368,14 @@ def main ():
 		iso_interx[[1,2,3,4]].to_csv('Results/{}_isom_interxn.tsv'.format(gname),
 											sep="\t", header=False, index=False)
 
-
-try:
-	main()
-except Exception, e:
-	print str(e)
-	traceback.print_exc()
-	sys.exit(1)
-sys.exit(0)
+if __name__ == '__main__':
+	parser = get_parser()
+	args = vars(parser.parse_args())
+	
+	try:
+		main()
+	except Exception, e:
+		print str(e)
+		traceback.print_exc()
+		sys.exit(1)
+	sys.exit(0)
