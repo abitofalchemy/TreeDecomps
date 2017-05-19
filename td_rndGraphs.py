@@ -300,31 +300,28 @@ def main ():
 	#	graph_stats_and_visuals()
 	#	exit()
 	
-	n_nodes_set = [math.pow(2,x) for x in range(5,8,1)]
+	n_nodes_set = [math.pow(2,x) for x in range(5,6,1)]
 	n_edges_set = {}
 	for n in n_nodes_set:
 		n_edges_set[n] = nx.fast_gnp_random_graph(int(n), 0.75).number_of_edges()
 
 
 	ba_gObjs = [nx.barabasi_albert_graph(n, np.random.choice(range(1,int(n)))) for n in n_nodes_set]
-	print [(g.number_of_nodes(), g.number_of_edges()) for g in ba_gObjs]
+	print 'Groups of Random Graphs (BA):'
+	print '  ', [(g.number_of_nodes(), g.number_of_edges()) for g in ba_gObjs]
 	
-	exit()
 
 	#~#
 	#~# convert to dimacs graph
 	print '~~~~ convert_nx_gObjs_to_dimacs_gObjs'
 	dimacs_gObjs = convert_nx_gObjs_to_dimacs_gObjs(ba_gObjs,)
 
-
-
 	#~#
 	#~# decompose the given graphs
 	print '~~~~ tree_decomposition_with_varelims'
 	var_el_m = ['mcs','mind','minf','mmd']
 	trees_d = tree_decomposition_with_varelims(dimacs_gObjs, var_el_m)
-	#	print '2~'*3, trees_d.keys()
-
+	print '  ', trees_d.keys()
 
 	#~#
 	#~# dimacs tree to HRG clique tree
@@ -332,8 +329,6 @@ def main ():
 	pr_rules_d={}
 	for k in trees_d.keys():
 		pr_rules_d[k] = convert_dimacs_tree_objs_to_hrg_clique_trees(trees_d[k])
-	#	print '3~'*3, pr_rules_d.keys()
-
 
 	#~#
 	#~# get stacked HRG prod rules
@@ -342,7 +337,13 @@ def main ():
 	st_prs_d = {}
 	for k in pr_rules_d.keys():
 		st_prs_d[k] = get_hrg_prod_rules(pr_rules_d[k])
-	#	print '4~'*3, st_prs_d.keys()
+
+	print'  ', st_prs_d.keys()
+	for k in st_prs_d.keys():
+		df = pd.DataFrame(st_prs_d[k])
+		outfname = "Results/"+os.path.basename(k).split('.')[0]+"stckd_prs.tsv"
+		df[['rnbr','lhs','rhs','pr']].to_csv(outfname, header=False, index=False, sep="\t")
+	exit()
 
 	#~#
 	#~# get the isomophic overlap
@@ -354,7 +355,6 @@ def main ():
 	for k in st_prs_d.keys():
 		df = st_prs_d[k]
 		gb = df.groupby(['cate']).groups.keys()
-	#		print "	", gb
 		get_isom_overlap_in_stacked_prod_rules(gb, df)
 
 	#~#
@@ -366,7 +366,13 @@ def main ():
 		iso_union, iso_interx = isoint.isomorph_intersection_2dfstacked(stacked_df)
 		gname = os.path.basename(k).split(".")[0]
 		iso_interx[[1,2,3,4]].to_csv('Results/{}_isom_interxn.tsv'.format(gname),
-											sep="\t", header=False, index=False)
+																 sep="\t", header=False, index=False)
+
+	#~#
+#	hrg_graph_gen_from_interxn(iso_interx[[1,2,3,4]])
+
+#def hrg_graph_gen_from_interxn(iso_interxn_df):
+
 
 if __name__ == '__main__':
 	parser = get_parser()
@@ -374,6 +380,7 @@ if __name__ == '__main__':
 	
 	try:
 		main()
+	
 	except Exception, e:
 		print str(e)
 		traceback.print_exc()
