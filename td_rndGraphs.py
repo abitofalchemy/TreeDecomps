@@ -25,10 +25,15 @@ from tdec.arbolera import jacc_dist_for_pair_dfrms
 import pprint as pp
 import tdec.isomorph_interxn as isoint
 
-
+#_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~#
 def get_parser ():
-	parser = argparse.ArgumentParser(description='Process random graphs')
+	parser = argparse.ArgumentParser(description='Random graphs (BA graph model). --clqs is used when'\
+			'.bz2 files are already computed given a path with wild card. Example: `python '\
+			'itd_rndGraphs.py --clqs`')
+	parser.add_argument('--clqs', action='store_true',	default=False, required=False, \
+			help="tree_objs_to_hrg_clique_trees")
 	parser.add_argument('--version', action='version', version=__version__)
+
 	return parser
 
 def dimacs_nddgo_tree(dimacsfnm_lst, heuristic):
@@ -216,7 +221,7 @@ def convert_dimacs_tree_objs_to_hrg_clique_trees(treeObjs):
 	from dimacsTree2ProdRules import dimacs_td_ct
 
 	for f in treeObjs:
-		#print '\t',f[0]
+		print '\t',f[0]
 		results.append(dimacs_td_ct(f[0], synthg=True))
 	
 	return results
@@ -224,6 +229,7 @@ def convert_dimacs_tree_objs_to_hrg_clique_trees(treeObjs):
 def get_hrg_prod_rules(prules):
 	'''
 	These are production rules
+	prules is list of bz2 files
 	'''
 	mdf = pd.DataFrame()#columns=['rnbr', 'lhs', 'rhs', 'pr'])
 	for f in prules:
@@ -300,7 +306,7 @@ def main ():
 	#	graph_stats_and_visuals()
 	#	exit()
 	
-	n_nodes_set = [math.pow(2,x) for x in range(5,6,1)]
+	n_nodes_set = [math.pow(2,x) for x in range(8,9,1)]
 	n_edges_set = {}
 	for n in n_nodes_set:
 		n_edges_set[n] = nx.fast_gnp_random_graph(int(n), 0.75).number_of_edges()
@@ -308,7 +314,7 @@ def main ():
 
 	ba_gObjs = [nx.barabasi_albert_graph(n, np.random.choice(range(1,int(n)))) for n in n_nodes_set]
 	print 'Groups of Random Graphs (BA):'
-	print '  ', [(g.number_of_nodes(), g.number_of_edges()) for g in ba_gObjs]
+	print '	G(V,E):', [(g.number_of_nodes(), g.number_of_edges()) for g in ba_gObjs]
 	
 
 	#~#
@@ -321,7 +327,7 @@ def main ():
 	print '~~~~ tree_decomposition_with_varelims'
 	var_el_m = ['mcs','mind','minf','mmd']
 	trees_d = tree_decomposition_with_varelims(dimacs_gObjs, var_el_m)
-	print '  ', trees_d.keys()
+	print '	', trees_d.keys()
 
 	#~#
 	#~# dimacs tree to HRG clique tree
@@ -338,12 +344,11 @@ def main ():
 	for k in pr_rules_d.keys():
 		st_prs_d[k] = get_hrg_prod_rules(pr_rules_d[k])
 
-	print'  ', st_prs_d.keys()
+	print'	', st_prs_d.keys()
 	for k in st_prs_d.keys():
 		df = pd.DataFrame(st_prs_d[k])
 		outfname = "Results/"+os.path.basename(k).split('.')[0]+"stckd_prs.tsv"
 		df[['rnbr','lhs','rhs','pr']].to_csv(outfname, header=False, index=False, sep="\t")
-	exit()
 
 	#~#
 	#~# get the isomophic overlap
@@ -372,14 +377,37 @@ def main ():
 #	hrg_graph_gen_from_interxn(iso_interx[[1,2,3,4]])
 
 #def hrg_graph_gen_from_interxn(iso_interxn_df):
-
+def trees_to_hrg_clq_trees():
+	gname = 'synthG_15_60'
+	files = glob('ProdRules/{}*.bz2'.format(gname))
+	print files
+	print '\tNbr of files:',len(files)
+	prod_rules_lst = []
+	
+	stacked_pr_rules = get_hrg_prod_rules(files)
+	print '\tSize of the df',len(stacked_pr_rules)
+	df = stacked_pr_rules 
+	gb = df.groupby(['cate']).groups.keys()
+	print 'Jaccard Similarity'
+	A = get_isom_overlap_in_stacked_prod_rules(gb, df)
+	print A
+	print 
+	iso_union, iso_interx = isoint.isomorph_intersection_2dfstacked(df)
+	iso_interx[[1,2,3,4]].to_csv('Results/{}_isom_interxn.tsv'.format(gname),
+															 sep="\t", header=False, index=False)
+	if os.path.exists('Results/{}_isom_interxn.tsv'.format(gname)):
+		print 'Results/{}_isom_interxn.tsv'.format(gname)+' saved'
 
 if __name__ == '__main__':
 	parser = get_parser()
 	args = vars(parser.parse_args())
 	
 	try:
-		main()
+		if args['clqs']:
+			trees_to_hrg_clq_trees()
+		else:
+			main()
+		# convert_dimacs_tree_objs_to_hrg_clique_trees
 	
 	except Exception, e:
 		print str(e)

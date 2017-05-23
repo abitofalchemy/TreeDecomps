@@ -1,8 +1,10 @@
 from glob import glob
 import tdec.net_metrics as metrics
 import os
+import re
 import csv
 import math
+import pickle
 import networkx as nx
 import numpy as np
 import pandas as pd
@@ -114,10 +116,17 @@ def ba_edges(v_lst):
 #	for k,v in ba_graphs_d.iteritems():
 #		print k, v.number_of_nodes(), v.number_of_edges()
 def save_nxgobjs_to_disk(gObjs, pickleOutF):
-	import pickle
-	pickle.dump(gObjs, open(pickleOutF, "wb"))
-	if os.path.exists(pickleOutF): print '	','Wrote gObjs list to a pickle file:', pickleOutF
-	return
+#	import pickle
+#	pickle.dump(gObjs, open(pickleOutF, "wb"))
+#	if os.path.exists(pickleOutF): print '	','Wrote gObjs list to a pickle file:', pickleOutF
+	out_edgelist_fnames = []
+	
+	for j,g in enumerate(gObjs):
+		ofname = "datasets/"+g.name+"_%d.tsv"%j
+		out_edgelist_fnames.append(ofname)
+		nx.write_edgelist(g, ofname,data=False)
+	
+	return out_edgelist_fnames
 
 def ba_control_hrg(v_lst):
 	grow_graphs = False
@@ -132,9 +141,10 @@ def ba_control_hrg(v_lst):
 		data.append(nxgobj)
 		prod_rules = phrg.probabilistic_hrg_deriving_prod_rules(nxgobj)
 		df = pd.DataFrame(list(prod_rules))
-		ofname = "Results/ba_cntrl_%d.tsv"%(n_v)
+		out_base_fname = "ba_cntrl_%d"%(n_v)
+		ofname = "Results/" + out_base_fname + ".tsv" #_________________
 		df.to_csv(ofname, sep="\t", header=False, index=False)
-		
+
 
 		prules_lst.append(prod_rules)
 		g = pcfg.Grammar('S')
@@ -143,9 +153,9 @@ def ba_control_hrg(v_lst):
 
 		num_nodes = nxgobj.number_of_nodes()
 
-		print "  ","Starting max size", 'n=', num_nodes
+		print "	","Starting max size", 'n=', num_nodes
 		g.set_max_size(num_nodes)
-		print "  ","Done with max size"
+		print "	","Done with max size"
 
 		Hstars = []
 		num_samples = 10
@@ -159,102 +169,123 @@ def ba_control_hrg(v_lst):
 
 			hstar = phrg.grow(rule_list, g)[0]
 			Hstars.append(hstar)
-		print "  ", 'Save BA production rules'
-		# with open("Results/ba_cntrl_%d.tsv"%(n_v),'wb') as fout:
-		# 	writer = csv.writer(fout,delimiter='\t')
-		# 	writer.writerows(prules_lst)
-		
-		
+		print "	", 'Save BA production rules'
+
+
+
 		if os.path.exists(ofname):
 				print '\tSaved to disk:',ofname
 		if 0:
 			metricx = ['degree','clust', 'hop', 'gcd']
 			metrics.network_properties([nxgobj], metricx, Hstars, name=nxgobj.name, out_tsv=False)
-		break
+
 	
 	#	convert_nx_gObjs_to_dimacs_gObjs(data)
 	print '#~#'*4
 	print 'Save nxobjs to disk'
-	save_nxgobjs_to_disk(data, "datasets/ba_cntrl_%d_%d.p"%(v_lst[0],v_lst[-1]))
+	edglst_fnames_lst = save_nxgobjs_to_disk(data, "datasets/" + out_base_fname + "_%d.p"%v_lst[-1])
+
+	return out_base_fname, v_lst[-1], edglst_fnames_lst
+
+def graph_gen_isom_interxn(in_fname="", orig_el=""):
+	"""Generate graph using isomorphic intersection of the production rules.
+	Keyword arguments:
+		in_fname -- file basename bz2 for the production rules?
+		orig_el  -- original graph's edgelist 
 	
 
-
-def graph_gen_isom_interxn(fbsname):
-	import pandas as pd
-	if 0: df = pd.read_csv(fbsname,index_col=0,compression="bz2")
-	df = pd.read_csv(fbsname, sep="\t", header=None)
-	for i,r in df.iterrows():
-		print list(r[2])
-		break
+	Example: Pass a file derived from an input file to test that this works by defualt.
+	"""
+	in_fname = in_fname
+	df = pd.read_csv(in_fname, sep="\t", header=None) # read a tsv file of reduced prod rules
+	rhs_clean = lambda rhs_rule: [f[1:-1] for f in re.findall("'.+?'", rhs_rule)]
+	df['rhslst'] = df[2].apply(rhs_clean)
+	df = df[[0, 1, 'rhslst',3]]
 	
-	
-	with open (fbsname, 'r') as f:
-		lines = f.readlines()
-		lines = [x.rstrip('\r\n') for x in lines]
-		lines = [x.split('\t') for x in lines]
-	for x in lines:
-		print x
-	exit()
-
-	#	g = pcfg.Grammar('S')
-	#	for (id, lhs, rhs, prob) in df.values:
-	#		print id, lhs, rhs, float(prob)
-	#		g.add_rule(pcfg.Rule(id, lhs, rhs, float(prob)))
-	#	fbname = os.path.basename(fbsname)
-	#	print fbname.split("_")[-1].rstrip(".tsv")
-	#	num_nodes = int(fbname.split("_")[-1].rstrip(".tsv"))
-	#	print "Starting max size", num_nodes
-	#	g.set_max_size(num_nodes)
-	#	print "Done with max size"
-	#
-	#	hstars_lst = []
-	#	for i in range(0, 10):
-	#		try:
-	#			rule_list = g.sample(num_nodes)
-	#			print ">"*10,i
-	#		except Exception, e:
-	#			print "!!!", str(e)
-	#			traceback.print_exc()
-	#			continue
-	lines = [
-("r0.0",	"A,B",	['A,B:N', 'A:N'],	0.857142857143),
-("r0.1",	"A,B",	['A:N', 'B:N'],	0.142857142857),
-("r1.0",	"S",	['0,1:T', '0,1:N', '0:N'],	1.0),
-("r2.0",	"A",	['0,A:T', 'A:N', 'A:N'],	0.0666666666667),
-("r2.1",	"A",	['A:T'],	0.0666666666667),
-("r2.2",	"A",	['0,A:T', '0:N', '0:N'],	0.0666666666667),
-("r2.3",	"A",	['0,A:T', '0:N'],	0.133333333333),
-("r2.4",	"A",	['0,A:T'],	0.666666666667)]
 	g = pcfg.Grammar('S')
-	for (id, lhs, rhs, prob) in lines:
-		print (id, lhs, rhs, prob)
+	for (id, lhs, rhs, prob) in df.values:
 		g.add_rule(pcfg.Rule(id, lhs, rhs, float(prob)))
+	#
+	fbname = os.path.basename(in_fname)
+	print fbname.split("_")[1]
 	
-	num_nodes = int(fbsname.split("_")[-1].rstrip(".tsv"))
-	print "  ","Starting max size", 'n=', num_nodes
+	num_nodes = int(fbname.split("_")[1])
+	print "Starting max size", num_nodes
 	g.set_max_size(num_nodes)
-	print "  ","Done with max size"
-	
-	Hstars = []
-	num_samples = 10
-	for i in range(0, num_samples):
+	print "Done with max size"
+
+	hStars = []
+	for i in range(0, 10):
 		try:
 			rule_list = g.sample(num_nodes)
+			print ">"*10,i
 		except Exception, e:
-			print str(e)
+			print "!!!", str(e)
 			traceback.print_exc()
-			continue #sys.exit(1)
-		
+			continue
 		hstar = phrg.grow(rule_list, g)[0]
-		Hstars.append(hstar)
-	print "  ", 'Save BA production rules'
+		hStars.append(hstar)
+
+	print "	", len(hStars)
+	import tdec.net_metrics as metrics
+	metricx = ['degree','clust', 'hop', 'gcd']
+	G = nx.read_edgelist(orig_el)
+	G.name = os.path.basename(orig_el).strip(".tsv")[0]
+	metrics.network_properties([G], metricx, hStars, name="ba_cntrl_16", out_tsv=True)
+
+
+
+#	lines = [
+#		("r0.0",	"A,B",	['A,B:N', 'A:N'],	0.857142857143),
+#		("r0.1",	"A,B",	['A:N', 'B:N'],	0.142857142857),
+#		("r1.0",	"S",	['0,1:T', '0,1:N', '0:N'],	1.0),
+#		("r2.0",	"A",	['0,A:T', 'A:N', 'A:N'],	0.0666666666667),
+#		("r2.1",	"A",	['A:T'],	0.0666666666667),
+#		("r2.2",	"A",	['0,A:T', '0:N', '0:N'],	0.0666666666667),
+#		("r2.3",	"A",	['0,A:T', '0:N'],	0.133333333333),
+#		("r2.4",	"A",	['0,A:T'],	0.666666666667)]
+#	g = pcfg.Grammar('S')
+#	for (id, lhs, rhs, prob) in lines:
+#		print (id, lhs, rhs, prob)
+#		g.add_rule(pcfg.Rule(id, lhs, rhs, float(prob)))
+#
+#	num_nodes = int(in_fname.split("_")[-1].rstrip(".tsv"))
+#	print "	","Starting max size", 'n=', num_nodes
+#	g.set_max_size(num_nodes)
+#	print "	","Done with max size"
+#
+#	Hstars = []
+#	num_samples = 10
+#	for i in range(0, num_samples):
+#		try:
+#			rule_list = g.sample(num_nodes)
+#		except Exception, e:
+#			print str(e)
+#			traceback.print_exc()
+#			continue #sys.exit(1)
+#		
+#		hstar = phrg.grow(rule_list, g)[0]
+#		Hstars.append(hstar)
+#	print "	", 'Save BA production rules'
 
 #~# Main
 if __name__ == '__main__':
-	#graph_stats_and_visuals()
-	#graph_gen_isom_interxn("synthG_127_3072.mmd_prules.bz2")
-	if 0: ba_control_hrg([math.pow(2,x) for x in range(4,8,1)])
-	if 0: graph_gen_isom_interxn("synthG_127_3072.mmd_prules.bz2")
-	if 1: graph_gen_isom_interxn("Results/ba_cntrl_16.tsv")
+	# graph_stats_and_visuals()
+	# graph_gen_isom_interxn("synthG_127_3072.mmd_prules.bz2")
+	if 0: bsnm_fname,last_inrange,elst_fnames = ba_control_hrg([math.pow(2,x) for x in range(5,8,1)])
 
+	if 0:
+		for el in elst_fnames:
+			synth_prs ="_".join(bsnm_fname.split("_")[:2])
+			synth_prs ="Results/"+bsnm_fname+".tsv"
+			graph_gen_isom_interxn(in_fname=synth_prs, orig_el=el)
+			print synth_prs, el
+
+	fname = "Results/synthG_15_60_isom_interxn.tsv"
+	graph_gen_isom_interxn(in_fname=fname)
+#	if 0: graph_gen_isom_interxn("synthG_127_3072.mmd_prules.bz2")
+#	for f in glob('Results/ba_cntrl*.tsv'):
+#		print f
+##		graph_gen_isom_interxn(f)
+#		break
 
