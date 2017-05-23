@@ -87,3 +87,6 @@ Date   | Notes
 15May17 | rand graph stats using tst-rand_gstats
 15May17 | Do a BA rand graph to HRG hstars control test
 19May17 | reading the rules have make sure that RHS is a list
+22May17 | re-doing the experiments with as routers
+23May17 | Are BA gen graphs written to edgelist?
+23May17 | td_rndGStats.py

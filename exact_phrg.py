@@ -66,7 +66,7 @@ def Hstar_Graphs_Control (G, graph_name, axs=None):
 
   if 0:
     # metricx = [ 'degree','hops', 'clust', 'assort', 'kcore','eigen','gcd']
-    metricx = ['degree', 'gcd']
+    metricx = ['gcd']
     # g = nx.from_pandas_dataframe(df, 'src', 'trg',edge_attr=['ts'])
     # graph_name = os.path.basename(f_path).rstrip('.tel')
     if DBG: print ">", graph_name

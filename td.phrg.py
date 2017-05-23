@@ -146,6 +146,7 @@ def dimacs_td_ct (tdfname, orig_fname):
 
   hStars = grow_exact_size_hrg_graphs_from_prod_rules(rules, graph_name, G.number_of_nodes(), 20)
   metricx = ['degree', 'hops', 'clust', 'assort', 'kcore', 'eigen', 'gcd']
+  metricx = ['degree', 'hops', 'clust', 'gcd']
   metrics.network_properties([G], metricx, hStars, name=graph_name, out_tsv=True)
 
   return

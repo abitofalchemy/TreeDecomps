@@ -24,7 +24,7 @@ def get_parser ():
                                                  '"python tredec.dimacs.tree.py --orig out.filename --varel mcs"')
     parser.add_argument('--orig', required=True, help='Input/reference graph in edgelist format (or tar.bz2)')
     parser.add_argument('--varel', required=True, help='Var. elim method such as mcs, lexm, mind, minf, etc')
-    parser.add_argument('-tw', action='store_true',  default=False, required=False, help='print treewidth given var elim method')
+    parser.add_argument('-tw', action='store_true',default=False,required=False,help='print treewidth given var elim method')
     parser.add_argument('--version', action='version', version=__version__)
     return parser
 
