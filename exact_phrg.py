@@ -378,7 +378,7 @@ def get_hrg_production_rules(edgelist_data_frame, graph_name, tw=False, n_subg=2
 	
 	if 1:
 			metricx = ['degree','hops', 'clust', 'assort', 'kcore','eigen','gcd']
-			metricx = ['degree','clust', 'hop', 'gcd']
+			metricx = ['gcd']
 			metrics.network_properties([G], metricx, hStars, name=graph_name, out_tsv=False)
 
 if __name__ == '__main__':
