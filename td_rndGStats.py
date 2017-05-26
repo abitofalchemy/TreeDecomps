@@ -17,8 +17,7 @@ from td_rndGraphs import convert_nx_gObjs_to_dimacs_gObjs
 
 
 def graph_stats_and_visuals(gobjs=None):
-	"""
-	graph stats & visuals
+	"""Graph stats & visuals
 	:gobjs: input nx graph objects
 	:return:
 	"""
@@ -134,7 +133,8 @@ def ba_control_hrg(v_lst):
 	data = []
 	prules_lst = []
 	for n_v in v_lst:
-		nxgobj = nx.barabasi_albert_graph(n_v, np.random.choice(range(1,n_v)))
+		# nxgobj = nx.barabasi_albert_graph(n_v, np.random.choice(range(1,n_v)))
+		nxgobj = nx.barabasi_albert_graph(n_v,3)
 		nxgobj.name = "ba_%d_%d" %(nxgobj.number_of_nodes(), nxgobj.number_of_edges())
 
 		print "ba", nxgobj.number_of_nodes(), nxgobj.number_of_edges()
@@ -187,29 +187,35 @@ def ba_control_hrg(v_lst):
 
 	return out_base_fname, v_lst[-1], edglst_fnames_lst
 
-def graph_gen_isom_interxn(in_fname="", orig_el=""):
+def graph_gen_isom_interxn(in_fname="", orig_el=None):
 	"""Generate graph using isomorphic intersection of the production rules.
 	Keyword arguments:
 		in_fname -- file basename bz2 for the production rules?
-		orig_el  -- original graph's edgelist 
-	
+		orig_el	-- original graph's edgelist (optional)
+
 
 	Example: Pass a file derived from an input file to test that this works by defualt.
 	"""
 	in_fname = in_fname
-	df = pd.read_csv(in_fname, sep="\t", header=None) # read a tsv file of reduced prod rules
+	df = pd.read_csv(in_fname, delimiter='\t', header=None, skiprows=1)
 	rhs_clean = lambda rhs_rule: [f[1:-1] for f in re.findall("'.+?'", rhs_rule)]
-	df['rhslst'] = df[2].apply(rhs_clean)
+	try:
+		df['rhslst'] = df[2].apply(rhs_clean)
+	except Exception, e:
+		print str(e)
+		df['rhslst'] = df['rhs'].apply(rhs_clean)
+
 	df = df[[0, 1, 'rhslst',3]]
-	
+	#~#	// ** //
 	g = pcfg.Grammar('S')
 	for (id, lhs, rhs, prob) in df.values:
+		print (id, lhs, rhs, prob)
 		g.add_rule(pcfg.Rule(id, lhs, rhs, float(prob)))
 	#
 	fbname = os.path.basename(in_fname)
 	print fbname.split("_")[1]
 	
-	num_nodes = int(fbname.split("_")[1])
+	num_nodes = int(fbname.split("_")[2].strip(".tsv"))
 	print "Starting max size", num_nodes
 	g.set_max_size(num_nodes)
 	print "Done with max size"
@@ -218,7 +224,7 @@ def graph_gen_isom_interxn(in_fname="", orig_el=""):
 	for i in range(0, 10):
 		try:
 			rule_list = g.sample(num_nodes)
-			print ">"*10,i
+			print ".",i,
 		except Exception, e:
 			print "!!!", str(e)
 			traceback.print_exc()
@@ -226,12 +232,13 @@ def graph_gen_isom_interxn(in_fname="", orig_el=""):
 		hstar = phrg.grow(rule_list, g)[0]
 		hStars.append(hstar)
 
-	print "	", len(hStars)
-	import tdec.net_metrics as metrics
-	metricx = ['degree','clust', 'hop', 'gcd']
-	G = nx.read_edgelist(orig_el)
-	G.name = os.path.basename(orig_el).strip(".tsv")[0]
-	metrics.network_properties([G], metricx, hStars, name="ba_cntrl_16", out_tsv=True)
+	print "\n\t", len(hStars)
+	if orig_el is not None:
+		import tdec.net_metrics as metrics
+		metricx = ['degree','clust', 'hop', 'gcd']
+		G = nx.read_edgelist(orig_el)
+		G.name = os.path.basename(orig_el).split(".")[0]
+		metrics.network_properties([G], metricx, hStars, name="ba_cntrl_16", out_tsv=True)
 
 
 
@@ -268,21 +275,33 @@ def graph_gen_isom_interxn(in_fname="", orig_el=""):
 #		Hstars.append(hstar)
 #	print "	", 'Save BA production rules'
 
+def control_test():
+	'''ba_cntrl_128.tsv holds baseline production rules for
+		the BA random grpah of 128 nodes
+	'''
+	graph_gen_isom_interxn(in_fname="Results/ba_cntrl_128.tsv", orig_el="datasets/ba_128_375_2.tsv")
+
+
 #~# Main
 if __name__ == '__main__':
-	# graph_stats_and_visuals()
-	# graph_gen_isom_interxn("synthG_127_3072.mmd_prules.bz2")
-	if 0: bsnm_fname,last_inrange,elst_fnames = ba_control_hrg([math.pow(2,x) for x in range(5,8,1)])
-
 	if 0:
+		bsnm_fname,last_inrange,elst_fnames = ba_control_hrg([math.pow(2,x) for x in range(5,8,1)])
+		print " Basename:",bsnm_fname
+		print "			|V|:",last_inrange
+		print "Edgelists:", elst_fnames
+
 		for el in elst_fnames:
 			synth_prs ="_".join(bsnm_fname.split("_")[:2])
+			print synth_prs
 			synth_prs ="Results/"+bsnm_fname+".tsv"
-			graph_gen_isom_interxn(in_fname=synth_prs, orig_el=el)
+			graph_gen_isom_interxn(in_fname=synth_prs)
 			print synth_prs, el
 
-	fname = "Results/synthG_15_60_isom_interxn.tsv"
-	graph_gen_isom_interxn(in_fname=fname)
+	if 0: control_test()
+	
+	graph_gen_isom_interxn(in_fname="Results/synthG_31_87_isom_interxn.tsv")
+# graph_gen_isom_interxn(in_fname="Results/ba_cntrl_128.tsv")
+
 #	if 0: graph_gen_isom_interxn("synthG_127_3072.mmd_prules.bz2")
 #	for f in glob('Results/ba_cntrl*.tsv'):
 #		print f

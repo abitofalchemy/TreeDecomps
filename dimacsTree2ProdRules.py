@@ -120,7 +120,7 @@ def dimacs_td_ct (tdfname, synthg=False):
 		#		print '...',outdf_fname, "written"
 		df.to_csv(outdf_fname, compression="bz2")
 	else:
-		print '...', outdf_fname, "file exists"
+		print '\t', outdf_fname, "file exists"
 
 	return outdf_fname
 

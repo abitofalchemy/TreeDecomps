@@ -27,14 +27,16 @@ import tdec.isomorph_interxn as isoint
 
 #_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~#
 def get_parser ():
-	parser = argparse.ArgumentParser(description='Random graphs (BA graph model). --clqs is used when'\
-			'.bz2 files are already computed given a path with wild card. Example: `python '\
-			'itd_rndGraphs.py --clqs`')
-	parser.add_argument('--clqs', action='store_true',	default=False, required=False, \
-			help="tree_objs_to_hrg_clique_trees")
-	parser.add_argument('--version', action='version', version=__version__)
+  parser = argparse.ArgumentParser(description='Random graphs (BA graph model). --clqs is used when'\
+      '.bz2 files are already computed given a path with wild card. Example: `python '\
+      'itd_rndGraphs.py --clqs`')
+  parser.add_argument('--clqs', action='store_true',	default=False, required=False, \
+      help="tree_objs_to_hrg_clique_trees")
+  parser.add_argument('--bam', action='store_true',	default=False, required=False, \
+                        help="Barabasi-Albert graph model")
+  parser.add_argument('--version', action='version', version=__version__)
 
-	return parser
+  return parser
 
 def dimacs_nddgo_tree(dimacsfnm_lst, heuristic):
 	'''
@@ -221,7 +223,6 @@ def convert_dimacs_tree_objs_to_hrg_clique_trees(treeObjs):
 	from dimacsTree2ProdRules import dimacs_td_ct
 
 	for f in treeObjs:
-		print '\t',f[0]
 		results.append(dimacs_td_ct(f[0], synthg=True))
 	
 	return results
@@ -298,83 +299,6 @@ def graph_stats_and_visuals(gobjs=None):
 		
 
 
-def main ():
-	print "Hello"
-	
-	#~#
-	#~# Graph stats and visualization
-	#	graph_stats_and_visuals()
-	#	exit()
-	
-	n_nodes_set = [math.pow(2,x) for x in range(8,9,1)]
-	n_edges_set = {}
-	for n in n_nodes_set:
-		n_edges_set[n] = nx.fast_gnp_random_graph(int(n), 0.75).number_of_edges()
-
-
-	ba_gObjs = [nx.barabasi_albert_graph(n, np.random.choice(range(1,int(n)))) for n in n_nodes_set]
-	print 'Groups of Random Graphs (BA):'
-	print '	G(V,E):', [(g.number_of_nodes(), g.number_of_edges()) for g in ba_gObjs]
-	
-
-	#~#
-	#~# convert to dimacs graph
-	print '~~~~ convert_nx_gObjs_to_dimacs_gObjs'
-	dimacs_gObjs = convert_nx_gObjs_to_dimacs_gObjs(ba_gObjs,)
-
-	#~#
-	#~# decompose the given graphs
-	print '~~~~ tree_decomposition_with_varelims'
-	var_el_m = ['mcs','mind','minf','mmd']
-	trees_d = tree_decomposition_with_varelims(dimacs_gObjs, var_el_m)
-	print '	', trees_d.keys()
-
-	#~#
-	#~# dimacs tree to HRG clique tree
-	print '~~~~ convert_dimacs_tree_objs_to_hrg_clique_trees'
-	pr_rules_d={}
-	for k in trees_d.keys():
-		pr_rules_d[k] = convert_dimacs_tree_objs_to_hrg_clique_trees(trees_d[k])
-
-	#~#
-	#~# get stacked HRG prod rules
-	#~# - read sets of prod rules *.bz2
-	print '~~~~ get_hrg_prod_rules (stacked | prs)'
-	st_prs_d = {}
-	for k in pr_rules_d.keys():
-		st_prs_d[k] = get_hrg_prod_rules(pr_rules_d[k])
-
-	print'	', st_prs_d.keys()
-	for k in st_prs_d.keys():
-		df = pd.DataFrame(st_prs_d[k])
-		outfname = "Results/"+os.path.basename(k).split('.')[0]+"stckd_prs.tsv"
-		df[['rnbr','lhs','rhs','pr']].to_csv(outfname, header=False, index=False, sep="\t")
-
-	#~#
-	#~# get the isomophic overlap
-	#	intxn_prod_rules = get_isom_overlap_in_stacked_prod_rules(stck_prod_rules)
-	#	for nm	in sorted(stck_prod_rules.groupby(['cate']).groups.keys()):
-	#		if os.path.exists('ProdRules/'+nm+'.bz2'):
-	#			print '	ProdRules/'+nm+'.bz2'
-	print '~~~~ get_isom_overlap_in_stacked_prod_rules'
-	for k in st_prs_d.keys():
-		df = st_prs_d[k]
-		gb = df.groupby(['cate']).groups.keys()
-		get_isom_overlap_in_stacked_prod_rules(gb, df)
-
-	#~#
-	#~# get the isomophic overlap production rules subset
-	#~# (two diff animals, not the same as the Jaccard Sim above)
-	print '~~~~ isom intrxn from stacked df'
-	for k in st_prs_d.keys():
-		stacked_df = st_prs_d[k]
-		iso_union, iso_interx = isoint.isomorph_intersection_2dfstacked(stacked_df)
-		gname = os.path.basename(k).split(".")[0]
-		iso_interx[[1,2,3,4]].to_csv('Results/{}_isom_interxn.tsv'.format(gname),
-																 sep="\t", header=False, index=False)
-
-	#~#
-#	hrg_graph_gen_from_interxn(iso_interx[[1,2,3,4]])
 
 #def hrg_graph_gen_from_interxn(iso_interxn_df):
 def trees_to_hrg_clq_trees():
@@ -398,19 +322,100 @@ def trees_to_hrg_clq_trees():
 	if os.path.exists('Results/{}_isom_interxn.tsv'.format(gname)):
 		print 'Results/{}_isom_interxn.tsv'.format(gname)+' saved'
 
+
+def main (args_d):
+  print "Hello"
+    
+  #~#
+  #~# Graph stats and visualization
+  #	graph_stats_and_visuals()
+  #	exit()
+  
+  if (args_d['bam']):
+    print "~~~~ Groups of Random Graphs (BA):"
+    n_nodes_set = [math.pow(2,x) for x in range(5,6,1)]
+    ba_gObjs = [nx.barabasi_albert_graph(n, 3) for n in n_nodes_set]
+    for g in ba_gObjs:
+      print "\tG(V,E):", (g.number_of_nodes(), g.number_of_edges())
+
+
+    #~#
+    #~# convert to dimacs graph
+    print '~~~~ convert to_dimacs'
+    dimacs_gObjs = convert_nx_gObjs_to_dimacs_gObjs(ba_gObjs,)
+    print "\t",type(dimacs_gObjs)
+
+    #~#
+    #~# decompose the given graphs
+    print '~~~~ tree_decomposition_with_varelims'
+    var_el_m = ['mcs','mind','minf','mmd']
+    trees_d = tree_decomposition_with_varelims(dimacs_gObjs, var_el_m)
+    for k in trees_d.keys():
+      print  '\t',k, "==>"
+      for v in trees_d[k]: print "\t  ", v
+
+    #~#
+    #~# dimacs tree to HRG clique tree
+    print '~~~~ tree_objs_to_hrg_clique_trees'
+    print '~~~~ prules.bz2 saved in ProdRules; individual files'
+    pr_rules_d={}
+    for k in trees_d.keys():
+      pr_rules_d[k] = convert_dimacs_tree_objs_to_hrg_clique_trees(trees_d[k])
+      print "\tCT:", len(pr_rules_d[k])
+
+
+    #~#
+    #~# get stacked HRG prod rules
+    #~# - read sets of prod rules *.bz2
+    print '~~~~ Stacked HRG get_hrg_prod_rules (stacked | prs)'
+    st_prs_d = {}
+    for k in pr_rules_d.keys():
+      st_prs_d[k] = get_hrg_prod_rules(pr_rules_d[k])
+
+    print'	', st_prs_d.keys()
+    for k in st_prs_d.keys():
+      df = pd.DataFrame(st_prs_d[k])
+      outfname = "Results/"+os.path.basename(k).split('.')[0]+"stckd_prs.tsv"
+      df[['rnbr','lhs','rhs','pr']].to_csv(outfname, header=False, index=False, sep="\t")
+
+    #~#
+    #~# get the isomophic overlap
+    #	intxn_prod_rules = get_isom_overlap_in_stacked_prod_rules(stck_prod_rules)
+    #	for nm	in sorted(stck_prod_rules.groupby(['cate']).groups.keys()):
+    #		if os.path.exists('ProdRules/'+nm+'.bz2'):
+    #			print '	ProdRules/'+nm+'.bz2'
+    print '\n~~~~ get_isom_overlap_in_stacked_prod_rules'
+    print '~~~~ output is Jaccard Sim Scores'
+    for k in st_prs_d.keys():
+      df = st_prs_d[k]
+      gb = df.groupby(['cate']).groups.keys()
+      get_isom_overlap_in_stacked_prod_rules(gb, df)
+
+
+    #~#
+    #~# get the isomophic overlap production rules subset
+    #~# (two diff animals, not the same as the Jaccard Sim above)
+    print '~~~~ isom intrxn from stacked df'
+    for k in st_prs_d.keys():
+      stacked_df = st_prs_d[k]
+      iso_union, iso_interx = isoint.isomorph_intersection_2dfstacked(stacked_df)
+      gname = os.path.basename(k).split(".")[0]
+      iso_interx[[1,2,3,4]].to_csv('Results/{}_isom_interxn.tsv'.format(gname),
+                                         sep="\t", header=False, index=False)
+      if os.path.exists('Results/{}_isom_interxn.tsv'.format(gname)):
+        print "\t", 'Written:','Results/{}_isom_interxn.tsv'.format(gname)
+
+    #~#
+    #~#	hrg_graph_gen_from_interxn(iso_interx[[1,2,3,4]])
+
+
 if __name__ == '__main__':
-	parser = get_parser()
-	args = vars(parser.parse_args())
-	
-	try:
-		if args['clqs']:
-			trees_to_hrg_clq_trees()
-		else:
-			main()
-		# convert_dimacs_tree_objs_to_hrg_clique_trees
-	
-	except Exception, e:
-		print str(e)
-		traceback.print_exc()
-		sys.exit(1)
-	sys.exit(0)
+  parser = get_parser()
+  args = vars(parser.parse_args())
+  try:
+    main(args)
+  except Exception, e:
+    print str(e)
+    traceback.print_exc()
+    sys.exit(1)
+  sys.exit(0)

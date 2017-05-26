@@ -17,3 +17,4 @@ transbin
 .ipynb_checkpoints/
 *.pdf
 utils/*
+.*.swp
