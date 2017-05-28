@@ -90,3 +90,4 @@ Date   | Notes
 22May17 | re-doing the experiments with as routers
 23May17 | Are BA gen graphs written to edgelist?
 23May17 | td_rndGStats.py
+26May17 | 817 python td_rndGraphs.py --bam 818 python td_rndGStats.py

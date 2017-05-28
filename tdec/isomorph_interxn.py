@@ -205,7 +205,7 @@ def isomorph_infile_reduce(dfx):
 #				 # overlap_pairs[x].append(row)
 
 def isomorph_intersection_2dfstacked(dfx):
-	print ">>", dfx.shape
+	print "\t>> input DF shape", dfx.shape
 	seen_rules = defaultdict(list)
 	overlap_pairs = defaultdict(list)
 	dfx['iso'] = False
@@ -270,7 +270,7 @@ def isomorph_intersection_2dfstacked(dfx):
 			sid += 1
 		id += 1
 	# print df_interx.to_string()
-
+	print "\tdf_interx", df_interx.shape, "new shape"
 	# print dfx[ dfx['iso'] == True ] # this is the union of the rules
 	# print df_interx# this is the intersetion with modified probs
 	# df_interx = df_interx.reset_index(drop=True)
