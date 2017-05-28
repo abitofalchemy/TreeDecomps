@@ -2,6 +2,7 @@ from glob import glob
 import tdec.net_metrics as metrics
 import os
 import re
+import sys
 import csv
 import math
 import pickle
@@ -209,13 +210,13 @@ def graph_gen_isom_interxn(in_fname="", orig_el=None):
 	#~#	// ** //
 	g = pcfg.Grammar('S')
 	for (id, lhs, rhs, prob) in df.values:
-		print (id, lhs, rhs, prob)
+		# print (id, lhs, rhs, prob)
 		g.add_rule(pcfg.Rule(id, lhs, rhs, float(prob)))
 	#
 	fbname = os.path.basename(in_fname)
 	print fbname.split("_")[1]
 	
-	num_nodes = int(fbname.split("_")[2].strip(".tsv"))
+	num_nodes = int(fbname.split("_")[1].strip(".tsv"))
 	print "Starting max size", num_nodes
 	g.set_max_size(num_nodes)
 	print "Done with max size"
@@ -224,15 +225,14 @@ def graph_gen_isom_interxn(in_fname="", orig_el=None):
 	for i in range(0, 10):
 		try:
 			rule_list = g.sample(num_nodes)
-			print ".",i,
 		except Exception, e:
 			print "!!!", str(e)
-			traceback.print_exc()
+		#	traceback.print_exc()
 			continue
 		hstar = phrg.grow(rule_list, g)[0]
+		print "~^~"*10,hstar.number_of_nodes(), hstar.number_of_edges()
 		hStars.append(hstar)
 
-	print "\n\t", len(hStars)
 	if orig_el is not None:
 		import tdec.net_metrics as metrics
 		metricx = ['degree','clust', 'hop', 'gcd']
@@ -298,8 +298,38 @@ if __name__ == '__main__':
 			print synth_prs, el
 
 	if 0: control_test()
+	'''import sys
+	if len(sys.argv) < 2:
+		print "provide an isom_interxn.tsv file"
+		sys.exit(1)
 	
-	graph_gen_isom_interxn(in_fname="Results/synthG_31_87_isom_interxn.tsv")
+	is_in_fname = sys.argv[1]
+	orig = sys.argv[2]
+	print is_in_fname
+	print orig
+	'''
+	is_in_files = glob("Results/synthG*isom_interxn.tsv")
+	num_n_lst   = [os.path.basename(f).split("_")[1] for f in is_in_files]
+	v_lst       = [int(v) for v in num_n_lst]	
+	
+	for f in is_in_files:
+		num_n   = os.path.basename(f).split("_")[1]
+		v = int(num_n)
+		oirg = nx.barabasi_albert_graph(v, 3)
+		orig = "datasets/bar_alb_" + str(v+1) + "_exp3.tsv"
+
+		print f,
+		print orig
+		if os.path.exists(orig):
+			graph_gen_isom_interxn(in_fname=f, orig_el= orig) 
+		else:
+			print orig + " file does not exists"
+	
+	if 0:
+		graph_gen_isom_interxn(
+					in_fname=	"Results/synthG_31_87_isom_interxn.tsv",
+					orig_el=	"datasets/bar_alb_32_exp3.tsv")
+
 # graph_gen_isom_interxn(in_fname="Results/ba_cntrl_128.tsv")
 
 #	if 0: graph_gen_isom_interxn("synthG_127_3072.mmd_prules.bz2")
