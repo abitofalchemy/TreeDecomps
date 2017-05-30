@@ -18,3 +18,4 @@ transbin
 *.pdf
 utils/*
 .*.swp
+ExplodingTrees/*

@@ -91,3 +91,7 @@ Date   | Notes
 23May17 | Are BA gen graphs written to edgelist?
 23May17 | td_rndGStats.py
 26May17 | 817 python td_rndGraphs.py --bam 818 python td_rndGStats.py
+28May17 | td_rndGStats.py", line 219, in graph_gen_isom_interxn num_nodes = int(fbname.split("_")[1].strip(".tsv"))
+30May17 | can the var elim prules (ProdRules/ucidata-gama.lexm_prules.bz2) generate graphs?
+30May17 | lesmis is good all the way
+30May17 | try stacked on les mis

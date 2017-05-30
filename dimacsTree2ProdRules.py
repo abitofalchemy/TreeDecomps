@@ -114,11 +114,11 @@ def dimacs_td_ct (tdfname, synthg=False):
 
 	df = pd.DataFrame(rules)
 
-	outdf_fname = "ProdRules/"+tfname+"_prules.bz2"
+	outdf_fname = "ProdRules/"+tfname+"_iprules.tsv"
 
 	if not os.path.isfile(outdf_fname):
 		#		print '...',outdf_fname, "written"
-		df.to_csv(outdf_fname, compression="bz2")
+		df.to_csv(outdf_fname, header=False, index=False, sep="\t")
 	else:
 		print '\t', outdf_fname, "file exists"
 

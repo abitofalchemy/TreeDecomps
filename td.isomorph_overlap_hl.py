@@ -454,7 +454,7 @@ def isomorphic_check (prules, name):
 
   # cnrules contains the rules we need to reduce df1 by
   # and ruleprob2sum will give us the new key for which pr will change.
-  df1.to_csv("./ProdRules/" + name + "_prules.bz2", sep="\t", header="False", index=False, compression="bz2")
+  df1.to_csv("./ProdRules/" + name + "_prules.bz2", sep="\t", header=False, index=False, compression="bz2")
 
 
 def main(args):

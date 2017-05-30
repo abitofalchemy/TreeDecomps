@@ -219,7 +219,7 @@ def isomorph_intersection_2dfstacked(dfx):
 			G1 = rhs_tomultigraph(dfx.loc[x]['rhs'])
 			G2 = rhs_tomultigraph(dfx.loc[y]['rhs'])
 			# test if their RHS are isomorphic
-			# if nx.is_isomorphic(G1, G2, edge_match=label_match):
+#			if nx.is_isomorphic(G1, G2, edge_match=label_match):
 			if nx.faster_could_be_isomorphic(G1, G2):
 				if (dfx.loc[y]['iso']==False):
 					seen_rules[(x,dfx.loc[x]['lhs'])].append(y)

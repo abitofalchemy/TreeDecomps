@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 # make the other metrics work
 # generate the txt files, then work on the pdf otuput
 __version__ = "0.1.0"
@@ -310,7 +311,7 @@ def get_hrg_production_rules(edgelist_data_frame, graph_name, tw=False, n_subg=2
 
 	if DBG: print
 	if DBG: print "--------------------"
-	if DBG: print "-Tree Decomposition-"
+	if not DBG: print "-Tree Decomposition-"
 	if DBG: print "--------------------"
 
 	prod_rules = {}
@@ -367,6 +368,11 @@ def get_hrg_production_rules(edgelist_data_frame, graph_name, tw=False, n_subg=2
 			sid += 1
 		id += 1
 
+	df = pd.DataFrame(rules)
+	df.to_csv('ProdRules/{}_prs.tsv'.format(G.name), header=False, index=False, sep="\t")
+	if os.path.exists('ProdRules/{}_prs.tsv'.format(G.name)): print 'Saved', 'ProdRules/{}_prs.tsv'.format(G.name)
+
+	print [type(x) for x in rules[0]]
 	'''
 	Graph Generation of Synthetic Graphs
 	Grow graphs usigng the union of rules from sampled sugbgraphs to predict the target order of the 

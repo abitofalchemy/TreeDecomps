@@ -198,7 +198,7 @@ def graph_gen_isom_interxn(in_fname="", orig_el=None):
 	Example: Pass a file derived from an input file to test that this works by defualt.
 	"""
 	in_fname = in_fname
-	df = pd.read_csv(in_fname, delimiter='\t', header=None, skiprows=1)
+	df = pd.read_csv(in_fname, delimiter='\t', header=None)
 	rhs_clean = lambda rhs_rule: [f[1:-1] for f in re.findall("'.+?'", rhs_rule)]
 	try:
 		df['rhslst'] = df[2].apply(rhs_clean)
@@ -216,7 +216,17 @@ def graph_gen_isom_interxn(in_fname="", orig_el=None):
 	fbname = os.path.basename(in_fname)
 	print fbname.split("_")[1]
 	
-	num_nodes = int(fbname.split("_")[1].strip(".tsv"))
+	#	try:
+	#		num_nodes = int(fbname.split("_")[1].strip(".tsv"))
+	#	except Exception, e:
+	#		print str(e)
+	from tdec.load_edgelist_from_dataframe import Pandas_DataFrame_From_Edgelist
+	eldf = Pandas_DataFrame_From_Edgelist([orig_el])[0]
+	G = nx.from_pandas_dataframe(eldf, source='src', target='trg')
+	G.name = [x for x in os.path.basename(orig_el).split(".") if len(x)>3][0]
+
+	num_nodes = G.number_of_nodes()
+
 	print "Starting max size", num_nodes
 	g.set_max_size(num_nodes)
 	print "Done with max size"
@@ -236,9 +246,9 @@ def graph_gen_isom_interxn(in_fname="", orig_el=None):
 	if orig_el is not None:
 		import tdec.net_metrics as metrics
 		metricx = ['degree','clust', 'hop', 'gcd']
-		G = nx.read_edgelist(orig_el)
-		G.name = os.path.basename(orig_el).split(".")[0]
-		metrics.network_properties([G], metricx, hStars, name="ba_cntrl_16", out_tsv=True)
+#		G = nx.read_edgelist(orig_el)
+#		G.name = os.path.basename(orig_el).split(".")[0]
+		metrics.network_properties([G], metricx, hStars, name=G.name, out_tsv=True)
 
 
 
