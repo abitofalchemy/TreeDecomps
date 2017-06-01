@@ -25,6 +25,7 @@ from tdec.arbolera import jacc_dist_for_pair_dfrms
 import pprint as pp
 import tdec.isomorph_interxn as isoint
 
+
 #_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~#
 def get_parser ():
 	parser = argparse.ArgumentParser(description='Random graphs (BA graph model). --clqs is used when'\
@@ -239,7 +240,6 @@ def get_hrg_prod_rules(prules):
 	'''
 	mdf = pd.DataFrame()#columns=['rnbr', 'lhs', 'rhs', 'pr'])
 	for f in prules:
-		print f
 		df = pd.read_csv(f, header=None, sep="\t")
 		df.columns=['rnbr', 'lhs', 'rhs', 'pr']
 		tname = os.path.basename(f).split(".")
@@ -420,8 +420,12 @@ def main (args_d):
 			isom_ntrxn_f = isomorphic_test_on_stacked_prs(f)
 			#from td_rndGStats import graph_gen_isom_interxn
 			#graph_gen_isom_interxn(in_fname= isom_ntrxn_f, orig_el = orig)
-
-
+			print type(isom_ntrxn_f)
+			'''isom_ntrxn_f[[1,2,3,4]].to_csv('Results/{}_isom_interxn.tsv'.format(gname),
+				sep="\t", header=False, index=False)
+			if os.path.exists('Results/{}_isom_interxn.tsv'.format(gname)):
+				print "\t", 'Written:','Results/{}_isom_interxn.tsv'.format(gname)
+			'''
 
 
 

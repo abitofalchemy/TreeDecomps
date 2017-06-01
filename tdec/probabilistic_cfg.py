@@ -9,7 +9,7 @@ class Rule(object):
 				self.id = id
 				self.lhs = lhs
 				if lhs == 'S':
-						print ".",
+						print " ",#".",
 				if translate:
 						self.rhs = rhs
 						self.cfg_rhs = self.hrg_to_cfg(lhs, rhs)
@@ -17,7 +17,7 @@ class Rule(object):
 						self.cfg_rhs = rhs
 				self.prob = prob
 				if len(self.cfg_rhs) == 0:
-						print "T"
+						print " ",#"T",
 
 		def hrg_to_cfg(self, lhs, rhs):
 				t_symb = set()

@@ -95,3 +95,4 @@ Date   | Notes
 30May17 | can the var elim prules (ProdRules/ucidata-gama.lexm_prules.bz2) generate graphs?
 30May17 | lesmis is good all the way
 30May17 | try stacked on les mis
+31May17 | Test .... if each rhs is not in lhs ... we cannot fire (?)
