@@ -26,22 +26,7 @@ import pprint as pp
 import tdec.isomorph_interxn as isoint
 
 
-#_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~#
-def get_parser ():
-	parser = argparse.ArgumentParser(description='Random graphs (BA graph model). --clqs is used when'\
-			'.bz2 files are already computed given a path with wild card. Example: `python '\
-			'itd_rndGraphs.py --clqs`')
-	parser.add_argument('--etd', action='store_true', default=0, required=0,help="Edgelist to Dimacs")
-	parser.add_argument('--ctrl',action='store_true',default=0,required=0,help="Control given --orig")
-	parser.add_argument('--clqs', action='store_true',default=0, required=0, help="tree objs 2 hrgCT")
-	parser.add_argument('--bam', action='store_true',	default=0, required=0,help="Barabasi-Albert")
-	parser.add_argument('--tr', nargs=1, required=False, help="indiv. bz2 production rules.")
-	parser.add_argument('--isom', nargs=1, required=0, help="isom test")
-	parser.add_argument('--stacked', nargs=1, required=0, help="(grouped) stacked production rules.")
-	parser.add_argument('--orig',nargs=1, required=False, help="edgelist input file")
-	parser.add_argument('--version', action='version', version=__version__)
 
-	return parser
 
 def dimacs_nddgo_tree(dimacsfnm_lst, heuristic):
 	'''
@@ -192,6 +177,7 @@ def tree_decomposition_with_varelims(fnames, var_elims):
 	#	print type(fnames), type(var_elims)
 	trees_files_d = {}#(list)
 	for f in fnames:
+		print f[0]
 		trees_files_d[f[0]]= [dimacs_nddgo_tree(f,td) for td in var_elims]
 	#	for varel in var_elims:
 	#		tree_files.append([dimacs_nddgo_tree([f], varel) for f in fnames])
@@ -349,13 +335,79 @@ def isomorphic_test_on_stacked_prs(stacked_pr_rules_fname=None):
 
 	return outfname
 
-def edgelist_to_dimacs(args):
-	g =nx.read_edgelist(args['orig'][0], comments="%", data=False, nodetype=int)
-	g.name = [x for x in os.path.basename(args['orig'][0]).split(".") if len(x)>3][0]
+
+def graph_name(fname):
+	gnames= [x for x in os.path.basename(fname).split('.') if len(x) >3][0]
+	if len(gnames):
+		return gnames
+	else:
+		return gnames[0]
+
+def edgelist_to_dimacs(fname):
+	g =nx.read_edgelist(fname, comments="%", data=False, nodetype=int)
+	g.name = graph_name(fname)
 	return convert_nx_gObjs_to_dimacs_gObjs([g])
+
+
+
+
+def xplodingTree(argsd):
+	"""
+	Run a full set of tests.
+
+	explodingTree.py Flaship function to run functions for a complete test
+
+	Parameters
+	----------
+	arg1 : dict
+	Passing the whole se of args needed 
+	
+	Returns
+	-------
+	None
+
+	"""
+
+	dimacsFname = edgelist_to_dimacs(argsd['orig'][0])
+	varElimLst  = ['mcs','mind','minf','mmd','lexm','mcsm']
+	
+	##
+	# dict where values are the file path of the written trees
+	dimacsTrees_d = tree_decomposition_with_varelims(dimacsFname, varElimLst)
+	trees_lst = []
+	for x in dimacsTrees_d.itervalues(): [trees_lst.append(f[0]) for f in x]
+
+	##
+	# to HRG Clique Tree, in stacked pd df form
+	prs_paths_lst = convert_dimacs_tree_objs_to_hrg_clique_trees(trees_lst)
+	
+	##
+	# stack production rules
+	prs_stacked_df = get_hrg_prod_rules(prs_paths_lst)
+	gb = prs_stacked_df.groupby(['cate']).groups.keys()
+
+	##
+	# Jaccard Similarity
+	get_isom_overlap_in_stacked_prod_rules(gb, prs_stacked_df )
+	
+	##
+	# isomorph_intersection_2dfstacked
+	iso_union, iso_interx = isoint.isomorph_intersection_2dfstacked(prs_stacked_df)
+	iso_interx[[1,2,3,4]].to_csv('Results/{}_isom_interxn.tsv'.format(gname),
+															 sep="\t", header=False, index=False)
+	if os.path.exists('Results/{}_isom_interxn.tsv'.format(gname)):
+			print "\t", 'Written:','Results/{}_isom_interxn.tsv'.format(gname)
+			print "\t", 'Next step is to generate graphs using this subsect of production rules.'
+	else: print "!!Unable to savefile"
+
+
+	print "Done"
+	exit()
 
 def main (args_d):
 	print "Hello"
+	if args_d['orig']:
+		xplodingTree(args_d)
 	if args_d['ctrl']:
 		orig = args_d['orig'][0]
 		import subprocess
@@ -509,7 +561,23 @@ def main (args_d):
 		#~#
 		#~#	hrg_graph_gen_from_interxn(iso_interx[[1,2,3,4]])
 
+#_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~#
+def get_parser ():
+	parser = argparse.ArgumentParser(description='ExplodingTree tree decomposition for HRG')
+	parser.add_argument('--etd', action='store_true', default=0, required=0,help="Edgelist to Dimacs")
+	parser.add_argument('--ctrl',action='store_true',default=0,required=0,help="Control given --orig")
+	parser.add_argument('--clqs',action='store_true',default=0, required=0, help="tree objs 2 hrgCT")
+	parser.add_argument('--bam', action='store_true',	default=0, required=0,help="Barabasi-Albert")
+	parser.add_argument('--tr',  nargs=1, required=False, help="indiv. bz2 production rules.")
+	parser.add_argument('--isom', nargs=1, required=0, help="isom test")
+	parser.add_argument('--stacked', nargs=1, required=0, help="(grouped) stacked production rules.")
+	parser.add_argument('--orig',nargs=1, required=True, help="edgelist input file")
+	parser.add_argument('--version', action='version', version=__version__)
+	return parser
+
 if __name__ == '__main__':
+	'''ToDo: clean the edglists, write them back to disk and then run inddgo on 1 component graphs
+	'''
 	parser = get_parser()
 	args = vars(parser.parse_args())
 	try:
