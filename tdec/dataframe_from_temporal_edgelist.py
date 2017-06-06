@@ -10,7 +10,7 @@ def Pandas_DataFrame_From_Edgelist(dataset_files_path):
     dat = []
     with open(input_graph) as ifile:
       for line in ifile:
-        if not ("%" in line):
+        if not ("%" in line  or '#' in line):
           lparts = line.rstrip('\r\n').split()
           if len(lparts)>=2:
             dat.append(lparts)

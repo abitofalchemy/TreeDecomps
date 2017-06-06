@@ -37,6 +37,7 @@ def get_parser ():
 def Hstar_Graphs_Control (G, graph_name, axs=None):
   # Derive the prod rules in a naive way, where
   prod_rules = phrg.probabilistic_hrg_learning(G)
+  pp.pprint(prod_rules)
   g = pcfg.Grammar('S')
   for (id, lhs, rhs, prob) in prod_rules:
     g.add_rule(pcfg.Rule(id, lhs, rhs, prob))

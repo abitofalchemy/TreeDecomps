@@ -393,6 +393,7 @@ def xplodingTree(argsd):
 	##
 	# isomorph_intersection_2dfstacked
 	iso_union, iso_interx = isoint.isomorph_intersection_2dfstacked(prs_stacked_df)
+	gname = graph_name(argsd['orig'][0])
 	iso_interx[[1,2,3,4]].to_csv('Results/{}_isom_interxn.tsv'.format(gname),
 															 sep="\t", header=False, index=False)
 	if os.path.exists('Results/{}_isom_interxn.tsv'.format(gname)):
