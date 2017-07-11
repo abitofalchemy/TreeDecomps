@@ -5,7 +5,7 @@ from os import path
 import networkx as nx
 from collections import defaultdict
 from itertools import combinations
-
+from isomorph_interxn import label_match
 
 DBG = False
 
@@ -72,6 +72,7 @@ def jacc_dist_for_pair_dfrms(df1, df2):
 #			for rl in rhs2.values:
 #				G2 = rhs_tomultigraph(rl)
         #
+			# if nx.is_isomorphic(G1, G2, edge_match=label_match):
 			if nx.faster_could_be_isomorphic(G1, G2):
 				if DBG: print ' <-curr', seen_rules[r[1]['lhs']][0], ':', conc_df[conc_df['rnbr'] == seen_rules[r[1]['lhs']][0]]['rnbr'].values, conc_df[conc_df['rnbr'] == seen_rules[r[1]['lhs']][0]]['cate'].values
 				ruleprob2sum[seen_rules[r[1]['lhs']][0]].append(r[1]['rnbr'])
@@ -81,7 +82,7 @@ def jacc_dist_for_pair_dfrms(df1, df2):
 				cnrules.append(r[1]['rnbr'])
 				if DBG: print "+"
 				cntr += 1
-	
+
 
 	if DBG: print "len(ruleprob2sum)", len(ruleprob2sum)
 	from json import dumps
@@ -91,7 +92,7 @@ def jacc_dist_for_pair_dfrms(df1, df2):
 	if DBG: print "  Jaccard Sim:\t", (len(ruleprob2sum.keys())+sum([len(x) for x in ruleprob2sum.values()]))/ float(len(df1) + len(df2))
 
 	print df1.groupby(['cate']).groups.keys()[0].split('_prules')[0], df2.groupby(['cate']).groups.keys()[0].rstrip('_prules'),
-	
+
 	return (len(ruleprob2sum.keys())+sum([len(x) for x in ruleprob2sum.values()]))/ float(len(df1) + len(df2))
 
 
@@ -111,7 +112,7 @@ def nx_edges_to_nddgo_graph(G,n,m, sampling=False, varel="", save_g=False):
 
 				output_edges = lambda x: f.write("e\t{}\t{}\n".format(x[0]+1, x[1]+1))
 				df.apply(output_edges, axis=1)
-			
+
 #			if path.exists(ofname): print 'Wrote: ./{}'.format(ofname)
 		else:
 			output_edges = lambda x: "e\t{}\t{}\n".format(x[0]+1, x[1]+1)

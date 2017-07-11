@@ -55,6 +55,9 @@ def dimacs_td_ct (tdfname, synthg=False):
 		G = load_edgelist(gfname)
 
 	if DEBUG: print nx.info(G)
+	if not os.path.exists(fname):
+		print fname, 'this file does not exist (possible failure in the TD step)'
+		return ''
 
 	with open(fname, 'r') as f:	# read tree decomp from inddgo
 		lines = f.readlines()

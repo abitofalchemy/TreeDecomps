@@ -19,3 +19,4 @@ transbin
 utils/*
 .*.swp
 ExplodingTrees/*
+.*.edl

@@ -370,8 +370,14 @@ def get_hrg_production_rules(edgelist_data_frame, graph_name, tw=False, n_subg=2
 		id += 1
 
 	df = pd.DataFrame(rules)
+	print "++++++++++"
 	df.to_csv('ProdRules/{}_prs.tsv'.format(G.name), header=False, index=False, sep="\t")
-	if os.path.exists('ProdRules/{}_prs.tsv'.format(G.name)): print 'Saved', 'ProdRules/{}_prs.tsv'.format(G.name)
+	if os.path.exists('ProdRules/{}_prs.tsv'.format(G.name)): 
+		print 'Saved', 'ProdRules/{}_prs.tsv'.format(G.name)
+	else:
+		print "Trouble saving"
+
+	print "-----------"
 
 	print [type(x) for x in rules[0]]
 	'''

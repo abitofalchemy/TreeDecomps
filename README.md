@@ -52,6 +52,14 @@ terxn.bz2 moreno_vdb_vdb`
 <!--* to run a single example do:-->
 <!--`python  tredec.dimacs.tree.py --orig datasets/out.ucidata-zachary --peoh mcs` this will sample if the graph exceeds 500 nodes. To avoid sampling, do `python  tredec.dimacs.tree.py --orig datasets/out.ucidata-zachary --peoh mcs -tw` this will print the treewidth and  -->
 
+## Results
+
+- Control 
+	  551  python exact_phrg.py --orig datasets/out.ucidata-gama
+		553  python tstprodrules.py --prs ProdRules/ucidata-gama_prs.tsv --orig datasets/out.ucidata-gama
+		555  python explodingTree.py --orig datasets/out.ucidata-gama
+		558  ls -1 ProdRules/* | parallel python tstprodrules.py --prs {} --orig datasets/out.ucidata-gama
+
 
 ## StarLog
 
@@ -61,7 +69,6 @@ Date   | Notes
 02May17| xphrg tw print for any input => integrated into `exact.phrg.py`
        | Need to work on isomorphoids
 07Apr17| Working on refactoring the files to make it more usable; fixing issues with sampling; ToDo: process mult trees from sampling
-
 06Apr17| tree decomposition: 'fails here' issue of strange d[x] 
 03Apr17| Got the isomorph working nees tuning; ToDo: Sampling: sampled.subgraphs.cliquetree.py
 03Apr17| isomorphic prod rules check; (1) within a set and (2) between sets; TODO: zoom in on zachary lexm and mcsm iso overlap; **within file, using iso check, use the resluting set to build graphs**
@@ -96,3 +103,13 @@ Date   | Notes
 30May17 | lesmis is good all the way
 30May17 | try stacked on les mis
 31May17 | Test .... if each rhs is not in lhs ... we cannot fire (?)
+06Jun17 | Test on dsg1
+06Jun17 | Work on tests
+18Jun17 | python explodingTree.py --orig datasets/out.ucidata-gama
+18Jun17 |	python tstprodrules.py --prs Results/ucidata-gama_isom_interxn.tsv --orig datasets/out.ucidata-gama
+19Jun17 | explodingTree: todo sample large graphs (ref_graph_largest_conn_componet)
+22Jun17 | Holme et al 2012 and 2015 comprehensive temproal analysis of graphs
+22Jun17 | Mealinie Weber curvature for networks
+22Jun17 | olivia richie curvature
+
+11Jul17 | Can it fire?

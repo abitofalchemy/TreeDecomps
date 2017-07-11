@@ -20,7 +20,7 @@ def rhs_tomultigraph(rhs_clean):
 	import re
 	from itertools import combinations
 	import networkx as nx
-	if isinstance(rhs_clean, str): 
+	if isinstance(rhs_clean, str):
 		rhs_clean= [f[1:-1] for f in re.findall("'.+?'", rhs_clean)]
 
 	# rhs_clean = [f[1:-1] for f in re.findall("[^()]+", x)]
@@ -219,8 +219,8 @@ def isomorph_intersection_2dfstacked(dfx):
 			G1 = rhs_tomultigraph(dfx.loc[x]['rhs'])
 			G2 = rhs_tomultigraph(dfx.loc[y]['rhs'])
 			# test if their RHS are isomorphic
-#			if nx.is_isomorphic(G1, G2, edge_match=label_match):
-			if nx.faster_could_be_isomorphic(G1, G2):
+			if nx.is_isomorphic(G1, G2, edge_match=label_match):
+			# if nx.faster_could_be_isomorphic(G1, G2):
 				if (dfx.loc[y]['iso']==False):
 					seen_rules[(x,dfx.loc[x]['lhs'])].append(y)
 					dfx.set_value(x, 'iso', True)

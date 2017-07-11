@@ -26,14 +26,18 @@ def tst_prod_rules_isom_intrxn(fname,origfname):
 	fdf = Pandas_DataFrame_From_Edgelist([origfname])
 	origG = nx.from_pandas_dataframe(fdf[0], 'src', 'trg')
 	
-	df = pd.read_csv(fname, header=None,  sep="\t", dtype={0: str, 1: str, 2: list, 3: float})
+	df = pd.read_csv(fname, header=None,  sep="\t", dtype={0: str, 1: list, 2: list, 3: float})
 	g = pcfg.Grammar('S')
 	from td_isom_jaccard_sim import listify_rhs
 	for (id, lhs, rhs, prob) in df.values:
 		rhs = listify_rhs(rhs)
-		# print (id), (lhs), (rhs), (prob)
+#		lhs= [f[1:-1] for f in re.findall("'.+?'", lhs)][0]
+		# print id, lhs, rhs, prob
 		g.add_rule(pcfg.Rule(id, lhs, rhs, float(prob)))
-
+	
+	
+	print 'Added the rules to the datastructure'
+	
 	num_nodes = origG.number_of_nodes()
 
 	# print "Starting max size", 'n=', num_nodes
