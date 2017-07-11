@@ -113,3 +113,4 @@ Date   | Notes
 22Jun17 | olivia richie curvature
 
 11Jul17 | Can it fire?
+11Jul17 | b1eb6f2..7cad731 is a commit version that works
