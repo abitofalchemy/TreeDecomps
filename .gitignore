@@ -20,3 +20,5 @@ utils/*
 .*.swp
 ExplodingTrees/*
 .*.edl
+*.tsv
+*.csv

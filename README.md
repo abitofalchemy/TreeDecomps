@@ -111,6 +111,6 @@ Date   | Notes
 22Jun17 | Holme et al 2012 and 2015 comprehensive temproal analysis of graphs
 22Jun17 | Mealinie Weber curvature for networks
 22Jun17 | olivia richie curvature
-
 11Jul17 | Can it fire?
 11Jul17 | b1eb6f2..7cad731 is a commit version that works
+12Jul17 | Sampling I think might be working
