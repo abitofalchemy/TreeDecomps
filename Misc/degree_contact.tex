@@ -1,0 +1,19 @@
+\begin{tikzpicture}
+\begin{loglogaxis}[
+	  % only marks,
+	  % log ticks with fixed point,
+		xlabel={time},
+		ylabel={\Large{$\langle k \rangle$}},
+		title={\large{Contact}}
+	]
+  \addplot[color=blue,mark=*, opacity=0.5] table [col sep=tab]
+    {../Results/degree_orig_mcontact_2.tsv};
+
+	\addplot[color=red,mark=square, opacity=0.5] table [col sep=tab]
+	  {../../../THRGs/Results/deg_xphrg_contact.tsv};
+
+  \addplot[color=green,mark=star] table [col sep=tab]
+    {../Results/degree_hrg_mcontact_2.tsv};
+
+\end{loglogaxis}
+\end{tikzpicture}
