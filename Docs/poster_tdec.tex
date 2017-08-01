@@ -1,0 +1,66 @@
+\documentclass[18pt]{article}
+\usepackage[a1paper,margin=1in,landscape]{geometry}
+\usepackage{multicol}
+\setlength{\columnsep}{1cm}
+\usepackage{blindtext}
+%\usepackage{tabularx}
+\usepackage{booktabs}
+\usepackage{tikz}
+\usepackage{float}
+\usepackage{pgfplots}
+\usepackage{pgfplotstable}
+% \pgfplotsset{width=\textwidth, compat=newest}
+\pgfplotsset{compat=newest}
+\usepgfplotslibrary{statistics}
+%% new command defs
+\newcommand\boxplotbignum{1000000}
+\usetikzlibrary{calc}
+
+%%
+%%
+\begin{document}
+\begin{multicols}{3}
+[
+	\section{Datasets and Basic Properties}
+	Real-world datasets and degree distributuion, clustering coefficients, and hopplot.	
+]
+%\begin{tabularx}{\columnwidth}{@{} l l X @{}} 
+\begin{tabular}{@{} llr @{}}
+% datasets - https://github.com/briatte/awesome-network-analysis#datasets
+	\textbf{Dataset} & \textbf{Details} & \textbf{$n$}\\
+
+\toprule
+	PP PDZBase	& Protein–protein interactions from PDZBase & $212$\\
+	College & College Messages (email) & $1899$\\
+	Routers 2001 & Route Views AS graphs (1999-2000)	& $6474$\\
+	Routers 2006 & Internet AS graph (2006)						& $22963$\\
+	Retweet 2012 & Twitter Higgs Boson (Retweet) & $425008$
+\end{tabular}
+
+\begin{figure}[H]
+  \centering
+	\resizebox{\columnwidth}{!}{
+		\input{figures/runtime}
+		\input{figures/runtime-rods}
+		\input{figures/degree_cdf}
+		}
+  \caption{Runtime as a function of graph size (number of vertices)}
+\end{figure}
+
+% \noindent\begin{minipage}[t]{\columnwidth}%
+%
+%
+%
+% 	\end{minipage}
+
+\columnbreak
+	\noindent\begin{minipage}[t]{\columnwidth}%
+				This will be in a new column, here is some text without a meaning.  This text
+				should show what a printed text will look like at this place. If you read this text, you will get no information.  Really?  Is there
+				 no information?  Is there...
+	\end{minipage}
+
+\columnbreak
+\blindtext
+\end{multicols}
+\end{document}

@@ -1,0 +1,61 @@
+\begin{tikzpicture}
+\begin{axis} [
+  only marks,
+  ymode = log,
+    xlabel     = Degree ($k$), % label x axis
+    ylabel     = Cumulative probability, % label y axis
+    axis lines = left, %set the position of the axes
+    clip       = false,
+    % xmin = 40,  xmax = 105, % set the min and max values of the x-axis
+    % ymin = 150, ymax = 200, % set the min and max values of the y-axis
+    title= {\Large \textbf{(C)}}
+    ]
+  % \addplot [only marks] table {Pltdata/ucidata-gama_degCDF.dat};ikey	origCDF	phrgDegCDF
+  % \addplot[color=blue,mark=*] table [col sep=tab]
+\addplot[color=red, mark=*, opacity=0.5] table [x index=0,y index=1,col sep=tab]{figures/kecdf_radoslaw_email_email_rods_hstars.dat};
+\addplot[color=blue,mark=sqaure, opacity=0.5] table [x index=0,y index=2,col sep=tab]{figures/kecdf_radoslaw_email_email_rods_hstars.dat};
+\addplot[color=cyan,mark=+,opacity=0.5] table [x index=0,y index=2,col sep=tab]{figures/kecdf_radoslaw_email_email_clgs.dat};
+\addplot[color=black,mark=diamond,opacity=0.5] table [x index=0,y index=2,col sep=tab]{figures/kecdf_radoslaw_email_email_kpgs.dat};
+% \addplot table[x index=0,y index=2,col sep=tab]
+% {figures/kecdf_rados.dat};
+% ('email-Eu-core-Dept1_rods.shl', ['rods_hstars', 'clgs', 'kpgs'])
+% rods_hstars 10
+% ----------------------------------------
+% Scaled-Normalized Degree Dist CDF radoslaw_email_email_rods_hstars
+
+%   \addplot[color=red,mark=square*,opacity=0.5] table [col sep=comma]
+%   {
+% 0.972972972973, 4.44075746485e-21
+% 0.973684210526, 1.8802452137e-21
+% 0.971428571429, 2.60839605838e-20
+% 0.972222222222, 1.06684630059e-20
+% 0.974358974359, 8.0939108781e-22
+% 0.972222222222, 1.06684630059e-20
+% 0.972972972973, 4.44075746485e-21
+% 0.974358974359, 8.0939108781e-22
+% 0.972222222222, 1.06684630059e-20
+% 0.97619047619, 7.09701552086e-23
+% };
+%
+% %kpgs 10
+%   \addplot[color=violet,mark=triangle*,opacity=0.5] table [col sep=comma]
+% {
+% 0.439393939394, 0.000416044895695
+% 0.511904761905, 3.38254947171e-05
+% 0.378787878788, 0.00367101440595
+% 0.424242424242, 0.000739070116185
+% 0.393939393939, 0.00141702410322
+% 0.454545454545, 0.000229529638995
+% 0.480146290491, 0.000100616927056
+% 0.448191593353, 0.000243486949506
+% 0.431085043988, 0.000478182786551
+% 0.530303030303, 8.66945792979e-06
+% };
+
+  % \addplot [no markers, thick, red]
+  %   table [y={create col/linear regression={y=y}}] {\loadedtable}
+  %   node [anchor=west] {$\pgfmathprintnumber[precision=2, fixed zerofill]
+  %   {\pgfplotstableregressiona} \cdot \mathrm{Weight} +
+  %   \pgfmathprintnumber[precision=1]{\pgfplotstableregressionb}$};
+\end{axis}
+\end{tikzpicture}
