@@ -16,8 +16,10 @@ import pandas as pd
 from tdec.PHRG import graph_checks
 import subprocess
 import math
+import shelve
 import itertools
 import tdec.graph_sampler as gs
+import tdec.net_metrics as metrics
 import platform
 from itertools import combinations
 from collections import defaultdict
@@ -27,6 +29,23 @@ import pprint as pp
 import tdec.isomorph_interxn as isoint
 
 
+
+#_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~#
+def synth_checks_network_metrics(orig_graph):
+	gname = graph_name(orig_graph)
+	files = glob("./FakeGraphs/"+gname +"*")
+	shl_db = shelve.open(files[0]) # open for read
+	origG = load_edgelist(orig_graph)
+	for k in shl_db.keys():
+		synthGs = shl_db[k]
+		print synthGs[0].number_of_edges(), synthGs[0].number_of_nodes()
+	
+		metricx = ['degree']
+		metrics.network_properties( [origG], metricx, synthGs, name="hstars_"+origG.name, out_tsv=False)
+	
+	shl_db.close()
+
+#_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~#
 
 
 def dimacs_nddgo_tree(dimacsfnm_lst, heuristic):
@@ -76,7 +95,7 @@ def load_edgelist(gfname):
 	else:
 		edglst.columns = ['src', 'trg']
 	g = nx.from_pandas_dataframe(edglst,source='src',target='trg')
-	g.name = os.path.basename(gfname)
+	g.name = [n for n in os.path.basename(gfname).split(".") if len(n)>3][0]
 	return g
 
 
@@ -441,6 +460,10 @@ def subgraphs_exploding_trees(orig, sub_graph_lst):
 	
 	'''
 
+
+
+
+
 def xplodingTree(argsd):
 	"""
 	Run a full set of tests.
@@ -501,11 +524,23 @@ def xplodingTree(argsd):
 	print "Done"
 	exit()
 
+def only_orig_arg_passed(argsdic):
+	if (len(argsdic['orig']) and not(argsdic['synthchks'])) \
+		and not( argsdic['etd']) and not(argsdic['ctrl']) \
+		and not( argsdic['clqs']) and  not( argsdic['bam']) and  (argsdic['tr'] is None) \
+		and ( argsdic['isom'] is None) and ( argsdic['stacked'] is None):
+		return True
+	else:
+		return False
+
+
 def main (args_d):
-	print "ExplodingTrees"
-	if args_d['orig']:
+	print "ExplodingTree"
+	
+	if only_orig_arg_passed(args_d):
+		print "#"*4, 'exploding trees', "!"*4
 		xplodingTree(args_d)
-	elif args_d['ctrl']:
+	elif (args_d['ctrl']) :
 		orig = args_d['orig'][0]
 		import subprocess
 		from threading import Timer
@@ -577,7 +612,11 @@ def main (args_d):
 			'''
 
 
-
+	elif (args_d['synthchks'] and  args_d['orig']):
+		print('~~~~ Analysis of the Synthetic graphs')
+		synth_checks_network_metrics(args_d['orig'][0])
+		exit(1)
+	
 	elif (args_d['bam']):
 		print "~~~~ Groups of Random Graphs (BA):"
 		n_nodes_set = [math.pow(2,x) for x in range(4,5,1)]
@@ -669,7 +708,7 @@ def get_parser ():
 	parser.add_argument('--isom', nargs=1, required=0, help="isom test")
 	parser.add_argument('--stacked', nargs=1, required=0, help="(grouped) stacked production rules.")
 	parser.add_argument('--orig',nargs=1, required=False, help="edgelist input file")
-	# parser.add_argument('--orig',nargs=1, required=False, help="")
+	parser.add_argument('--synthchks', action='store_true', default=0, required=0, help="analyze graphs in FakeGraphs")
 	parser.add_argument('--version', action='version', version=__version__)
 	return parser
 

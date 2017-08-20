@@ -20,6 +20,7 @@ from glob import glob
 from td_isom_jaccard_sim import listify_rhs
 from tdec.load_edgelist_from_dataframe import Pandas_DataFrame_From_Edgelist
 from collections import Sequence
+from explodingTree import graph_name
 
 DBG = False
 
@@ -88,6 +89,8 @@ def tst_prod_rules_isom_intrxn(fname,origfname):
 	# Get the original file
 	fdf = Pandas_DataFrame_From_Edgelist([origfname])
 	origG = nx.from_pandas_dataframe(fdf[0], 'src', 'trg')
+	origG.name = graph_name(origfname)
+	print origG.name, "+"*80
 	
 	# Read the subset of prod rules
 	df = pd.read_csv(fname, header=None,	sep="\t", dtype={0: str, 1: list, 2: list, 3: float})
@@ -114,7 +117,7 @@ def tst_prod_rules_isom_intrxn(fname,origfname):
 
 	Hstars = []
 
-	ofname   = "FakeGraphs/"+ origG.name+ "isom_ntrxn.shl"
+	ofname   = "FakeGraphs/"+ origG.name+ "_isom_ntrxn.shl"
 	database = shelve.open(ofname)
 	
 	num_samples = 20 #
