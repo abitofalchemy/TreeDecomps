@@ -36,9 +36,13 @@ def synth_checks_network_metrics(orig_graph):
 	files = glob("./FakeGraphs/"+gname +"*")
 	shl_db = shelve.open(files[0]) # open for read
 	origG = load_edgelist(orig_graph)
+	print "%%"
+	print "%%", gname
+	print "%%"
+
 	for k in shl_db.keys():
 		synthGs = shl_db[k]
-		print synthGs[0].number_of_edges(), synthGs[0].number_of_nodes()
+		#print synthGs[0].number_of_edges(), synthGs[0].number_of_nodes()
 	
 		metricx = ['degree']
 		metrics.network_properties( [origG], metricx, synthGs, name="hstars_"+origG.name, out_tsv=False)
@@ -704,7 +708,7 @@ def get_parser ():
 	parser.add_argument('--ctrl',action='store_true',default=0,required=0,help="Cntrl given --orig")
 	parser.add_argument('--clqs',action='store_true',default=0, required=0, help="tree objs 2 hrgCT")
 	parser.add_argument('--bam', action='store_true',	default=0, required=0,help="Barabasi-Albert")
-	parser.add_argument('--tr',  nargs=1, required=False, help="indiv. bz2 production rules.")
+	parser.add_argument('--tr',  nargs=1, required=False, help="indiv. bz2 produ	ction rules.")
 	parser.add_argument('--isom', nargs=1, required=0, help="isom test")
 	parser.add_argument('--stacked', nargs=1, required=0, help="(grouped) stacked production rules.")
 	parser.add_argument('--orig',nargs=1, required=False, help="edgelist input file")

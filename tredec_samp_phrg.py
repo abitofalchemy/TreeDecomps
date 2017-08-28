@@ -3,7 +3,7 @@ __author__ = 'saguinag' + '@' + 'nd.edu'
 __version__ = "0.1.0"
 
 ##
-## fname "bdimacs_tree_hrggraphs.py"
+##		tredec_samp_phrg
 ##
 
 ## TODO: some todo list
@@ -70,7 +70,7 @@ def grow_exact_size_hrg_graphs_from_prod_rules(prod_rules, gname, n, runs=1):
 def dimacs_td_ct (orig, tdfname, synthg=False):
 	""" tree decomp to clique-tree 
 	parameters:
-		orig:		filepath to orig (input) graph in edgelist
+		orig:			filepath to orig (input) graph in edgelist
 		tdfname:	filepath to tree decomposition from INDDGO
 		synthg:		when the input graph is a syth (orig) graph
 	Todo: 
@@ -191,8 +191,8 @@ def dimacs_td_ct (orig, tdfname, synthg=False):
 def main ():
 	parser = get_parser()
 	args = vars(parser.parse_args())
-	dimacs_td_ct(args['orig'], args['tree'] )	# gen synth graph
-
+	## dimacs_td_ct(args['orig'], args['tree'] )	# gen synth graph
+	
 
 if __name__ == '__main__':
 	try:
