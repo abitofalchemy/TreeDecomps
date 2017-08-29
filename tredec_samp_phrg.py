@@ -67,7 +67,7 @@ def grow_exact_size_hrg_graphs_from_prod_rules(prod_rules, gname, n, runs=1):
 
 	return hstars_lst
 
-def dimacs_td_ct (orig, tdfname, synthg=False):
+def dimacs_td_ct(orig, tdfname, synthg=False):
 	""" tree decomp to clique-tree 
 	parameters:
 		orig:			filepath to orig (input) graph in edgelist
@@ -76,7 +76,6 @@ def dimacs_td_ct (orig, tdfname, synthg=False):
 	Todo: 
 		currently not handling sythg in this version of dimacs_td_ct
 	"""
-	print '... input path:', tdfname
 	if isinstance(tdfname, list): [dimacs_td_ct(f) for f in tdfname]
 
 	fname = orig # original graph path
@@ -87,7 +86,7 @@ def dimacs_td_ct (orig, tdfname, synthg=False):
 	G = load_edgelist(fname) # load edgelist into a graph obj
 	N = G.number_of_nodes()
 	M = G.number_of_edges()
-	print nx.info(G)
+#	print nx.info(G)
 	# +++ Graph Checks
 	if G is None: sys.exit(1)
 #	G.remove_edges_from(G.selfloop_edges())
@@ -99,11 +98,20 @@ def dimacs_td_ct (orig, tdfname, synthg=False):
 	G.name = gname
 	files = [tdfname]#glob.glob(tdfname+"*.dimacs.tree")
 	prod_rules = {}
-
-#	for tfname in files:
+	
+	"""
+	print "TDFNAME",tdfname
 	if not os.path.exists(tdfname):
-		print tdfname
+		print "==> exists:",tdfname
 		return ""
+	else: print "==> processing", tdfname
+
+	exit()
+	"""
+	out_tdfname= os.path.basename(tdfname)+".prs"
+	if os.path.exists("ProdRules/"+out_tdfname):
+		print "==> exists:", out_tdfname
+		return out_tdfname
 
 	with open(tdfname, 'r') as f:	# read tree decomp from inddgo
 		lines = f.readlines()
@@ -159,7 +167,7 @@ def dimacs_td_ct (orig, tdfname, synthg=False):
 		for x in prod_rules[k]:
 			rhs = re.findall("[^()]+", x)
 			rules.append(("r%d.%d" % (id, sid), "%s" % re.findall("[^()]+", k)[0], rhs, prod_rules[k][x]))
-			if 1: print ("r%d.%d" % (id, sid), "%s" % re.findall("[^()]+", k)[0], rhs, prod_rules[k][x])
+			if 0: print ("r%d.%d" % (id, sid), "%s" % re.findall("[^()]+", k)[0], rhs, prod_rules[k][x])
 			sid += 1
 		id += 1
 	# print rules
@@ -171,7 +179,6 @@ def dimacs_td_ct (orig, tdfname, synthg=False):
 	# ToDo.
 	# Let's save these rules to file or print proper
 	df = DataFrame(rules)
-	out_tdfname= os.path.basename(tdfname)+".prs"
 	print out_tdfname
 	df.to_csv("ProdRules/"+out_tdfname, sep="\t", header=False,index=False)
 

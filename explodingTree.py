@@ -58,7 +58,6 @@ def dimacs_nddgo_tree(dimacsfnm_lst, heuristic):
 	heuristic =====> list of variable elimination schemes to use
 	returns: results - a list of tree files
 	'''
-	# print heuristic,dimacsfnm_lst
 	results = []
 
 	for dimacsfname in dimacsfnm_lst:
@@ -66,6 +65,9 @@ def dimacs_nddgo_tree(dimacsfnm_lst, heuristic):
 		if isinstance(dimacsfname, list): dimacsfname= dimacsfname[0]
 		nddgoout = ""
 		outfname = dimacsfname+"."+heuristic+".tree"
+		if os.path.exists(outfname): 
+			break
+
 		if platform.system() == "Linux":
 			args = ["bin/linux/serial_wis -f {} -nice -{} -w {} -decompose_only".format(dimacsfname, heuristic, outfname)]
 		else:
@@ -130,6 +132,7 @@ def nx_edges_to_nddgo_graph_sampling(graph, n, m, peo_h):
 		df.sort_values(by=[0], inplace=True)
 
 		ofname = basefname+"_{}.dimacs".format(j)
+		if os.path.exists(ofname): break
 
 		with open(ofname, 'w') as f:
 			f.write('c {}\n'.format(G.name))
@@ -380,7 +383,8 @@ def graph_name(fname):
 def edgelist_to_dimacs(fname):
 	g =nx.read_edgelist(fname, comments="%", data=False, nodetype=int)
 	g.name = graph_name(fname)
-	return convert_nx_gObjs_to_dimacs_gObjs([g])
+	dimacsFiles = convert_nx_gObjs_to_dimacs_gObjs([g])
+	return dimacsFiles#convert_nx_gObjs_to_dimacs_gObjs([g])
 
 
 def ref_graph_largest_conn_componet(fname):
@@ -433,7 +437,6 @@ def subgraphs_exploding_trees(orig, sub_graph_lst):
 	##
 	# stack production rules // returns an array of k (2) //
 	prs_stacked_dfs = [get_hrg_prod_rules(multi_paths_lst) for multi_paths_lst in prs_paths_lst]
-#	print ">> ", len(prs_stacked_dfs)
 
 	if len(prs_stacked_dfs)==2:
 		prs_stacked_df = pd.concat([prs_stacked_dfs[0], prs_stacked_dfs[1]])
