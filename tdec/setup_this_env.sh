@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 mkdir .tmp_edgelists
 mkdir Results
 mkdir ProdRules

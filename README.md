@@ -38,6 +38,12 @@ terxn.bz2 moreno_vdb_vdb`
   With this line we can generate stats on a given group of production rules
 
 ### sampling
+This file: `rndmSubgSamp.py` is doing a lot of the heavy lifting. 
+This will generate all *prs files needed, then I can seprately run the analysis of 
+orig vs hStars and then look at the Union and Isomorphic ovelaps. 
+
+[TODO] Tweak and otpimize the UnionPlusIsomorphic Intersection
+
 `python tredec.dimacs.tree.py --orig ~/Theory/DataSets/out.subelj_euroroad_euroroad --peoh mcs`
 `python tredec.samp.phrg.py --orig ~/Theory/DataSets/out.subelj_euroroad_euroroad --tree datasets/subelj_euroroad_euroroad`
 
