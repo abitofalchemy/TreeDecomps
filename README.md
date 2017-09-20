@@ -121,3 +121,7 @@ Date   | Notes
 11Jul17 | b1eb6f2..7cad731 is a commit version that works
 12Jul17 | Sampling I think might be working
 01Aug17 | To do Check that the isom subset of rules will fire
+18Sep17 | Do nothing if file exists
+18Sep17 | bb3D.py next: .tree x var els
+19Sep17 | fix this: File "bb3D.py", line 76, in <module>
+20Sep17 | got the prs generation working

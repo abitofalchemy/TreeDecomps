@@ -35,10 +35,17 @@ def get_parser ():
 
     return parser
 
+def nslog(arb_str):
+	print "~^."*20
+	print "\t", arb_str.split("_")
+	print
+
 def Hstar_Graphs_Control (G, graph_name, axs=None):
+
   # Derive the prod rules in a naive way, where
   prod_rules = phrg.probabilistic_hrg_learning(G)
   pp.pprint(prod_rules)
+  exit()
   g = pcfg.Grammar('S')
   for (id, lhs, rhs, prob) in prod_rules:
     g.add_rule(pcfg.Rule(id, lhs, rhs, prob))
@@ -112,6 +119,7 @@ def grow_exact_size_hrg_graphs_from_prod_rules(prod_rules, gname, n, runs=1):
 	Returns: list of synthetic graphs
 
 	"""
+	nslog("grow_exact_size_hrg_graphs_from_prod_rules")
 	DBG = True
 	if n <=0: sys.exit(1)
 
@@ -122,6 +130,7 @@ def grow_exact_size_hrg_graphs_from_prod_rules(prod_rules, gname, n, runs=1):
 
 	print
 	print "Added rules HRG (pr", len(prod_rules),", n,", n,")"
+	exit() # temp pls remove me 
 
 	num_nodes = n
 	if DBG: print "Starting max size"
@@ -293,6 +302,7 @@ def print_treewdith(tree):
 
 def get_hrg_production_rules(edgelist_data_frame, graph_name, tw=False, n_subg=2,n_nodes=300):
 	from tdec.growing import derive_prules_from
+	nslog("get_hrg_production_rules")
 
 	df = edgelist_data_frame
 	if df.shape[1] == 4:
@@ -343,7 +353,8 @@ def get_hrg_production_rules(edgelist_data_frame, graph_name, tw=False, n_subg=2
 	if tw:
 		print_treewidth(T)
 		exit()
-
+	## --
+	print ("prod_rules:",len(prod_rules), type(prod_rules))
 
 	if DBG: print
 	if DBG: print "--------------------"
@@ -373,7 +384,7 @@ def get_hrg_production_rules(edgelist_data_frame, graph_name, tw=False, n_subg=2
 	df = pd.DataFrame(rules)
 	print "++++++++++"
 	df.to_csv('ProdRules/{}_prs.tsv'.format(G.name), header=False, index=False, sep="\t")
-	if os.path.exists('ProdRules/{}_prs.tsv'.format(G.name)): 
+	if os.path.exists('ProdRules/{}_prs.tsv'.format(G.name)):
 		print 'Saved', 'ProdRules/{}_prs.tsv'.format(G.name)
 	else:
 		print "Trouble saving"
@@ -383,17 +394,17 @@ def get_hrg_production_rules(edgelist_data_frame, graph_name, tw=False, n_subg=2
 	print [type(x) for x in rules[0]]
 	'''
 	Graph Generation of Synthetic Graphs
-	Grow graphs usigng the union of rules from sampled sugbgraphs to predict the target order of the 
+	Grow graphs usigng the union of rules from sampled sugbgraphs to predict the target order of the
 	original graph
 	'''
 	hStars = grow_exact_size_hrg_graphs_from_prod_rules(rules, graph_name, G.number_of_nodes(),10)
 	print '... hStart graphs:',len(hStars)
-	
-	
-	if 1:
-			metricx = ['degree','hops', 'clust', 'assort', 'kcore','eigen','gcd']
-			metricx = ['gcd']
-			metrics.network_properties([G], metricx, hStars, name=graph_name, out_tsv=False)
+
+
+	if 0:
+		metricx = ['degree','hops', 'clust', 'assort', 'kcore','eigen','gcd']
+		metricx = ['gcd']
+		metrics.network_properties([G], metricx, hStars, name=graph_name, out_tsv=False)
 
 if __name__ == '__main__':
 	parser = get_parser()
@@ -403,8 +414,8 @@ if __name__ == '__main__':
 	datframes = tdf.Pandas_DataFrame_From_Edgelist(args['orig'])
 	df = datframes[0]
 	g_name = [x for x in os.path.basename(args['orig'][0]).split('.') if len(x)>3][0]
-	
-	
+
+
 	if args['chunglu']:
 			print 'Generate chunglu graphs given an edgelist'
 			sys.exit(0)

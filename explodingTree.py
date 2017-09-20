@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 __version__="0.1.0"
 
 # ToDo:
@@ -51,6 +50,17 @@ def synth_checks_network_metrics(orig_graph):
 
 #_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~#
 
+def dimacs_nddgo_tree_simple(fname, heuristic):
+	ret_lst = []
+	nddgoout = ""
+	outfname = "datasets/{}.dimacs.{}.tree".format(fname, heuristic)
+
+	if platform.system() == "Linux":
+		args = ["bin/linux/serial_wis -f {} -nice -{} -w {} -decompose_only".format(dimacsfname, heuristic, outfname)]
+	else:
+		args = ["bin/mac/serial_wis -f {} -nice -{} -w {} -decompose_only".format(dimacsfname, heuristic, outfname)]
+	out, err = subprocess.Popen(args, stdout=subprocess.PIPE, shell=True).wait().communicate()
+	return (out,err)
 
 def dimacs_nddgo_tree(dimacsfnm_lst, heuristic):
 	'''
@@ -58,7 +68,7 @@ def dimacs_nddgo_tree(dimacsfnm_lst, heuristic):
 	heuristic =====> list of variable elimination schemes to use
 	returns: results - a list of tree files
 	'''
-	results = []
+	ret_lst = []
 
 	for dimacsfname in dimacsfnm_lst:
 
@@ -79,9 +89,9 @@ def dimacs_nddgo_tree(dimacsfnm_lst, heuristic):
 			out, err = popen.communicate()
 			nddgoout = out.split('\n')
 
-		results.append(outfname)
+		ret_lst.append(err)
 
-	return results
+	return ret_lst
 
 def load_edgelist(gfname):
 	import pandas as pd
@@ -705,6 +715,21 @@ def main (args_d):
 		#~#	hrg_graph_gen_from_interxn(iso_interx[[1,2,3,4]])
 
 #_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~#
+def dimacs_convert_orig_graph(fname):
+  print fname
+  edgelist_to_dimacs(fname)
+  print "dimacs convert orig graph"
+
+def new_main(args):
+	dimacs_convert_orig_graph(args['orig'][0])
+	# treedecomp_origdimacs_2trees_xvarels(args['orig'])
+	# prod_rules_from_td(args['orig'])
+	# union_prs_gen_graphs(args['orig'])
+	# intersect_isom_prs_gen_graphs(args['orig'])
+  #
+	# eval_generated_graphs_net_metrics(args['orig'])
+	# eval_generated_graphs_graph_frags_stats(args['orig'])
+
 def get_parser ():
 	parser = argparse.ArgumentParser(description='Clique trees for HRG graph model.')
 	parser.add_argument('--etd', action='store_true', default=0, required=0,help="Edglst to Dimacs")
@@ -712,11 +737,11 @@ def get_parser ():
 	parser.add_argument('--clqs',action='store_true',default=0, required=0, help="tree objs 2 hrgCT")
 	parser.add_argument('--bam', action='store_true',	default=0, required=0,help="Barabasi-Albert")
 	parser.add_argument('--tr',  nargs=1, required=False, help="indiv. bz2 produ	ction rules.")
-	parser.add_argument('--isom', nargs=1, required=0, help="isom test")
-	parser.add_argument('--stacked', nargs=1, required=0, help="(grouped) stacked production rules.")
-	parser.add_argument('--orig',nargs=1, required=False, help="edgelist input file")
+	parser.add_argument('--isom',      nargs=1, required=0, help="isom test")
+	parser.add_argument('--stacked',   nargs=1, required=0, help="(grouped) stacked production rules.")
+	parser.add_argument('--orig',      nargs=1, required=False, help="edgelist input file")
 	parser.add_argument('--synthchks', action='store_true', default=0, required=0, help="analyze graphs in FakeGraphs")
-	parser.add_argument('--version', action='version', version=__version__)
+	parser.add_argument('--version',   action='version', version=__version__)
 	return parser
 
 if __name__ == '__main__':
@@ -725,7 +750,8 @@ if __name__ == '__main__':
 	parser = get_parser()
 	args = vars(parser.parse_args())
 	try:
-		main(args)
+		#main(args)
+		new_main(args)
 	except Exception, e:
 		print str(e)
 		traceback.print_exc()
