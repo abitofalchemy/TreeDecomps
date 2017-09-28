@@ -5,25 +5,34 @@ import pandas as pd
 from pprint import pprint as pp
 from td_isom_jaccard_sim import listify_rhs
 
+def dbg(in_str):
+	print ("{}".format(in_str))
+
 def recompute_probabilities(pd_data_frame):
 	df = pd_data_frame
-	df['rnogrp'] = df[0].apply(lambda x: x.split(".")[0])
+	df = df.reset_index(drop=True)
+	print df.to_string()
+
+	if df.columns[0]=='rnbr':
+		df['rnogrp'] = df["rnbr"].apply(lambda x: x.split(".")[0])
+	else:
+		df['rnogrp'] = df[0].apply(lambda x: x.split(".")[0])
+
+
 	gb = df.groupby(['rnogrp']).groups
-	print df['rnogrp'].head()
-
-	ndf = df
 	for k,v in gb.items():
-		# print v
 		kcntr = 0
+		# print k, v
+		# print
 		for r in v:
-			# print "{}.{}".format(k, kcntr), df[[1]].loc[r].values, df[[2]].loc[r].values[0] ,df[[3]].loc[r].values[0]/float(len(v))
-			# print r
-			ndf.loc[r] = pd.Series(["{}.{}".format(k, kcntr), list(df[[1]].loc[r].values)[0], df[[2]].loc[r].values[0] ,df[[3]].loc[r].values[0]/float(len(v))])
+			prob_f = df["prob"].loc[r]/sum([df["prob"].loc[x] for x in v])
+			# df.loc[r] = pd.Series(["{}.{}".format(k, kcntr), list(df["lhs"].loc[r]), \
+			# 	df["rhs"].loc[r], prob_f])
+			df.set_value(v, 'prob', prob_f)
 			kcntr += 1
-
-	ndf = ndf.drop('rnogrp', axis=1)
-	print ndf.head()
-	return ndf
+	df.drop('rnogrp', axis=1, inplace=True)
+	print df.tail()
+	return df
 
 #TODO WORKING on getting this to hand the mdf being passed
 #		as argument

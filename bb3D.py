@@ -1,13 +1,20 @@
+#!/usr/bin/env python
+
 import multiprocessing as mp
-from glob import glob
-import explodingTree as xt 
+import explodingTree as xt
 import os, sys
 # import networkx as nx
 import re
 from collections import deque, defaultdict, Counter
+from core.file_utils import edgelist_basic_info
+from glob import glob
+from core.stacked_prod_rules import stack_prod_rules_bygroup_into_list
+from core.will_prod_rules_fire import will_prod_rules_fire
+
 import tdec.tree_decomposition as td
 import tdec.PHRG as phrg
 import numpy as np
+import pprint  as pp
 
 
 results = []
@@ -22,12 +29,12 @@ def write_prod_rules_to_tsv(prules, out_name):
 
 
 def dimacs_td_ct_fast(oriG, tdfname):
-  """ tree decomp to clique-tree 
+  """ tree decomp to clique-tree
 	parameters:
 		orig:			filepath to orig (input) graph in edgelist
 		tdfname:	filepath to tree decomposition from INDDGO
 		synthg:		when the input graph is a syth (orig) graph
-	Todo: 
+	Todo:
 		currently not handling sythg in this version of dimacs_td_ct
 	"""
   G = oriG
@@ -153,72 +160,111 @@ def run_external(args):
 			"""Error handling."""
 		handle_results(proc.stdout)
 
+# ^~_~^^~_~^^~_~^^~_~^^~_~^^~_~^^~_~^^~_~^^~_~^^~_~^^~_~^^~_~^^~_~^^~_~^^~_~^^~_~^^~_~^^~_~^^~_~^^~_
+# ^~_~^^~_~^^~_~^^~_~^^~_~^^~_~^^~_~^^~_~^^~_~^^~_~^^~_~^^~_~^^~_~^^~_~^^~_~^^~_~^^~_~^^~_~^^~_~^^~_
 
 files = [f.rstrip('\n\r') for f in open("datasets/datlst.txt","r").readlines()]
 
-print
-print "Transform to dimacs"
-print
-p = mp.Pool(processes=2)
-for f in files:
-	gn = xt.graph_name(f)
-	if os.path.exists('datasets/{}.dimacs'): continue
-	g = xt.load_edgelist(f)
-	p.apply_async(xt.convert_nx_gObjs_to_dimacs_gObjs, args=([g], ), callback=collect_results)
-p.close()
-p.join()
-print (results)
+# edgelist base info dict
+el_base_info_d  = {}
+el_base_info_d  = edgelist_basic_info(files)
 
+# print
+# print "Transform to dimacs"
+# print "-"*40
+# p = mp.Pool(processes=2)
+# for f in files:
+# 	gn = xt.graph_name(f)
+# 	if os.path.exists('datasets/{}.dimacs'): continue
+# 	g = xt.load_edgelist(f)
+# 	p.apply_async(xt.convert_nx_gObjs_to_dimacs_gObjs, args=([g], ), callback=collect_results)
+# p.close()
+# p.join()
+# # print (results)
+#
+#
+# print
+# print "Explode to trees"
+# print "-"*40
+#
+# var_els=['mcs','mind','minf','mmd','lexm','mcsm']
+# results_trees=[]
+# for j,f in enumerate(files):
+#   gn = xt.graph_name(f)
+#   dimacs_file = "datasets/{}.dimacs".format(gn)
+#   print " ", gn,
+#   p = mp.Pool(processes=2)
+#   for vael in var_els:
+#     p.apply_async(xt.dimacs_nddgo_tree_simple, args=(dimacs_file,vael, ), callback=collect_results_trees)
+#     # xt.dimacs_nddgo_tree_simple(f, vael)
+#   p.close()
+#   p.join()
+#
+#   # print results_trees
+#   # exit()
+#   if j == 0:
+#     asp_arr = np.array(results_trees)
+#     # print " ", asp_arr.shape,"\t<= cumm. nbr of rules"
+#     continue
+#   prs_np = np.array(results_prs)
+#   asp_arr = np.append(asp_arr, prs_np)
+#   print asp_arr.shape
+#
+# print
+# print "Star dot trees to Production Rules"
+# print "-"*40
+#
+#
+# for j,f in enumerate(files):
+#   results_prs=[]
+#   gn = xt.graph_name(f)
+#   trees = glob("datasets/{}*.tree".format(gn))
+#   print " ", gn,
+#   pp = mp.Pool(processes=2)
+#   for t in trees:
+#     prs_fname = "ProdRules/{}.prs".format(os.path.basename(t))
+#     if os.path.exists(prs_fname):
+#       # print " ", prs_fname, "file exits"
+#       continue
+#     oriG = xt.load_edgelist(f)
+#     pp.apply_async(dimacs_td_ct_fast, args=(oriG, t, ), callback=collect_prodrules)
+#   pp.close()
+#   pp.join()
+#   if j == 0:
+#     rules_np = np.array(results_prs)
+#     print " ", rules_np.shape,"\t<= cumm. nbr of rules"
+#     continue
+#   prs_np = np.array(results_prs)
+#   rules_np = np.append(rules_np, prs_np)
+#   print rules_np.shape
+
+#print
+#print "Test production rules"
+#print "-"*40
+#
+#
+#for j,f in enumerate(files):
+	#print " ", f
+	#gn = xt.graph_name(f)
+	#prs_files_l =glob("ProdRules/{}.dimacs.*.prs".format(gn))
+	#n = el_base_info_d[gn]
+	#will_prod_rules_fire(prs_files_l, n) # probe each group
 
 print
-print "Explode to trees"
-print
-
-var_els=['mcs','mind','minf','mmd','lexm','mcsm']
-results_trees=[]
-for f in files:
-	gn = xt.graph_name(f)
-	dimacs_file = "datasets/{}.dimacs".format(gn)
-	if not os.path.exists(dimacs_file):
-		print "  dimacs file does not exists"
-		continue
-	print dimacs_file,"----"
-	p = mp.Pool(processes=2)
-	for vael in var_els:
-		if os.path.exists("datasets/{}.dimacs.{}.tree".format(gn,vael)):
-			print "  file","datasets/{}.dimacs.{}.tree".format(gn,vael),"exists.."
-			continue
-		else:
-			# print "filename",dimacs_file
-			p.apply_async(xt.dimacs_nddgo_tree_simple, args=(f,vael, ), callback=collect_results_trees)
-	p.close()
-	p.join()
-
-	print results_trees
-
-print
-print "Star dot trees to Production Rules"
+print "Test intersectin (isomorphic) production rules subset"
 print "-"*40
+from core.baseball import recompute_probabilities
+from core.will_prod_rules_fire import probe_stacked_prs_likelihood_tofire
+from explodingTree import graph_name
 
-
-for j,f in enumerate(files):
-  results_prs=[]
-  gn = xt.graph_name(f)
-  trees = glob("datasets/{}*.tree".format(gn))
-  oriG = xt.load_edgelist(f)
-  pp = mp.Pool(processes=2)
-  for t in trees:
-    # print " ",t
-    pp.apply_async(dimacs_td_ct_fast, args=(oriG, t, ), callback=collect_prodrules)
-    #dimacs_td_ct_fast(oriG, t)
-  pp.close()
-  pp.join()
-  #results_prs = [dimacs_td_ct_fast(oriG, t) for t in trees]
-  # print results_prs
-  if j == 0:
-    rules_np = np.array(results_prs)
-    continue
-  prs_np = np.array(results_prs)
-  rules_np = np.append(rules_np, prs_np)
-
-  print " ", np.shape(rules_np)
+for f in files:
+	gn = xt.graph_name(f)
+	prs_files = glob("ProdRules/{}*prs".format(gn))
+	staked_prs_df = stack_prod_rules_bygroup_into_list(prs_files) # from core.stacked_prod_rules
+	print "*************" # recompute the probabilities for the group of prs
+	df = recompute_probabilities(staked_prs_df) # from core.baseball
+	# test if stacked prs can fire
+	stck_fired = probe_stacked_prs_likelihood_tofire(df, graph_name(f), el_base_info_d[graph_name(f)])
+	print (stck_fired)
+	#
+	break

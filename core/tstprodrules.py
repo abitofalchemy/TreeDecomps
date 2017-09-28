@@ -44,7 +44,7 @@ def willFire_check(dat_frm):
 	:return bool
 	"""
 	ret_val = False
-	
+
 	if not len(dat_frm):
 		return ret_val
 
@@ -81,32 +81,33 @@ def willFire_check(dat_frm):
 def tst_prod_rules_isom_intrxn(fname,origfname):
 	"""
 	Test the isomorphic subset of rules
-	
+
 	:param fname:	isom intersection rules file
 	:param origfname: reference input network (dataset) edgelist file
-	:return: 
+	:return:
 	"""
 	# Get the original file
 	fdf = Pandas_DataFrame_From_Edgelist([origfname])
 	origG = nx.from_pandas_dataframe(fdf[0], 'src', 'trg')
 	origG.name = graph_name(origfname)
+
 	print origG.name, "+"*80
-	
+
 	# Read the subset of prod rules
 	df = pd.read_csv(fname, header=None,	sep="\t", dtype={0: str, 1: list, 2: list, 3: float})
 	g = pcfg.Grammar('S')
-	
+
 	if not willFire_check(df):
 		print "-"*10, fname, "contains production rules that WillNotFire"
 		return None
 	else:
-		print "+"*40
+	    print "+"*40
 	# Process dataframe
 	from td_isom_jaccard_sim import listify_rhs
 	for (id, lhs, rhs, prob) in df.values:
 		rhs = listify_rhs(rhs)
 		g.add_rule(pcfg.Rule(id, lhs, rhs, float(prob)))
-	
+
 	print "\n","."*40 #print 'Added the rules to the datastructure'
 
 	num_nodes = origG.number_of_nodes()
@@ -119,7 +120,7 @@ def tst_prod_rules_isom_intrxn(fname,origfname):
 
 	ofname   = "FakeGraphs/"+ origG.name+ "_isom_ntrxn.shl"
 	database = shelve.open(ofname)
-	
+
 	num_samples = 20 #
 	print '~' * 40
 	for i in range(0, num_samples):
@@ -166,12 +167,12 @@ def tst_prod_rules_level1_individual(in_path):
 		# break
 
 # def tst_prod_rules_canfire(infname):
-	# print infname
+# print infname
 
-	# print df[2].apply(lambda x: listify_rhs(x.split()[0]))
+# print df[2].apply(lambda x: listify_rhs(x.split()[0]))
 # tst_prod_rules_isom_intrxn("Results/moreno_vdb_vdb_isom_itrxn.tsv")
 # tst_prod_rules_level1_individual("ProdRules/moreno_lesmis_lesmis.*_iprules.tsv")
-#		tst_prod_rules_isom_intrxn(fname)
+# tst_prod_rules_isom_intrxn(fname)
 
 
 #_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~#
@@ -229,7 +230,7 @@ def main (argsd):
 #print 'Test .... if each rhs is not in lhs ... we cannot fire (?)'
 
 if __name__ == '__main__':
-	'''ToDo: 
+	'''ToDo:
 		[] clean the edglists, write them back to disk and then run inddgo on 1 component graphs
 		[] Add WillFire
 	'''
