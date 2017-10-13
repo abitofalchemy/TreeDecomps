@@ -1,0 +1,36 @@
+\RequirePackage{luatex85}
+\documentclass[border=10pt,tikz]{standalone}
+\usepackage{tikz}
+% \usepackage{graphicx}
+% \graphicspath{ {pdfFigs/} }
+% \usepackage{booktabs} % For formal tables
+% \usepackage{pgfplots}
+% \usepgfplotslibrary{groupplots}
+% \usepackage{tikz}
+\usetikzlibrary{calc}
+\usetikzlibrary{arrows,decorations.markings}
+\usetikzlibrary{shapes.arrows}
+\usetikzlibrary{patterns}
+\usetikzlibrary{graphdrawing}
+\usetikzlibrary{graphs}
+\usegdlibrary{force}
+% \usepackage{pgfplotstable}
+% %\usepackage[ruled,vlined,commentsnumbered]{algorithm2e}
+% \selectcolormodel{cmyk}
+% \usepackage[normalem]{ulem}
+\usepackage{amsmath,amssymb}
+% \usepackage{multirow}
+\usepackage{xcolor,colortbl}
+% \usepackage{subfigure}
+% \usepgfplotslibrary{statistics}
+% \pgfplotsset{compat=1.3}
+%
+% \tikzstyle{vertex}=[draw,circle,minimum width=1pt,text width=1pt]
+\tikzset{
+  vertex/.style={
+  draw,circle,minimum size=4pt, minimum width=1pt, inner sep=0pt,outer sep=0pt,fill=blue,opacity=.5
+  }
+}
+\begin{document}
+\input{comtrade-3}
+\end{document}
