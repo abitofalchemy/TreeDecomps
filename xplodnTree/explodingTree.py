@@ -12,7 +12,7 @@ import os
 from glob import glob
 import networkx as nx
 import pandas as pd
-from tdec.PHRG import graph_checks
+from core.PHRG import graph_checks
 import subprocess
 import math
 import shelve
@@ -35,9 +35,9 @@ def synth_checks_network_metrics(orig_graph):
 	files = glob("./FakeGraphs/"+gname +"*")
 	shl_db = shelve.open(files[0]) # open for read
 	origG = load_edgelist(orig_graph)
-	print "%%"
-	print "%%", gname
-	print "%%"
+	print ("%%")
+	print ("%%", gname)
+	print ("%%")
 
 	for k in shl_db.keys():
 		synthGs = shl_db[k]
@@ -99,8 +99,8 @@ def load_edgelist(gfname):
 		edglst = pd.read_csv(gfname, comment='%', delimiter='\t')
 		# print edglst.shape
 		if edglst.shape[1]==1: edglst = pd.read_csv(gfname, comment='%', delimiter="\s+")
-	except Exception, e:
-		print "EXCEPTION:",str(e)
+	except (Exception, e):
+		print ("EXCEPTION:",str(e))
 		traceback.print_exc()
 		sys.exit(1)
 
@@ -151,7 +151,7 @@ def nx_edges_to_nddgo_graph_sampling(graph, n, m, peo_h):
 			output_edges = lambda x: f.write("e\t{}\t{}\n".format(x[0], x[1]))
 			df.apply(output_edges, axis=1)
 		# f.write("e\t{}\t{}\n".format(e[0]+1,e[1]+1))
-		if os.path.exists(ofname): print 'Wrote: {}'.format(ofname)
+		if os.path.exists(ofname): print ('Wrote: {}'.format(ofname))
 
 	return basefname
 
@@ -275,7 +275,7 @@ def get_hrg_prod_rules(prules):
 		tname = os.path.basename(f).split(".")
 		df['cate'] = ".".join(tname[:2])
 		mdf = pd.concat([mdf,df])
-		print ">> ", f, ">> ", df.shape, mdf.shape
+		print (">> ", f, ">> ", df.shape, mdf.shape)
 
 
 
@@ -295,9 +295,8 @@ def get_isom_overlap_in_stacked_prod_rules(td_keys_lst, df ):
 #		print js
 #		print stckd_df[stckd_df['cate']==p[0]].head()
 	for comb in combinations(td_keys_lst, 2):
-		js = jacc_dist_for_pair_dfrms(df[df['cate']==comb[0]],
-																	df[df['cate']==comb[1]])
-		print "\t", js
+		js = jacc_dist_for_pair_dfrms(df[df['cate']==comb[0]], df[df['cate']==comb[1]])
+		print ("\t", js)
 
 def graph_stats_and_visuals(gobjs=None):
 	"""
@@ -318,7 +317,7 @@ def graph_stats_and_visuals(gobjs=None):
 	pylab.rcParams.update(params)
 	import matplotlib.gridspec as gridspec
 
-	print "BA G(V,E)"
+	print ("BA G(V,E)")
 	if gobjs is None:
 		gobjs = glob("datasets/synthG*.dimacs")
 	dimacs_g = {}
@@ -328,46 +327,42 @@ def graph_stats_and_visuals(gobjs=None):
 			l=f.readline().rstrip('\r\n')
 			bn = os.path.basename(fl)
 			dimacs_g[bn] = [int(x) for x in l.split()[-2:]]
-		print "%d\t%s" %(dimacs_g[bn][0], dimacs_g[bn][1])
+		print ("%d\t%s" %(dimacs_g[bn][0], dimacs_g[bn][1]))
 
-	print "BA Prod rules size"
+	print ("BA Prod rules size")
 	for k in dimacs_g.keys():
 		fname = "ProdRules/"+k.split('.')[0]+".prs"
 		f_sz = np.loadtxt(fname, delimiter="\t", dtype=str)
-		print k, len(f_sz)
+		print (k, len(f_sz))
 
 
 
 
 #def hrg_graph_gen_from_interxn(iso_interxn_df):
 def trees_to_hrg_clq_trees():
-	gname = 'synthG_15_60'
-	files = glob('ProdRules/{}*.bz2'.format(gname))
-#	print files
-	print '\tNbr of files:',len(files)
-	prod_rules_lst = []
+    gname = 'synthG_15_60'
+    files = glob('ProdRules/{}*.bz2'.format(gname))
+    print ('\tNbr of files:',len(files))
+    prod_rules_lst = []
 
-	stacked_pr_rules = get_hrg_prod_rules(files)
-	print '\tSize of the df',len(stacked_pr_rules)
-	df = stacked_pr_rules
-	gb = df.groupby(['cate']).groups.keys()
-	print 'Jaccard Similarity'
-	A = get_isom_overlap_in_stacked_prod_rules(gb, df)
-#	print A
-	print
-	iso_union, iso_interx = isoint.isomorph_intersection_2dfstacked(df)
-	iso_interx[[1,2,3,4]].to_csv('Results/{}_isom_interxn.tsv'.format(gname),
-															 sep="\t", header=False, index=False)
-	if os.path.exists('Results/{}_isom_interxn.tsv'.format(gname)):
-		print 'Results/{}_isom_interxn.tsv'.format(gname)+' saved'
+    stacked_pr_rules = get_hrg_prod_rules(files)
+    print ('\tSize of the df',len(stacked_pr_rules))
+    df = stacked_pr_rules
+    gb = df.groupby(['cate']).groups.keys()
+    print ('Jaccard Similarity')
+    A = get_isom_overlap_in_stacked_prod_rules(gb, df)
 
+    iso_union, iso_interx = isoint.isomorph_intersection_2dfstacked(df)
+    iso_interx[[1,2,3,4]].to_csv('Results/{}_isom_interxn.tsv'.format(gname), sep="\t", header=False, index=False)
+    if os.path.exists('Results/{}_isom_interxn.tsv'.format(gname)):
+        print ('Results/{}_isom_interxn.tsv saved'.format(gname))
 
 def isomorphic_test_on_stacked_prs(stacked_pr_rules_fname=None):
 	in_fname = stacked_pr_rules_fname
 	gname = os.path.basename(in_fname).split(".")[0]
 	outfname = 'Results/{}_isom_itrxn.tsv'.format(gname)
 	if os.path.exists(outfname):
-		print '\tFile already exists:', outfname
+		print ('\tFile already exists:', outfname)
 	else:
 		if in_fname is None:
 			in_fname = "ProdRules/synthG_63_stcked_prs.tsv"
@@ -378,7 +373,7 @@ def isomorphic_test_on_stacked_prs(stacked_pr_rules_fname=None):
 
 			iso_interx[[1,2,3,4]].to_csv(outfname, sep="\t", header=False, index=False)
 			if os.path.exists(outfname):
-				print "\t", 'Written:',outfname
+				print ("\t", 'Written:',outfname)
 
 	return outfname
 
@@ -413,15 +408,15 @@ def ref_graph_largest_conn_componet(fname):
 			try:
 				nx.write_edgelist(Gprime,'.{}_lcc_{}.edl'.format(gname,cnt), data=False)
 				cnt += 1
-			except Exception, e:
-				print str(e), '\n!!Error writing to disk'
+			except (Exception, e):
+				print (str(e), '\n!!Error writing to disk')
 				return ""
 	else:
 		subg_fnm_lst.append('.{}_lcc.edl'.format(gname))
 		try:
 			nx.write_edgelist(Gc,'.{}_lcc.edl'.format(gname), data=False)
-		except Exception, e:
-			print str(e), '\n!!Error writing to disk'
+		except (Exception, e):
+			print (str(e), '\n!!Error writing to disk')
 			return ""
 
 	return subg_fnm_lst
@@ -463,13 +458,13 @@ def subgraphs_exploding_trees(orig, sub_graph_lst):
 	iso_interx[[1,2,3,4]].to_csv('Results/{}_isom_interxn.tsv'.format(gname),
 								 sep="\t", header=False, index=False)
 	if os.path.exists('Results/{}_isom_interxn.tsv'.format(gname)):
-		print "\t", 'Written:','Results/{}_isom_interxn.tsv'.format(gname)
-		print "\t", 'Next step is to generate graphs using this subsect of production rules.'
-	else: print "!!Unable to savefile"
+		print ("\t", 'Written:','Results/{}_isom_interxn.tsv'.format(gname))
+		print ("\t", 'Next step is to generate graphs using this subsect of production rules.')
+	else: print ("!!Unable to savefile")
 
 
-	print "Done"
-	print gb, "\n---------------<>---------------<>---------------"
+	print ("Done")
+	print (gb, "\n---------------<>---------------<>---------------")
 	exit()
 	
 
@@ -499,8 +494,8 @@ def xplodingTree(argsd):
 	"""
 	sub_graphs_fnames_lst = ref_graph_largest_conn_componet(argsd['orig'][0]) # max largest conn componet
 	if len(sub_graphs_fnames_lst) > 1:
-		print 'process subgraphs from sampling'
-		print sub_graphs_fnames_lst
+		print ('process subgraphs from sampling')
+		print (sub_graphs_fnames_lst)
 		subgraphs_exploding_trees(argsd['orig'][0], sub_graphs_fnames_lst )
 		exit()
 	
@@ -533,12 +528,12 @@ def xplodingTree(argsd):
 	iso_interx[[1,2,3,4]].to_csv('Results/{}_isom_interxn.tsv'.format(gname),
 															 sep="\t", header=False, index=False)
 	if os.path.exists('Results/{}_isom_interxn.tsv'.format(gname)):
-			print "\t", 'Written:','Results/{}_isom_interxn.tsv'.format(gname)
-			print "\t", 'Next step is to generate graphs using this subsect of production rules.'
-	else: print "!!Unable to savefile"
+			print ("\t", 'Written:','Results/{}_isom_interxn.tsv'.format(gname))
+			print ("\t", 'Next step is to generate graphs using this subsect of production rules.')
+	else: print ("!!Unable to savefile")
 
 
-	print "Done"
+	print ("Done")
 	exit()
 
 def only_orig_arg_passed(argsdic):
@@ -552,173 +547,170 @@ def only_orig_arg_passed(argsdic):
 
 
 def main (args_d):
-	print "ExplodingTree"
+    print ("ExplodingTree")
 	
-	if only_orig_arg_passed(args_d):
-		print "#"*4, 'exploding trees', "!"*4
-		xplodingTree(args_d)
-	elif (args_d['ctrl']) :
-		orig = args_d['orig'][0]
-		import subprocess
-		from threading import Timer
-		args = ("pytyon", "exact_phrg.py",  "--orig", orig)
-		proc = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-		kill_proc = lambda p: p.kill()
-		timer = Timer(600, kill_proc, [proc])
-		try:
-			timer.start()
-			output, stderr = proc.communicate()
-		finally:
-			timer.cancel()
-		print output
-		gname = [x for x in os.path.basename(orig).split('.') if len(x) >3][0]
-		fname = "ProdRules/" + gname + "_prs.tsv"
-		print fname
+    if only_orig_arg_passed(args_d):
+        print ("#"*4, 'exploding trees', "!"*4)
+        xplodingTree(args_d)
+    elif (args_d['ctrl']) :
+        orig = args_d['orig'][0]
+        import subprocess
+        from threading import Timer
+        args = ("pytyon", "exact_phrg.py",  "--orig", orig)
+        proc = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        kill_proc = lambda p: p.kill()
+        timer = Timer(600, kill_proc, [proc])
+        try:
+            timer.start()
+            output, stderr = proc.communicate()
+        finally:
+            timer.cancel()
+        #        print output
+        gname = [x for x in os.path.basename(orig).split('.') if len(x) >3][0]
+        fname = "ProdRules/" + gname + "_prs.tsv"
+        #        print fname
 
-		from td_rndGStats import graph_gen_isom_interxn
-		graph_gen_isom_interxn(in_fname=fname, orig_el=orig) # gen graph from the prod rules
-		sys.exit(0)
+        from td_rndGStats import graph_gen_isom_interxn
+        graph_gen_isom_interxn(in_fname=fname, orig_el=orig) # gen graph from the prod rules
+        sys.exit(0)
 
-	elif args_d['etd']:
-		dimacs_gObjs = edgelist_to_dimacs(args_d)
-		#~#
-		#~# decompose the given graphs
-		print '~~~~ And tree_decomposition_with_varelims'
-		var_el_m = ['mcs','mind','minf','mmd','lexm','mcsm']
-		trees_d = tree_decomposition_with_varelims(dimacs_gObjs, var_el_m)
-		for k in trees_d.keys():
-			print	'\t',k, "==>"
-			for v in trees_d[k]: print "\t	", v
+    elif args_d['etd']:
+        dimacs_gObjs = edgelist_to_dimacs(args_d)
+        #~#
+        #~# decompose the given graphs
+        print ('~~~~ And tree_decomposition_with_varelims')
+        var_el_m = ['mcs','mind','minf','mmd','lexm','mcsm']
+        trees_d = tree_decomposition_with_varelims(dimacs_gObjs, var_el_m)
+        for k in trees_d.keys():
+            print    ('\t',k, "==>")
+            for v in trees_d[k]: print ("\t    ", v)
 
-	elif args_d['tr']: # / process trees and gen stacked PRS /
-		files = glob(args_d['tr'][0])
-		from pprint import pprint as pp
-		pp(files)
-		convert_dimacs_tree_objs_to_hrg_clique_trees(args_d['orig'][0], files)
+    elif args_d['tr']: # / process trees and gen stacked PRS /
+        files = glob(args_d['tr'][0])
+        from pprint import pprint as pp
+        pp(files)
+        convert_dimacs_tree_objs_to_hrg_clique_trees(args_d['orig'][0], files)
 
-	elif args_d['stacked']:
-		flspath = 'ProdRules/synthG_31_*.bz2'
-		flspath = 'ProdRules/contact*.bz2'
-		files = glob(args_d['stacked'][0])
-		stckd = get_hrg_prod_rules(files)
-		# ** stckd is a DataFrame **
-		opath = args_d['stacked'][0].split("*")[0] + "_stcked_prs.tsv"
-		stckd.to_csv(opath, sep="\t", header=False, index=False)
-		if os.path.exists(opath): print "\tSaved ...", opath
-		exit()
+    elif args_d['stacked']:
+        flspath = 'ProdRules/synthG_31_*.bz2'
+        flspath = 'ProdRules/contact*.bz2'
+        files = glob(args_d['stacked'][0])
+        stckd = get_hrg_prod_rules(files)
+        # ** stckd is a DataFrame **
+        opath = args_d['stacked'][0].split("*")[0] + "_stcked_prs.tsv"
+        stckd.to_csv(opath, sep="\t", header=False, index=False)
+        if os.path.exists(opath): print ("\tSaved ...", opath)
+        exit()
 
-	elif args_d['isom']:
-		print '~~~~ isom intrxn from stacked df'
-		files = glob(args_d['isom'][0])
-		orig  = args_d['orig'][0] # reference path
-		orig_bbn = [x for x in os.path.basename(orig).split(".") if len(x) > 3][0]
-		print orig
-		print orig_bbn
+    elif args_d['isom']:
+        print ('~~~~ isom intrxn from stacked df')
+        files = glob(args_d['isom'][0])
+        orig  = args_d['orig'][0] # reference path
+        orig_bbn = [x for x in os.path.basename(orig).split(".") if len(x) > 3][0]
+        #        print orig
+        #        print orig_bbn
 
-		files = glob("ProdRules/{}*stcked_prs.tsv".format(orig_bbn))
-		for f in files:
-			ba_vnbr = os.path.basename(f).split(".")[0]
-			isom_ntrxn_f = isomorphic_test_on_stacked_prs(f)
-			#from td_rndGStats import graph_gen_isom_interxn
-			#graph_gen_isom_interxn(in_fname= isom_ntrxn_f, orig_el = orig)
-			print type(isom_ntrxn_f)
-			'''isom_ntrxn_f[[1,2,3,4]].to_csv('Results/{}_isom_interxn.tsv'.format(gname),
-				sep="\t", header=False, index=False)
-			if os.path.exists('Results/{}_isom_interxn.tsv'.format(gname)):
-				print "\t", 'Written:','Results/{}_isom_interxn.tsv'.format(gname)
-			'''
+        files = glob("ProdRules/{}*stcked_prs.tsv".format(orig_bbn))
+        for f in files:
+            ba_vnbr = os.path.basename(f).split(".")[0]
+            isom_ntrxn_f = isomorphic_test_on_stacked_prs(f)
+            #from td_rndGStats import graph_gen_isom_interxn
+            #graph_gen_isom_interxn(in_fname= isom_ntrxn_f, orig_el = orig)
+        #            print type(isom_ntrxn_f)
+            '''isom_ntrxn_f[[1,2,3,4]].to_csv('Results/{}_isom_interxn.tsv'.format(gname),
+                sep="\t", header=False, index=False)
+            if os.path.exists('Results/{}_isom_interxn.tsv'.format(gname)):
+                print "\t", 'Written:','Results/{}_isom_interxn.tsv'.format(gname)
+            '''
 
 
-	elif (args_d['synthchks'] and  args_d['orig']):
-		print('~~~~ Analysis of the Synthetic graphs')
-		synth_checks_network_metrics(args_d['orig'][0])
-		exit(1)
+    elif (args_d['synthchks'] and  args_d['orig']):
+        print('~~~~ Analysis of the Synthetic graphs')
+        synth_checks_network_metrics(args_d['orig'][0])
+        exit(1)
 	
-	elif (args_d['bam']):
-		print "~~~~ Groups of Random Graphs (BA):"
-		n_nodes_set = [math.pow(2,x) for x in range(4,5,1)]
-		ba_gObjs = [nx.barabasi_albert_graph(n, 3) for n in n_nodes_set]
-		for g in ba_gObjs:
-			print "\tG(V,E):", (g.number_of_nodes(), g.number_of_edges())
-			out_el_fname = 'datasets/bar_alb_{}_exp3.tsv'.format(g.number_of_nodes())
-			if not os.path.exists(out_el_fname): nx.write_edgelist(g, out_el_fname, delimiter="\t")
-			print "\t",out_el_fname
+    elif (args_d['bam']):
+        print ("~~~~ Groups of Random Graphs (BA):")
+        n_nodes_set = [math.pow(2,x) for x in range(4,5,1)]
+        ba_gObjs = [nx.barabasi_albert_graph(n, 3) for n in n_nodes_set]
+        for g in ba_gObjs:
+            print ("\tG(V,E):", (g.number_of_nodes(), g.number_of_edges()))
+            out_el_fname = 'datasets/bar_alb_{}_exp3.tsv'.format(g.number_of_nodes())
+            if not os.path.exists(out_el_fname): nx.write_edgelist(g, out_el_fname, delimiter="\t")
+            print ("\t",out_el_fname)
 
-		#~#
-		#~# convert to dimacs graph
-		print '~~~~ convert to_dimacs'
-		print type(ba_gObjs[0])
-		dimacs_gObjs = convert_nx_gObjs_to_dimacs_gObjs(ba_gObjs,)
-		print "\t",type(dimacs_gObjs), dimacs_gObjs[0][0]
+        #~#
+        #~# convert to dimacs graph
+        print ('~~~~ convert to_dimacs')
+        dimacs_gObjs = convert_nx_gObjs_to_dimacs_gObjs(ba_gObjs,)
+        print ("\t",type(dimacs_gObjs), dimacs_gObjs[0][0])
 
-		#~#
-		#~# decompose the given graphs
-		print '~~~~ tree_decomposition_with_varelims'
-		var_el_m = ['mcs','mind','minf','mmd','lexm','mcsm']
-		trees_d = tree_decomposition_with_varelims(dimacs_gObjs, var_el_m)
-		for k in trees_d.keys():
-			print	'\t',k, "==>"
-			for v in trees_d[k]: print "\t	", v
+        #~#
+        #~# decompose the given graphs
+        print ('~~~~ tree_decomposition_with_varelims')
+        var_el_m = ['mcs','mind','minf','mmd','lexm','mcsm']
+        trees_d = tree_decomposition_with_varelims(dimacs_gObjs, var_el_m)
+        for k in trees_d.keys():
+            print    ('\t',k, "==>")
+            for v in trees_d[k]: print( "\t    ", v)
 
-		#~#
-		#~# dimacs tree to HRG clique tree
-		print '~~~~ tree_objs_to_hrg_clique_trees'
-		print '~~~~ prules.bz2 saved in ProdRules; individual files'
-		pr_rules_d={}
-		for k in trees_d.keys():
-			pr_rules_d[k] = convert_dimacs_tree_objs_to_hrg_clique_trees(args_d['orig'][0], trees_d[k])
-			print "\tCT:", len(pr_rules_d[k])
-
-
-		#~#
-		#~# get stacked HRG prod rules
-		#~# - read sets of prod rules *.bz2
-		print '~~~~ Stacked HRG get_hrg_prod_rules (stacked | prs)'
-		st_prs_d = {}
-		for k in pr_rules_d.keys():
-			st_prs_d[k] = get_hrg_prod_rules(pr_rules_d[k])
-
-		print'	', st_prs_d.keys()
-		for k in st_prs_d.keys():
-			df = pd.DataFrame(st_prs_d[k])
-			outfname = "Results/"+os.path.basename(k).split('.')[0]+"stckd_prs.tsv"
-			df[['rnbr','lhs','rhs','pr']].to_csv(outfname, header=False, index=False, sep="\t")
-
-		#~#
-		#~# get the isomophic overlap
-		#	intxn_prod_rules = get_isom_overlap_in_stacked_prod_rules(stck_prod_rules)
-		#	for nm	in sorted(stck_prod_rules.groupby(['cate']).groups.keys()):
-		#		if os.path.exists('ProdRules/'+nm+'.bz2'):
-		#			print '	ProdRules/'+nm+'.bz2'
-		print '\n~~~~ get_isom_overlap_in_stacked_prod_rules'
-		print '~~~~ output is Jaccard Sim Scores'
-		for k in st_prs_d.keys():
-			df = st_prs_d[k]
-			gb = df.groupby(['cate']).groups.keys()
-			get_isom_overlap_in_stacked_prod_rules(gb, df)
+        #~#
+        #~# dimacs tree to HRG clique tree
+        print ('~~~~ tree_objs_to_hrg_clique_trees')
+        print ('~~~~ prules.bz2 saved in ProdRules; individual files')
+        pr_rules_d={}
+        for k in trees_d.keys():
+            pr_rules_d[k] = convert_dimacs_tree_objs_to_hrg_clique_trees(args_d['orig'][0], trees_d[k])
+            print ("\tCT:", len(pr_rules_d[k]))
 
 
-		#~#
-		#~# get the isomophic overlap production rules subset
-		#~# (two diff animals, not the same as the Jaccard Sim above)
-		print '~~~~ isom intrxn from stacked df'
-		for k in st_prs_d.keys():
-			stacked_df = st_prs_d[k]
-			iso_union, iso_interx = isoint.isomorph_intersection_2dfstacked(stacked_df)
-			gname = os.path.basename(k).split(".")[0]
-			iso_interx[[1,2,3,4]].to_csv('Results/{}_isom_interxn.tsv'.format(gname),
-																				 sep="\t", header=False, index=False)
-			if os.path.exists('Results/{}_isom_interxn.tsv'.format(gname)):
-				print "\t", 'Written:','Results/{}_isom_interxn.tsv'.format(gname)
+        #~#
+        #~# get stacked HRG prod rules
+        #~# - read sets of prod rules *.bz2
+        print ('~~~~ Stacked HRG get_hrg_prod_rules (stacked | prs)')
+        st_prs_d = {}
+        for k in pr_rules_d.keys():
+            st_prs_d[k] = get_hrg_prod_rules(pr_rules_d[k])
 
-		#~#
-		#~#	hrg_graph_gen_from_interxn(iso_interx[[1,2,3,4]])
+        print('    ', st_prs_d.keys())
+        for k in st_prs_d.keys():
+            df = pd.DataFrame(st_prs_d[k])
+            outfname = "Results/"+os.path.basename(k).split('.')[0]+"stckd_prs.tsv"
+            df[['rnbr','lhs','rhs','pr']].to_csv(outfname, header=False, index=False, sep="\t")
+
+        #~#
+        #~# get the isomophic overlap
+        #    intxn_prod_rules = get_isom_overlap_in_stacked_prod_rules(stck_prod_rules)
+        #    for nm    in sorted(stck_prod_rules.groupby(['cate']).groups.keys()):
+        #        if os.path.exists('ProdRules/'+nm+'.bz2'):
+        #            print '    ProdRules/'+nm+'.bz2'
+        print ('\n~~~~ get_isom_overlap_in_stacked_prod_rules')
+        print ('~~~~ output is Jaccard Sim Scores')
+        for k in st_prs_d.keys():
+            df = st_prs_d[k]
+            gb = df.groupby(['cate']).groups.keys()
+            get_isom_overlap_in_stacked_prod_rules(gb, df)
+
+
+        #~#
+        #~# get the isomophic overlap production rules subset
+        #~# (two diff animals, not the same as the Jaccard Sim above)
+        print ('~~~~ isom intrxn from stacked df')
+        for k in st_prs_d.keys():
+            stacked_df = st_prs_d[k]
+            iso_union, iso_interx = isoint.isomorph_intersection_2dfstacked(stacked_df)
+            gname = os.path.basename(k).split(".")[0]
+            iso_interx[[1,2,3,4]].to_csv('Results/{}_isom_interxn.tsv'.format(gname),sep="\t", header=False, index=False)
+            if os.path.exists('Results/{}_isom_interxn.tsv'.format(gname)):
+                print ('\tWritten: Results/{}_isom_interxn.tsv'.format(gname))
+        #~#
+        #~#    hrg_graph_gen_from_interxn(iso_interx[[1,2,3,4]])
 
 #_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~#
 def dimacs_convert_orig_graph(fname):
-  print fname
+#  print fname
   edgelist_to_dimacs(fname)
-  print "dimacs convert orig graph"
+  print ("dimacs convert orig graph")
 
 def new_main(args):
 	dimacs_convert_orig_graph(args['orig'][0])
@@ -752,8 +744,8 @@ if __name__ == '__main__':
 	try:
 		#main(args)
 		new_main(args)
-	except Exception, e:
-		print str(e)
+	except (Exception, e):
+		print (str(e))
 		traceback.print_exc()
 		sys.exit(1)
 	sys.exit(0)
