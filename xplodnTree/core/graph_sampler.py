@@ -106,7 +106,7 @@ def subgraphs_cnt(G, num_smpl):
         elif T.number_of_edges() == 6:
             sub['q6'] += 1
         else:
-            print "error"
+            print ("error")
 
     return sub
 
@@ -141,7 +141,7 @@ def ugander_subgraphs_cnt(G, num_smpl):
             elif len(max(nx.connected_component_subgraphs(T), key=len)) == 3:
                 sub['e2c'] += 1
             else:
-                print "ERROR"
+                print ("ERROR")
         elif T.number_of_edges() == 3:
             #triangle
             triangle = nx.Graph([(0,1), (1,2), (2,0)])
@@ -156,7 +156,7 @@ def ugander_subgraphs_cnt(G, num_smpl):
             elif nx.is_isomorphic(T, star):
                 sub['star'] += 1
             else:
-                print "ERROR"
+                print ("ERROR")
         elif T.number_of_edges() == 4:
             square = nx.Graph([(0,1), (1,2), (2,3), (3,0)])
             triangletail = nx.Graph([(0,1), (1,2), (2,0), (2,3)])
@@ -165,13 +165,13 @@ def ugander_subgraphs_cnt(G, num_smpl):
             elif nx.is_isomorphic(T, triangletail):
                 sub['tritail'] += 1
             else:
-                print "ERROR"
+                print ("ERROR")
         elif T.number_of_edges() == 5:
             sub['squarediag'] += 1
         elif T.number_of_edges() == 6:
             sub['k3'] += 1
         else:
-            print 'ERROR'
+            print ("ERROR")
 
     return sub
 

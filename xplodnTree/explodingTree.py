@@ -9,23 +9,23 @@ import numpy as np
 import traceback
 import argparse
 import os
-from glob import glob
+from   glob import glob
 import networkx as nx
 import pandas as pd
-from core.PHRG import graph_checks
+from   core.PHRG import graph_checks
 import subprocess
 import math
 import shelve
 import itertools
-import tdec.graph_sampler as gs
-import tdec.net_metrics as metrics
+import core.graph_sampler as gs
+import core.net_metrics as metrics
 import platform
-from itertools import combinations
-from collections import defaultdict
-from tdec.arbolera import jacc_dist_for_pair_dfrms
-from tdec.load_edgelist_from_dataframe import Pandas_DataFrame_From_Edgelist
+from   itertools import combinations
+from   collections import defaultdict
+from   core.arbolera import jacc_dist_for_pair_dfrms
+from   core.load_edgelist_from_dataframe import Pandas_DataFrame_From_Edgelist
 import pprint as pp
-import tdec.isomorph_interxn as isoint
+import core.isomorph_interxn as isoint
 
 
 
@@ -53,12 +53,13 @@ def synth_checks_network_metrics(orig_graph):
 def dimacs_nddgo_tree_simple(fname, heuristic):
 	ret_lst = []
 	nddgoout = ""
-	outfname = "datasets/{}.dimacs.{}.tree".format(fname, heuristic)
+	outfname = "{}.{}.tree".format(fname, heuristic)
+	if os.path.exists(outfname): return (0,0)
 
 	if platform.system() == "Linux":
-		args = ["bin/linux/serial_wis -f {} -nice -{} -w {} -decompose_only".format(dimacsfname, heuristic, outfname)]
+		args = ["bin/linux/serial_wis -f {} -nice -{} -w {} -decompose_only".format(fname, heuristic, outfname)]
 	else:
-		args = ["bin/mac/serial_wis -f {} -nice -{} -w {} -decompose_only".format(dimacsfname, heuristic, outfname)]
+		args = ["bin/mac/serial_wis -f {} -nice -{} -w {} -decompose_only".format(fname, heuristic, outfname)]
 	out, err = subprocess.Popen(args, stdout=subprocess.PIPE, shell=True).wait().communicate()
 	return (out,err)
 
@@ -161,7 +162,7 @@ def edgelist_dimacs_graph(orig_graph, peo_h, prn_tw = False):
 	gname = sorted(gname,reverse=True, key=len)[0]
 
 	if ".tar.bz2" in fname:
-		from tdec.read_tarbz2 import read_tarbz2_file
+		from core.read_tarbz2 import read_tarbz2_file
 		edglst = read_tarbz2_file(fname)
 		df = pd.DataFrame(edglst,dtype=int)
 		G = nx.from_pandas_dataframe(df,source=0, target=1)
@@ -225,6 +226,7 @@ def convert_nx_gObjs_to_dimacs_gObjs(nx_gObjs):
 	'''
 	Take list of graphs and convert to dimacs
 	'''
+	
 	dimacs_glst=[]
 	for G in nx_gObjs:
 		N = max(G.nodes())
@@ -240,7 +242,7 @@ def convert_nx_gObjs_to_dimacs_gObjs(nx_gObjs):
 		if G.name is None:
 			G.name = "synthG_{}_{}".format(N,M)
 
-		from tdec.arbolera import nx_edges_to_nddgo_graph
+		from core.arbolera import nx_edges_to_nddgo_graph
 		dimacs_glst.append(nx_edges_to_nddgo_graph(G, n=N, m=M, save_g=True))
 
 	return dimacs_glst
@@ -718,7 +720,7 @@ def new_main(args):
 	# prod_rules_from_td(args['orig'])
 	# union_prs_gen_graphs(args['orig'])
 	# intersect_isom_prs_gen_graphs(args['orig'])
-  #
+    #
 	# eval_generated_graphs_net_metrics(args['orig'])
 	# eval_generated_graphs_graph_frags_stats(args['orig'])
 

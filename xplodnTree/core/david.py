@@ -1,5 +1,6 @@
-import collections
+#__author__ = ['Salvador Aguinaga', 'Rodrigo Palacios', 'David Chaing', 'Tim Weninger']
 
+import collections
 import networkx as nx
 import numpy as np
 
@@ -15,7 +16,7 @@ class Rule(object):
             self.cfg_rhs = rhs
         self.prob = prob
         if len(self.cfg_rhs) == 0:
-            print "T",
+            print ("T"),
 
     def hrg_to_cfg(self, lhs, rhs):
         t_symb = set()

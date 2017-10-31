@@ -44,10 +44,10 @@ def dimacs_td_ct_fast(oriG, tdfname):
 
   t_basename = os.path.basename(tdfname)
   out_tdfname = os.path.basename(t_basename) + ".prs"
-  if os.path.exists("ProdRules/" + out_tdfname):
+  if os.path.exists("../ProdRules/" + out_tdfname):
     # print "==> exists:", out_tdfname
     return out_tdfname
-  if 0: print "ProdRules/" + out_tdfname, tdfname
+  if 0: print "../ProdRules/" + out_tdfname, tdfname
 
   with open(tdfname, 'r') as f:  # read tree decomp from inddgo
     lines = f.readlines()

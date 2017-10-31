@@ -98,7 +98,7 @@ def jacc_dist_for_pair_dfrms(df1, df2):
 
 
 def nx_edges_to_nddgo_graph(G,n,m, sampling=False, varel="", save_g=False):
-	ofname = 'datasets/{}.dimacs'.format(G.name, n,m,varel)
+	ofname = '../datasets/{}.dimacs'.format(G.name, n,m,varel)
 	if path.exists(ofname):
 		return 
 	if sampling:

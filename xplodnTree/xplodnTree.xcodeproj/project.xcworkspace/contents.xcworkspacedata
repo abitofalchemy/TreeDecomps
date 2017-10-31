@@ -2,10 +2,13 @@
 <Workspace
    version = "1.0">
    <FileRef
-      location = "group:../explodingTree.py">
+      location = "group:../core/graph_sampler.py">
    </FileRef>
    <FileRef
-      location = "group:../bb3D.py">
+      location = "group:../core/david.py">
+   </FileRef>
+   <FileRef
+      location = "group:../core/PHRG.py">
    </FileRef>
    <FileRef
       location = "self:">
