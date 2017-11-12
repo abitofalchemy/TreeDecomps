@@ -7,8 +7,8 @@ import networkx as nx
 #import david as pcfg
 from .david import Grammar, Rule
 from .graph_sampler import rwr_sample
-from .tree_decomposition import quickbb, new_visit
-
+from .tree_decomposition import quickbb, new_visit, make_rooted
+# import graph_sampler as gs
 # prod_rules = {}
 DEBUG =	False
 
@@ -239,7 +239,10 @@ def probabilistic_hrg_deriving_prod_rules (G, n=None):
 	if G is None: return
 
 	G.remove_edges_from(G.selfloop_edges())
+	# c_c_subgs = nx.connected_component_subgraphs(G)
+	#print len(list(c_c_subgs))
 	giant_nodes = max(nx.connected_component_subgraphs(G), key=len)
+	# print type(giant_nodes)
 	G = nx.subgraph(G, giant_nodes)
 
 	if n is None:
@@ -255,7 +258,7 @@ def probabilistic_hrg_deriving_prod_rules (G, n=None):
 	if DEBUG: print ("--------------------")
 	prod_rules = {}
 	if num_nodes >= 500:
-		for Gprime in gs.rwr_sample(G, 2, 300):
+		for Gprime in rwr_sample(G, 2, 300):
 			T = quickbb(Gprime)
 			root = list(T)[0]
 			T = make_rooted(T, root)

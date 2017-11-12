@@ -5,9 +5,10 @@ from collections import deque, Counter
 
 def rwr_sample(G, c, n):
     for i in range(0,c):
-        S = choice(G.nodes())
+        # print (G.nodes())
+        S = choice(list(G.nodes()))
 
-        T = nx.DiGraph()
+        T = nx.DiGraph()#DiGraph()
         T.add_node(S)
         T.add_edges_from(bfs_edges(G,S,n))
 
@@ -197,7 +198,8 @@ def dfs_edges(G, source, n):
                 stack.pop()
 
 def bfs_edges(G, source, n):
-    neighbors = G.neighbors_iter
+    # neighbors = G.neighbors_iter # nx 1.x, but in 2.x this is now just `neighbors`
+    neighbors = G.neighbors
     visited = set([source])
     queue = deque([(source, neighbors(source))])
     i=0
