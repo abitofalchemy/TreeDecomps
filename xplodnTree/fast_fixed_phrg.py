@@ -16,18 +16,18 @@ import re
 import cPickle
 import time
 import networkx as nx
-import PHRG as phrg
-import load_edgelist_from_dataframe as tdf
-import tree_decomposition as td
-import probabilistic_cfg as pcfg
-import net_metrics as metrics
+import core.PHRG as phrg
+import core.load_edgelist_from_dataframe as tdf
+import core.tree_decomposition as td
+import core.probabilistic_cfg as pcfg
+import core.net_metrics as metrics
 import pprint as pp
 import argparse, traceback
-import graph_sampler as gs
+import core.graph_sampler as gs
 from multiprocessing import Process
-from vador.graph_name import graph_name
+from explodingTree import graph_name, print_treewidth
+# from core.growing import derive_prules_from
 import multiprocessing as mp
-import load_edgelist_from_dataframe as tdf
 
 DBG = False
 results = []
@@ -318,7 +318,7 @@ def print_treewdith (tree):
 
 def get_hrg_production_rules (edgelist_data_frame, graph_name, tw=False,
 															n_subg=2, n_nodes=300, nstats=False):
-	from growing import derive_prules_from
+	# from growing import derive_prules_from
 
 	t_start = time.time()
 	df = edgelist_data_frame
@@ -370,7 +370,7 @@ def get_hrg_production_rules (edgelist_data_frame, graph_name, tw=False,
 		# td.new_visit(T, G, prod_rules, TD)
 		td.new_visit(T, G, prod_rules)
 
-		print_treewidth(T)
+		# print_treewidth(T) # TODO: needs to be fixed
 		exit()
 
 	if DBG: print
@@ -426,6 +426,115 @@ def get_hrg_production_rules (edgelist_data_frame, graph_name, tw=False,
 		metrics.network_properties([G], metricx, hStars, name=graph_name, out_tsv=False)
 	'''
 
+def get_phrg_production_rules (argmnts):
+	args = argmnts
+
+	t_start = time.time()
+	df = tdf.Pandas_DataFrame_From_Edgelist(args['orig'])[0]
+	if df.shape[1] == 4:
+		G = nx.from_pandas_dataframe(df, 'src', 'trg', edge_attr=True)	# whole graph
+	elif df.shape[1] == 3:
+		G = nx.from_pandas_dataframe(df, 'src', 'trg', ['ts'])	# whole graph
+	else:
+		G = nx.from_pandas_dataframe(df, 'src', 'trg')
+	G.name = graph_name(args['orig'][0])
+	print "==> read in graph took: {} seconds".format(time.time() - t_start)
+	G.remove_edges_from(G.selfloop_edges())
+	giant_nodes = max(nx.connected_component_subgraphs(G), key=len)
+	G = nx.subgraph(G, giant_nodes)
+
+	num_nodes = G.number_of_nodes()
+
+	phrg.graph_checks(G)
+
+	if DBG: print
+	if DBG: print "--------------------"
+	if not DBG: print "-Tree Decomposition-"
+	if DBG: print "--------------------"
+
+	prod_rules = {}
+	K = 2
+	n = 300
+	if num_nodes >= 500:
+		print 'Grande'
+		t_start = time.time()
+		for Gprime in gs.rwr_sample(G, K, n):
+			T = td.quickbb(Gprime)
+			root = list(T)[0]
+			T = td.make_rooted(T, root)
+			T = phrg.binarize(T)
+			root = list(T)[0]
+			root, children = T
+			# td.new_visit(T, G, prod_rules, TD)
+			td.new_visit(T, G, prod_rules)
+			Process(target=td.new_visit, args=(T, G, prod_rules,)).start()
+	else:
+		T = td.quickbb(G)
+		root = list(T)[0]
+		T = td.make_rooted(T, root)
+		T = phrg.binarize(T)
+		root = list(T)[0]
+		root, children = T
+		# td.new_visit(T, G, prod_rules, TD)
+		td.new_visit(T, G, prod_rules)
+
+		# print_treewidth(T) # TODO: needs to be fixed
+		# exit()
+
+	if DBG: print
+	if DBG: print "--------------------"
+	if DBG: print "- Production Rules -"
+	if DBG: print "--------------------"
+
+	for k in prod_rules.iterkeys():
+		if DBG: print k
+		s = 0
+		for d in prod_rules[k]:
+			s += prod_rules[k][d]
+		for d in prod_rules[k]:
+			prod_rules[k][d] = float(prod_rules[k][d]) / float(
+				s)	# normailization step to create probs not counts.
+			if DBG: print '\t -> ', d, prod_rules[k][d]
+
+	rules = []
+	id = 0
+	for k, v in prod_rules.iteritems():
+		sid = 0
+		for x in prod_rules[k]:
+			rhs = re.findall("[^()]+", x)
+			rules.append(("r%d.%d" % (id, sid), "%s" % re.findall("[^()]+", k)[0], rhs, prod_rules[k][x]))
+			if DBG: print ("r%d.%d" % (id, sid), "%s" % re.findall("[^()]+", k)[0], rhs, prod_rules[k][x])
+			sid += 1
+		id += 1
+
+	df = pd.DataFrame(rules)
+
+	df.to_csv('../ProdRules/{}.tsv.phrg.prs'.format(G.name), header=False, index=False, sep="\t")
+	if os.path.exists('../ProdRules/{}.tsv.phrg.prs'.format(G.name)):
+		print 'Saved', '../ProdRules/{}.tsv.phrg.prs'.format(G.name)
+	else:
+		print "Trouble saving"
+	print "-----------"
+	print [type(x) for x in rules[0]]
+
+	'''
+	Graph Generation of Synthetic Graphs
+	Grow graphs usigng the union of rules from sampled sugbgraphs to predict the target order of the 
+	original graph
+	
+	hStars = grow_exact_size_hrg_graphs_from_prod_rules(rules, graph_name, G.number_of_nodes(), 10)
+	print '... hStart graphs:', len(hStars)
+	d = {graph_name + "_hstars": hStars}
+	with open(r"../Results/{}_hstars.pickle".format(graph_name), "wb") as output_file:
+		cPickle.dump(d, output_file)
+	if os.path.exists(r"Results/{}_hstars.pickle".format(graph_name)): print "File saved"
+
+	if nstats:
+		metricx = ['clust']
+		metrics.network_properties([G], metricx, hStars, name=graph_name, out_tsv=False)
+	'''
+
+
 def compute_net_stats_on_read_hrg_pickle(orig_df, gn,metricx):
 	with open(r"Results/{}_hstars.pickle".format(gn), "rb") as in_file:
 		c = cPickle.load(in_file)
@@ -464,12 +573,13 @@ def compute_net_statistics_on(orig_df, gn): # gn = graph name
 		print 'To gen the hrg pickle:', gn
 		exit()
 
+'''
 def main_network_stats(args):
 	if os.path.exists("datasets/{}.pickle".format(gname)):
-    print (" ==>","reading from pickle")
+    	print (" ==>","reading from pickle")
     orig_pickle = "datasets/{}.pickle".format(gname)
     with open(orig_pickle, "rb") as in_file:
-      G= cPickle.load(in_file)
+    	G= cPickle.load(in_file)
   else:
     import vador.datasets_graphs_edgelist as sal
     print (" ==>","reading from edgelist")
@@ -504,14 +614,17 @@ def main_network_stats(args):
   gb = orig__clust_coef.groupby(['k'])
   print (gb['cc'].mean().to_string())
   #synth_clust_coef = results
-
+  '''
 if __name__ == '__main__':
 	parser = get_parser()
 	args = vars(parser.parse_args())
 
 	gname = graph_name(args['orig'][0])
+
+	# print (args)
+	# exit()
 	if args['nstats']:
-		main_network_stats(args)
+		# main_network_stats(args)
 		exit()
 	elif args['chunglu']:
 		print 'Generate chunglu graphs given an edgelist'
@@ -519,22 +632,25 @@ if __name__ == '__main__':
 	elif args['kron']:
 		print 'Generate chunglu graphs given an edgelist'
 		sys.exit(0)
+	elif args['prs']:
+		print ('get_phrg_production_rules')
+		get_phrg_production_rules(args)
 	#elif args['samp']:
 	#	print 'Sample K subgraphs of n nodes'
 	#	K = 500
 	#	n = 25
 	#	get_hrg_production_rules(df, g_name, n_subg=K, n_nodes=n)
 	#else:
-	try:
-		if os.path.exists("Results/{}_hstars.pickle".format(gname)): 
-			print "pickle_file already exists"
-			print "rerun with --nstats option"
-			os._exit(1)
-		else:
-			get_hrg_production_rules(df, gname, args['tw'], nstats=args['nstats'])
-	except	Exception, e:
-		print 'ERROR, UNEXPECTED SAVE PLOT EXCEPTION'
-		print str(e)
-		traceback.print_exc()
-		os._exit(1)
+	# try:
+	# 	if os.path.exists("Results/{}_hstars.pickle".format(gname)):
+	# 		print "pickle_file already exists"
+	# 		print "rerun with --nstats option"
+	# 		os._exit(1)
+	# 	else:
+	# 		get_hrg_production_rules(df, gname, args['tw'], nstats=args['nstats'])
+	# except	Exception, e:
+	# 	print 'ERROR, UNEXPECTED SAVE PLOT EXCEPTION'
+	# 	print str(e)
+	# 	traceback.print_exc()
+	# 	os._exit(1)
 	sys.exit(0)

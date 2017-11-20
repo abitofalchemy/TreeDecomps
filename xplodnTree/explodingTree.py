@@ -191,6 +191,11 @@ def edgelist_dimacs_graph(orig_graph, peo_h, prn_tw = False):
 		return (nx_edges_to_nddgo_graph(G, n=N, m=M, varel=peo_h), gname)
 
 def print_treewidth (in_dimacs, var_elim):
+	'''
+	:param in_dimacs:
+	:param var_elim:
+	:return: nddgoout stdout
+	'''
 	nddgoout = ""
 	if platform.system() == "Linux":
 		args = ["bin/linux/serial_wis -f {} -nice -{} -width".format(in_dimacs, var_elim)]
@@ -342,22 +347,22 @@ def graph_stats_and_visuals(gobjs=None):
 
 #def hrg_graph_gen_from_interxn(iso_interxn_df):
 def trees_to_hrg_clq_trees():
-    gname = 'synthG_15_60'
-    files = glob('ProdRules/{}*.bz2'.format(gname))
-    print ('\tNbr of files:',len(files))
-    prod_rules_lst = []
+	gname = 'synthG_15_60'
+	files = glob('ProdRules/{}*.bz2'.format(gname))
+	print ('\tNbr of files:',len(files))
+	prod_rules_lst = []
 
-    stacked_pr_rules = get_hrg_prod_rules(files)
-    print ('\tSize of the df',len(stacked_pr_rules))
-    df = stacked_pr_rules
-    gb = df.groupby(['cate']).groups.keys()
-    print ('Jaccard Similarity')
-    A = get_isom_overlap_in_stacked_prod_rules(gb, df)
+	stacked_pr_rules = get_hrg_prod_rules(files)
+	print ('\tSize of the df',len(stacked_pr_rules))
+	df = stacked_pr_rules
+	gb = df.groupby(['cate']).groups.keys()
+	print ('Jaccard Similarity')
+	A = get_isom_overlap_in_stacked_prod_rules(gb, df)
 
-    iso_union, iso_interx = isoint.isomorph_intersection_2dfstacked(df)
-    iso_interx[[1,2,3,4]].to_csv('Results/{}_isom_interxn.tsv'.format(gname), sep="\t", header=False, index=False)
-    if os.path.exists('Results/{}_isom_interxn.tsv'.format(gname)):
-        print ('Results/{}_isom_interxn.tsv saved'.format(gname))
+	iso_union, iso_interx = isoint.isomorph_intersection_2dfstacked(df)
+	iso_interx[[1,2,3,4]].to_csv('Results/{}_isom_interxn.tsv'.format(gname), sep="\t", header=False, index=False)
+	if os.path.exists('Results/{}_isom_interxn.tsv'.format(gname)):
+		print ('Results/{}_isom_interxn.tsv saved'.format(gname))
 
 def isomorphic_test_on_stacked_prs(stacked_pr_rules_fname=None):
 	in_fname = stacked_pr_rules_fname

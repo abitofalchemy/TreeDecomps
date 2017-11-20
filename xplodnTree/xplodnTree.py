@@ -1,3 +1,5 @@
+__version__="0.1.0"
+
 import multiprocessing as mp
 import os
 import explodingTree as xt
@@ -9,19 +11,27 @@ from glob import glob
 from collections import deque, defaultdict, Counter
 import core.PHRG as phrg
 import re
+import traceback
+import argparse
+import sys
+from explodingTree import graph_name, load_edgelist
+
+
 
 DEBUG = False
+results_lst = []
+
 
 def collect_results(result):
 	#results.extend(result)
-	results.append(result)
+	results_lst.append(result)
 
-def collect_results_trees(result):
-	#results.extend(result)
-	results_trees.append(result)
-
-def collect_prodrules(result):
-	results_prs.append(result)
+# def collect_results_trees(result):
+# 	#results.extend(result)
+# 	results_trees.append(result)
+#
+# def collect_prodrules(result):
+# 	results_prs.append(result)
 
 def write_prod_rules_to_tsv(prules, out_name):
 	from pandas import DataFrame
@@ -146,9 +156,11 @@ def transform_edgelist_to_dimacs(files):
 
 	p = mp.Pool(processes=2)
 	for f in files:
+		print ("  {}".format(f))
 		gn = xt.graph_name(f)
-		if os.path.exists('../datasets/{}.dimacs'): continue
-		g = nx.read_gpickle(f)
+		if os.path.exists('../datasets/{}.dimacs'.format(gn)): continue
+		gfname = "../datasets/{}.p".format(gn)
+		g = nx.read_gpickle(gfname)
 		g.name = gn
 		p.apply_async(xt.convert_nx_gObjs_to_dimacs_gObjs, args=([g], ), callback=collect_results)
 		# xt.convert_nx_gObjs_to_dimacs_gObjs([g])
@@ -157,21 +169,35 @@ def transform_edgelist_to_dimacs(files):
 	#print (results)
 
 def explode_to_trees(files, results_trees):
-	print ("Explode to trees")
+	print ("\nExplode to trees")
 	print ("-"*40)
 
+
 	var_els=['mcs','mind','minf','mmd','lexm','mcsm']
+	if len(files) == 1:
+		gn = xt.graph_name(files)
+		dimacs_file = "../datasets/{}.dimacs".format(gn)
+
+		print (" ", gn,)
+		exit()
+		p = mp.Pool(processes=2)
+		for vael in var_els:
+			p.apply_async(xt.dimacs_nddgo_tree_simple, args=(dimacs_file, vael,), callback=collect_results)
+		# xt.dimacs_nddgo_tree_simple(f, vael)
+		p.close()
+		p.join()
+		print(results_lst)
 	for j,f in enumerate(files):
 		gn = xt.graph_name(f)
 		dimacs_file = "../datasets/{}.dimacs".format(gn)
 		print (" ", gn,)
 		p = mp.Pool(processes=2)
 		for vael in var_els:
-			p.apply_async(xt.dimacs_nddgo_tree_simple, args=(dimacs_file,vael, ), callback=collect_results_trees)
+			p.apply_async(xt.dimacs_nddgo_tree_simple, args=(dimacs_file,vael, ), callback=collect_results)
 		# xt.dimacs_nddgo_tree_simple(f, vael)
 		p.close()
 		p.join()
-		print(results_trees)
+		print(results_lst)
 		
 		if j == 0:
 			asp_arr = np.array(results_trees)
@@ -181,12 +207,46 @@ def explode_to_trees(files, results_trees):
 		asp_arr = np.append(asp_arr, prs_np)
 
 
+def explode_to_tree(fname, results_trees):
+	print ("\nExplode to tree")
+	print ("-" * 40)
+
+	var_els = ['mcs', 'mind', 'minf', 'mmd', 'lexm', 'mcsm']
+
+	gn = xt.graph_name(str(fname))
+	dimacs_file = "../datasets/{}.dimacs".format(gn)
+
+	p = mp.Pool(processes=2)
+	for vael in var_els:
+		p.apply_async(xt.dimacs_nddgo_tree_simple, args=(dimacs_file, vael,), callback=collect_results)
+	# xt.dimacs_nddgo_tree_simple(f, vael)
+	p.close()
+	p.join()
+	if os.path.exists(dimacs_file): print ("\n  {}".format(dimacs_file))
+	# for j, f in enumerate(files):
+	# 	gn = xt.graph_name(f)
+	# 	dimacs_file = "../datasets/{}.dimacs".format(gn)
+	# 	print (" ", gn,)
+	# 	p = mp.Pool(processes=2)
+	# 	for vael in var_els:
+	# 		p.apply_async(xt.dimacs_nddgo_tree_simple, args=(dimacs_file, vael,), callback=collect_results)
+	# 	# xt.dimacs_nddgo_tree_simple(f, vael)
+	# 	p.close()
+	# 	p.join()
+	# 	print(results_lst)
+	#
+	# 	if j == 0:
+	# 		asp_arr = np.array(results_trees)
+	# 		continue
+	#
+	# 	prs_np = np.array(results_trees)
+	# 	asp_arr = np.append(asp_arr, prs_np)
+
 def star_dot_trees_to_prod_rules(files,results_prs):
 	print ("Star dot trees to Production Rules")
 	print ("-"*40)
 
 	for j,f in enumerate(files):
-		results_prs=[]
 		gn = xt.graph_name(f)
 		trees = glob("../datasets/{}*.tree".format(gn))
 
@@ -197,10 +257,10 @@ def star_dot_trees_to_prod_rules(files,results_prs):
 				print ("  {} file exits".format(prs_fname))
 				continue
 			oriG = xt.load_edgelist(f)
-			pp.apply_async(dimacs_td_ct_fast, args=(oriG, t, ), callback=collect_prodrules)
+			pp.apply_async(dimacs_td_ct_fast, args=(oriG, t, ), callback=collect_results)
 		pp.close()
 		pp.join()
-		print (results_prs)
+		print (results_lst)
 #		if j == 0:
 #			rules_np = np.array(results_prs)
 #			print (" ", rules_np.shape,"\t<= cumm. nbr of rules")
@@ -211,24 +271,60 @@ def star_dot_trees_to_prod_rules(files,results_prs):
 
 
 
-#os.chdir(os.path.dirname(__file__))
-print(os.getcwd())
-dir= "../datasets"
-p_files = [x[0]+"/"+f for x in os.walk(dir) for f in x[2] if f.endswith(".p")]
-print
+def main(args):
+	orig_fname = args['orig'][0]
+	gname = graph_name(orig_fname)
+	print(os.getcwd())
+	dir= "../datasets"
+	p_files = [x[0]+"/"+f for x in os.walk(dir) for f in x[2] if f.endswith(".p")]
+	orig_p = [x for x in p_files if gname in x]
+	print
+	if not len(orig_p):
+		print ("converting to gpickle","\n","-"*40)
+		g = load_edgelist(orig_fname)
+		nx.write_gpickle(g, dir + "/{}.p".format(gname))
+		orig_p = dir + "/{}.p".format(gname)
+	results = []
 
-results = []
-transform_edgelist_to_dimacs(p_files)
-files = [x.rstrip(".p") for x in p_files]
+	transform_edgelist_to_dimacs([orig_fname])
+	# files = [x.rstrip(".p") for x in orig_p]
+	# print files
+	# exit()
+	# print
+	results_trees=[]
+	explode_to_tree(orig_fname ,results_lst)
+	# pp.pprint( [x[0]+"/"+f for x in os.walk(dir) for f in x[2] if f.endswith(".tree")])
 
-print
-results_trees=[]
-explode_to_trees(files,results_trees)
-pp.pprint( [x[0]+"/"+f for x in os.walk(dir) for f in x[2] if f.endswith(".tree")])
+	# results_prs =[]
+	# print
+	star_dot_trees_to_prod_rules([orig_fname],results_lst)
 
-results_prs =[]
-print
-star_dot_trees_to_prod_rules(files,results_prs)
+	print
+def get_parser ():
+	parser = argparse.ArgumentParser(description='xplodnTree tree decomposition')
+	parser.add_argument('--orig', nargs=1, required=False, help="edgelist input file")
+	# parser.add_argument('--ctrl',action='store_true',default=0,required=0,help="Cntrl given --orig")
+	# parser.add_argument('--clqs',action='store_true',default=0, required=0, help="tree objs 2 hrgCT")
+	# parser.add_argument('--bam', action='store_true',	default=0, required=0,help="Barabasi-Albert")
+	# parser.add_argument('--tr',  nargs=1, required=False, help="indiv. bz2 produ	ction rules.")
+	# parser.add_argument('--isom',      nargs=1, required=0, help="isom test")
+	# parser.add_argument('--stacked',   nargs=1, required=0, help="(grouped) stacked production rules.")
+	# parser.add_argument('--orig',      nargs=1, required=False, help="edgelist input file")
+	# parser.add_argument('--synthchks', action='store_true', default=0, required=0, help="analyze graphs in FakeGraphs")
+	parser.add_argument('--version',   action='version', version=__version__)
+	return parser
 
-print
+if __name__ == '__main__':
+	'''ToDo: clean the edglists, write them back to disk and then run inddgo on 1 component graphs
+	'''
+
+	parser = get_parser()
+	args = vars(parser.parse_args())
+	try:
+		main(args)
+	except Exception, e:
+		print (str(e))
+		traceback.print_exc()
+		sys.exit(1)
+	sys.exit(0)
 
