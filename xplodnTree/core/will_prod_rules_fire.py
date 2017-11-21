@@ -1,27 +1,37 @@
-import core.tstprodrules as tprs
+import os
+import pickle
 import pandas as pd
 import probabilistic_cfg as pcfg
-import os
-from collections import defaultdict
 from utils import Info
-
+from PHRG import grow
 
 def probe_stacked_prs_likelihood_tofire(df, fname="", nbr_nodes=0):
-	Info("{}, {}".format(df.shape, nbr_nodes))
-	print df.head()
+	Info("probe stacked prs likelihood tofire")
+	# Info("{}, {}, {}".format(df.shape, nbr_nodes, df.columns))
 	g = pcfg.Grammar('S')
-	for (id, lhs, rhs, prob) in df.values:
+	df = df[['rnbr', 'lhs', 'rhs', 'prob']] # ToDo: need to drop the gname column
+	for (id, lhs, rhs, prob) in df.values.tolist(): # 21Nov17
 		g.add_rule(pcfg.Rule(id, lhs, rhs, float(prob)))
-
 	num_nodes = nbr_nodes[0]
+	g.set_max_size(num_nodes)
 	try:
 		g.set_max_size(num_nodes)
 	except Exception, e: # print "Done with max size"
-		print "\t", e
-		return False
+		print "\t:", e
+		# return False
+		os._exit(1)
 	finally:
 		bsn = os.path.basename(fname)
-		return True
+		fire_bool = True
+	'''Added this new pice on 21Nov17'''
+	Hstars = []
+	num_runs = 20
+	for i in range(0, num_runs):
+		rule_list = g.sample(num_nodes)
+		hstar = grow(rule_list, g)[0] # fixed-size graph generation
+		Hstars.append(hstar)
+
+	return (fire_bool, Hstars)
 
 def will_prod_rules_fire(prs_files_lst, nbr_nodes):
 	if not len(prs_files_lst): return

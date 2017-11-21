@@ -234,7 +234,7 @@ def get_production_rule(G, child, itx):
     return rhs
 
 #import num_to_word as ntw
-from .num_to_word import num_to_word
+from num_to_word import num_to_word
 def add_to_prod_rules(production_rules, lhs, rhs, s):
     prod_rules = production_rules
     letter=0

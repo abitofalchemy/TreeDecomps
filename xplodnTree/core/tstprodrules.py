@@ -11,14 +11,14 @@ import shelve
 import numpy as np
 import pprint as pp
 import argparse, traceback
-import tdec.graph_sampler as gs
-import tdec.probabilistic_cfg as pcfg
+import core.graph_sampler as gs
+import core.probabilistic_cfg as pcfg
 import networkx as nx
-import tdec.PHRG as phrg
+import core.PHRG as phrg
 
 from glob import glob
-from td_isom_jaccard_sim import listify_rhs
-from tdec.load_edgelist_from_dataframe import Pandas_DataFrame_From_Edgelist
+from core.utils import listify_rhs
+from core.load_edgelist_from_dataframe import Pandas_DataFrame_From_Edgelist
 from collections import Sequence
 from explodingTree import graph_name
 

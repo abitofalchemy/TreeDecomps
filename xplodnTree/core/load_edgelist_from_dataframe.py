@@ -1,3 +1,4 @@
+__version__ = "0.1.0"
 import pandas as pd
 import numpy as np
 
@@ -22,9 +23,9 @@ def Pandas_DataFrame_From_Edgelist(dataset_files_path):
         df = pd.DataFrame(dat, columns=['src', 'trg'])
     if 0: print '... dropping duplicates'
     df = df.drop_duplicates()
-    #if 0: print '  sorting by ts ...'
-    #df.sort_values(by=['ts'], inplace=True)
-    #df = df[df['ts']>0]
+    # if 0: print '  sorting by ts ...'
+    # df.sort_values(by=['ts'], inplace=True)
+    # df = df[df['ts']>0]
     dataframes.append(df)
 
   return dataframes

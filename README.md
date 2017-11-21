@@ -36,6 +36,8 @@ Jaccard Similarity:  `./tredec.isomorph_dimacs_tree.py --orig datasets/out.conta
 - `python interxn.py Results/moreno_vdb_vdb_isom_in ##
 terxn.bz2 moreno_vdb_vdb`
   With this line we can generate stats on a given group of production rules
+- `python isomorph_overlap_hl.py --orig ~/KynKon/datasets/out.karate_club_graph --pathfrag ../ProdRules/karate_club_graph`
+
 
 ### sampling
 This file: `rndmSubgSamp.py` is doing a lot of the heavy lifting.
@@ -46,6 +48,18 @@ orig vs hStars and then look at the Union and Isomorphic ovelaps.
 
 `python tredec.dimacs.tree.py --orig ~/Theory/DataSets/out.subelj_euroroad_euroroad --peoh mcs`
 `python tredec.samp.phrg.py --orig ~/Theory/DataSets/out.subelj_euroroad_euroroad --tree datasets/subelj_euroroad_euroroad`
+
+## See how many coneected compoents in a dataset
+`find ~/KynKon/datasets -name 'out.*' -type f | parallel python core/cc_in_ds.py {}`
+Returns:
+```
+LCC, |V|: 1226 in 1 total: out.maayan-faa
+LCC, |V|: 1615 in 43 total: out.maayan-Stelzl
+LCC, |V|: 6474 in 1 total: out.as20000102
+LCC, |V|: 160 in 19 total: out.maayan-pdzbase
+LCC, |V|: 224832 in 15836 total: out.email-EuAll
+```
+
 
 ## Battery of Datasets
 - Download the datasets; run script `download_datasets.sh` for details

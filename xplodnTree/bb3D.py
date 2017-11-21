@@ -3,19 +3,16 @@
 import multiprocessing as mp
 import explodingTree as xt
 import os, sys
-# import networkx as nx
 import re
 from collections import deque, defaultdict, Counter
 from core.file_utils import edgelist_basic_info
 from glob import glob
 from core.stacked_prod_rules import stack_prod_rules_bygroup_into_list
 from core.will_prod_rules_fire import will_prod_rules_fire
-
 import tdec.tree_decomposition as td
 import tdec.PHRG as phrg
 import numpy as np
 import pprint  as pp
-
 
 results = []
 results_prs =[]

@@ -163,7 +163,6 @@ def hstar_fixed_graph_gen(args):
 
 
 def main(args):
-	print args
 	if not(args['fldr'] is None):
 		print ("-"*40)
 		print ("Process Prod rules in Folder")
@@ -174,7 +173,7 @@ def main(args):
 		print ("Process Prod rules in Folder")
 		print ("=" * 40)
 		proc_prod_rules_single(args['orig'][0])
-	elif not(args['prs'] is None):
+	elif not(args['prs'] is None): # ToDo: need to fix something here
 		print ("-" * 40)
 		print ("Process Single Prod rules")
 		print ("=" * 40)

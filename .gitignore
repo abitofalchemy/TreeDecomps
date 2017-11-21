@@ -1,6 +1,5 @@
 .Rproj.user
 .Rhistory
-tmp_*
 *.pyc
 *.dimacs
 *.tree
@@ -24,4 +23,6 @@ ExplodingTrees/*
 *.csv
 pyths
 xplodnTree/xplodnTree.xcodeproj/xcuserdata/sal.aguinaga.xcuserdatad/xcdebugger
+*.p
+tmp*
 

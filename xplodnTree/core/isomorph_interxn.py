@@ -5,6 +5,7 @@ from itertools import combinations
 from collections import defaultdict,Counter
 import networkx as nx
 import re
+from utils import Info
 
 import pprint as pp
 import numpy as np
@@ -210,7 +211,6 @@ def isomorph_intersection_2dfstacked(dfx):
 	overlap_pairs = defaultdict(list)
 	dfx['iso'] = False
 	dfx = dfx.reset_index()
-	# print dfx.to_string()
 	df_interx = pd.DataFrame()#(columns = dfx.columns)
 	for x,y in combinations(dfx.index.values, 2): # for every pair
 		lhs1 = dfx.loc[x]['lhs']
@@ -229,18 +229,13 @@ def isomorph_intersection_2dfstacked(dfx):
 					# overlap_pairs[x].append(row)
 
 
-	# print "	", df_interx.shape
 	df_union = dfx[ dfx['iso'] == True ]
-	# print "	", df_union.shape
 	df_interx = []
-
 	lhs_cnt = Counter()
 	for x,y in seen_rules.keys():
 		lhs_cnt[y] += 1
-	# print lhs_cnt
 	lhs_counts_dict = {}
 	for k in lhs_cnt.keys(): # compute totals for each lhs
-		# print k
 		rhs_els = 0
 		for k2, v2 in seen_rules.iteritems():
 			if k2[1] in k: # weird that I have to use "in"
@@ -249,15 +244,11 @@ def isomorph_intersection_2dfstacked(dfx):
 		lhs_counts_dict[k]=rhs_els
 
 	for k,v in seen_rules.iteritems():
-		# print "#"
-		# rprob = dfx.loc[k[0]]['pr']
 		cntr = 1 + len(v)
 		df_union.set_value(k[0], 'pr', cntr/float(lhs_counts_dict[k[1]]))
-		# df_union.set_value(k[0], 'rnbr', "r%d.%d" % (id,sid))
 		df_interx.append(df_union.loc[k[0]].values)
 
 	df_interx = pd.DataFrame(df_interx)
-	# df_interx = df_interx.sort_values(by=[1])
 
 	# print df_interx.to_string()
 	gb = df_interx.groupby([2]).groups
@@ -270,7 +261,7 @@ def isomorph_intersection_2dfstacked(dfx):
 			sid += 1
 		id += 1
 	# print df_interx.to_string()
-	print "\tdf_interx", df_interx.shape, "new shape"
+	Info("\tdf_interx {} new shape".format(df_interx.shape))
 	# print dfx[ dfx['iso'] == True ] # this is the union of the rules
 	# print df_interx# this is the intersetion with modified probs
 	# df_interx = df_interx.reset_index(drop=True)

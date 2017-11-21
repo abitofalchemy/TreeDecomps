@@ -1,6 +1,5 @@
-#__author__ = ['Salvador Aguinaga', 'Rodrigo Palacios', 'David Chaing', 'Tim Weninger']
+__author__ = ['Salvador Aguinaga', 'Rodrigo Palacios', 'David Chaing', 'Tim Weninger']
 
-import collections
 import networkx as nx
 import numpy as np
 

@@ -23,7 +23,7 @@ from tdec.a1_hrg_cliq_tree import load_edgelist
 import glob
 from tdec.PHRG import graph_checks
 from pandas import DataFrame
-from file_utils import graph_name
+from utils import graph_name
 
 DEBUG = False
 

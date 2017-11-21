@@ -273,6 +273,7 @@ def star_dot_trees_to_prod_rules(files,results_prs):
 
 def main(args):
 	orig_fname = args['orig'][0]
+	print type(orig_fname), orig_fname
 	gname = graph_name(orig_fname)
 	print(os.getcwd())
 	dir= "../datasets"
@@ -299,18 +300,9 @@ def main(args):
 	# print
 	star_dot_trees_to_prod_rules([orig_fname],results_lst)
 
-	print
 def get_parser ():
 	parser = argparse.ArgumentParser(description='xplodnTree tree decomposition')
 	parser.add_argument('--orig', nargs=1, required=False, help="edgelist input file")
-	# parser.add_argument('--ctrl',action='store_true',default=0,required=0,help="Cntrl given --orig")
-	# parser.add_argument('--clqs',action='store_true',default=0, required=0, help="tree objs 2 hrgCT")
-	# parser.add_argument('--bam', action='store_true',	default=0, required=0,help="Barabasi-Albert")
-	# parser.add_argument('--tr',  nargs=1, required=False, help="indiv. bz2 produ	ction rules.")
-	# parser.add_argument('--isom',      nargs=1, required=0, help="isom test")
-	# parser.add_argument('--stacked',   nargs=1, required=0, help="(grouped) stacked production rules.")
-	# parser.add_argument('--orig',      nargs=1, required=False, help="edgelist input file")
-	# parser.add_argument('--synthchks', action='store_true', default=0, required=0, help="analyze graphs in FakeGraphs")
 	parser.add_argument('--version',   action='version', version=__version__)
 	return parser
 
@@ -320,6 +312,7 @@ if __name__ == '__main__':
 
 	parser = get_parser()
 	args = vars(parser.parse_args())
+
 	try:
 		main(args)
 	except Exception, e:

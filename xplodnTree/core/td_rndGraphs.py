@@ -13,17 +13,17 @@ import os
 from glob import glob
 import networkx as nx
 import pandas as pd
-from tdec.PHRG import graph_checks
+from PHRG import graph_checks
 import subprocess
 import math
 import itertools
-import tdec.graph_sampler as gs
+import graph_sampler as gs
 import platform
 from itertools import combinations
 from collections import defaultdict
-from tdec.arbolera import jacc_dist_for_pair_dfrms
+from arbolera import jacc_dist_for_pair_dfrms
 import pprint as pp
-import tdec.isomorph_interxn as isoint
+import isomorph_interxn as isoint
 
 #_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~#
 def get_parser ():

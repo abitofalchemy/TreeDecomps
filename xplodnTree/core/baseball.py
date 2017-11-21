@@ -2,17 +2,22 @@
 Recomputes probabilities
 """
 import pandas as pd
+from utils import Info
 from pprint import pprint as pp
-from td_isom_jaccard_sim import listify_rhs
+from utils import listify_rhs
 
 def dbg(in_str):
 	print ("{}".format(in_str))
 
 def recompute_probabilities(pd_data_frame):
+	'''
+	recompute probabilities
+	:param pd_data_frame: pd.DataFrame
+	:return: df
+	'''
+	Info("recompute_probabilities")
 	df = pd_data_frame
 	df = df.reset_index(drop=True)
-	print df.to_string()
-
 	if df.columns[0]=='rnbr':
 		df['rnogrp'] = df["rnbr"].apply(lambda x: x.split(".")[0])
 	else:
@@ -31,7 +36,6 @@ def recompute_probabilities(pd_data_frame):
 			df.set_value(v, 'prob', prob_f)
 			kcntr += 1
 	df.drop('rnogrp', axis=1, inplace=True)
-	print df.tail()
 	return df
 
 #TODO WORKING on getting this to hand the mdf being passed
