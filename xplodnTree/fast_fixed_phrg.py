@@ -226,10 +226,10 @@ def pwrlaw_plot (xdata, ydata, yerr):
 def deg_vcnt_to_disk (orig_graph, synthetic_graphs):
 	df = pd.DataFrame(orig_graph.degree().items())
 	gb = df.groupby([1]).count()
-	# gb.to_csv("Results/deg_orig_"+orig_graph.name+".tsv", sep='\t', header=True)
+	# gb.to_csv("../Results/deg_orig_"+orig_graph.name+".tsv", sep='\t', header=True)
 	gb.index.rename('k', inplace=True)
 	gb.columns = ['vcnt']
-	gb.to_csv("Results/deg_orig_" + orig_graph.name + ".tsv", sep='\t', header=True)
+	gb.to_csv("../Results/deg_orig_" + orig_graph.name + ".tsv", sep='\t', header=True)
 	# ## - group of synth graphs -
 	deg_df = pd.DataFrame()
 	for g in synthetic_graphs:
@@ -241,13 +241,13 @@ def deg_vcnt_to_disk (orig_graph, synthetic_graphs):
 	# print gb
 	deg_df['mean'] = deg_df.mean(axis=1)
 	deg_df.index.rename('k', inplace=True)
-	deg_df['mean'].to_csv("Results/deg_xphrg_" + orig_graph.name + ".tsv", sep='\t', header=True)
+	deg_df['mean'].to_csv("../Results/deg_xphrg_" + orig_graph.name + ".tsv", sep='\t', header=True)
 
 
 def plot_g_hstars (orig_graph, synthetic_graphs):
 	df = pd.DataFrame(orig_graph.degree().items())
 	gb = df.groupby([1]).count()
-	# gb.to_csv("Results/deg_orig_"+orig_graph.name+".tsv", sep='\t', header=True)
+	# gb.to_csv("../Results/deg_orig_"+orig_graph.name+".tsv", sep='\t', header=True)
 	gb.index.rename('k', inplace=True)
 	gb.columns = ['vcnt']
 
@@ -417,9 +417,9 @@ def get_hrg_production_rules (edgelist_data_frame, graph_name, tw=False,
 	hStars = grow_exact_size_hrg_graphs_from_prod_rules(rules, graph_name, G.number_of_nodes(), 10)
 	print '... hStart graphs:', len(hStars)
 	d = {graph_name + "_hstars": hStars}
-	with open(r"Results/{}_hstars.pickle".format(graph_name), "wb") as output_file:
+	with open(r"../Results/{}_hstars.pickle".format(graph_name), "wb") as output_file:
 		cPickle.dump(d, output_file)
-	if os.path.exists(r"Results/{}_hstars.pickle".format(graph_name)): print "File saved"
+	if os.path.exists(r"../Results/{}_hstars.pickle".format(graph_name)): print "File saved"
 
 	'''if nstats:
 		metricx = ['clust']
@@ -508,6 +508,7 @@ def get_phrg_production_rules (argmnts):
 		id += 1
 
 	df = pd.DataFrame(rules)
+	# pp.pprint(df.values.tolist()); exit()
 
 	df.to_csv('../ProdRules/{}.tsv.phrg.prs'.format(G.name), header=False, index=False, sep="\t")
 	if os.path.exists('../ProdRules/{}.tsv.phrg.prs'.format(G.name)):
@@ -527,7 +528,7 @@ def get_phrg_production_rules (argmnts):
 	d = {graph_name + "_hstars": hStars}
 	with open(r"../Results/{}_hstars.pickle".format(graph_name), "wb") as output_file:
 		cPickle.dump(d, output_file)
-	if os.path.exists(r"Results/{}_hstars.pickle".format(graph_name)): print "File saved"
+	if os.path.exists(r"../Results/{}_hstars.pickle".format(graph_name)): print "File saved"
 
 	if nstats:
 		metricx = ['clust']
@@ -536,7 +537,7 @@ def get_phrg_production_rules (argmnts):
 
 
 def compute_net_stats_on_read_hrg_pickle(orig_df, gn,metricx):
-	with open(r"Results/{}_hstars.pickle".format(gn), "rb") as in_file:
+	with open(r"../Results/{}_hstars.pickle".format(gn), "rb") as in_file:
 		c = cPickle.load(in_file)
 	print " ==> pickle file loaded"
 	if isinstance(c, dict):
@@ -565,7 +566,7 @@ def compute_net_stats_on_read_hrg_pickle(orig_df, gn,metricx):
 def compute_net_statistics_on(orig_df, gn): # gn = graph name
 	if gn is "" : return
 	print "%"*4, gn,"| compute nstats",  "%"*4
-	hrg_pickle_exists = os.path.exists("Results/{}_hstars.pickle".format(gn))
+	hrg_pickle_exists = os.path.exists("../Results/{}_hstars.pickle".format(gn))
 	if hrg_pickle_exists:
 		metricx = ['clust']
 		compute_net_stats_on_read_hrg_pickle(orig_df, gn,metricx)
@@ -588,7 +589,7 @@ def main_network_stats(args):
     nx.write_gpickle(G, "datasets/{}.pickle".format(gname))
 
   from vador.datasets_graphs_edgelist import load_graphs_nxobjects
-  hrg_p_fname = "Results/{}_hstars.pickle".format(gname)
+  hrg_p_fname = "../Results/{}_hstars.pickle".format(gname)
   graphs_d = load_graphs_nxobjects(hrg_p_fname)
   graphs_lst = graphs_d.values()[0]
 
@@ -642,7 +643,7 @@ if __name__ == '__main__':
 	#	get_hrg_production_rules(df, g_name, n_subg=K, n_nodes=n)
 	#else:
 	# try:
-	# 	if os.path.exists("Results/{}_hstars.pickle".format(gname)):
+	# 	if os.path.exists("../Results/{}_hstars.pickle".format(gname)):
 	# 		print "pickle_file already exists"
 	# 		print "rerun with --nstats option"
 	# 		os._exit(1)

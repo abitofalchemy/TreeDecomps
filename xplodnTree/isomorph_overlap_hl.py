@@ -44,9 +44,9 @@ def stack_prod_rules_bygroup_into_list(prs_flst):
 	for j,f in enumerate(prs_flst):
 		# df = pd.read_csv(f, delimiter='\t', header='infer', dtype={})
 		dtyps = {'rnbr': 'str', 'lhs': 'str', 'rhs': 'str', 'pr': 'float'}
-		df = pd.read_csv(f, index_col=0, compression='bz2')
-		df = df[[u'1', u'2', u'3', u'4', u'5']]# Filter the dataframe
-		df.columns=['rnbr', 'lhs', 'rhs', 'prob','gname']
+		df = pd.read_csv(f, header=None, delimiter="\t") #df = pd.read_csv(f, index_col=0)
+		#		df = df[[u'1', u'2', u'3', u'4', u'5']]# Filter the dataframe
+		df.columns=['rnbr', 'lhs', 'rhs', 'prob']#,'gname']
 		df['rhs'] = df['rhs'].apply(lambda x: listify_rhs(x))
 		if j == 0:
 			stacked_df = df
@@ -229,9 +229,9 @@ def isomorphic_test_from_dimacs_tree(orig, tdfname, gname=""):
 
 	print "\nIsomorphic intersection of the prod rules\n", "~" * 20
 	print "  ", iso_interx.shape
-	iso_interx.to_csv('../Results/{}_isom_interxn.bz2'.format(gname), compression="bz2")
+	iso_interx.to_csv('../Results/{}_isom_interxn.tsv'.format(gname))
 	if os.path.exists(
-		'../Results/{}_isom_interxn.bz2'.format(gname)): print 'Wrote:', '../Results/{}_isom_interxn.bz2'.format(gname)
+		'../Results/{}_isom_interxn.tsv'.format(gname)): print 'Wrote:', '../Results/{}_isom_interxn.tsv'.format(gname)
 	#   # print k,v
 	#   sid = 0
 	#   for ix, r in iso_intxn[iso_intxn['lhs']==k].iterrows():
@@ -316,10 +316,11 @@ def isomorphic_test_on_prod_rules(orig, tdfname, gname=""):
 	if args['verb']: print iso_union.to_string()
 
 	print "\nIsomorphic intersection of the prod rules\n", "~" * 20
-	print "  ", iso_interx.shape
-	iso_interx.to_csv('../Results/{}_isom_interxn.bz2'.format(gname), compression="bz2")
-	if os.path.exists('../Results/{}_isom_interxn.bz2'.format(gname)):
-		print 'Wrote:', '../Results/{}_isom_interxn.bz2'.format(gname)
+	iso_interx = iso_interx[[1,2,3,4]]
+	#  print iso_interx.head(); exit()
+	iso_interx.to_csv('../Results/{}_isom_interxn.tsv'.format(gname), header=False, index=False, sep="\t")
+	if os.path.exists('../Results/{}_isom_interxn.tsv'.format(gname)):
+		print 'Wrote:', '../Results/{}_isom_interxn.tsv'.format(gname)
 
 
 	#   # print k,v
@@ -504,15 +505,12 @@ def jaccard_coeff_isomorphic_rules_check(dfrm, headers_d):
 
 	# cnrules contains the rules we need to reduce df1 by
 	# and ruleprob2sum will give us the new key for which pr will change.
-	#  df1.to_csv("./ProdRules/"+name+"_prules.bz2",sep="\t", header="False", index=False, compression="bz2")
 	return True
 
 
 def isomorphic_check(prules, name):
 	print '-' * 20
 	print 'Isomorphic rules check (within file)'
-	# for f in files:
-	#   df1 = pd.read_csv(f, index_col=0, compression='bz2', dtype=dtyps)
 	df1 = pd.DataFrame(prules)
 	df1.columns = ['rnbr', 'lhs', 'rhs', 'pr']
 	print '... rules', df1.shape, 'reduced to',
@@ -560,7 +558,7 @@ def isomorphic_check(prules, name):
 
 	# cnrules contains the rules we need to reduce df1 by
 	# and ruleprob2sum will give us the new key for which pr will change.
-	df1.to_csv("./ProdRules/" + name + "_prules.bz2", sep="\t", header=False, index=False, compression="bz2")
+	df1.to_csv("../ProdRules/" + name + "_prules.tsv", sep="\t", header=False, index=False)
 
 def can_the_intersection_fire(args):
 	print
@@ -574,19 +572,19 @@ def can_the_intersection_fire(args):
 	prs_file = args['fire']
 	origG = load_edgelist(args['orig'])
 	origG.name = graph_name(args['orig'])
+	nbrnodes = origG.number_of_nodes()
 	# edgelist base info dict
-	from core.utils import edgelist_basic_info
-	el_base_info_d = edgelist_basic_info([args['orig']])
-	import pprint as pp
-	pp.pprint(el_base_info_d)
+	# from core.utils import edgelist_basic_info
+	# el_base_info_d = edgelist_basic_info([args['orig']])
+	# import pprint as pp
+	# pp.pprint(el_base_info_d)
 
 	stacked_prs_fsf = stack_prod_rules_bygroup_into_list([prs_file])  # from core.stacked_prod_rules
-	print "*************"  # recompute the probabilities for the group of prs
-
-	df = recompute_probabilities(stacked_prs_fsf)  # from core.baseball
+	                            																			
+	df = recompute_probabilities(stacked_prs_fsf)  # from core.baseball, recompute the probabilities
 	stck_fired = probe_stacked_prs_likelihood_tofire(df,
 													 graph_name(args['orig']),
-													 el_base_info_d[graph_name(args['orig'])]) # can stacked prs fire?
+													 nbr_nodes= nbrnodes) # origG.number_of_nodes()) # el_base_info_d[graph_name(args['orig'])]) # can stacked prs fire?
 	# Info("{}".format(stck_fired['fired_b']))
 	# print type(stck_fired)
 	# exit()

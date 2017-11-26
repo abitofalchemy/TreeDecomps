@@ -714,13 +714,45 @@ def main (args_d):
         #~#    hrg_graph_gen_from_interxn(iso_interx[[1,2,3,4]])
 
 #_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~#
+def base_graph_edgelist_to_prod_rules(pickle_fname):
+	'''
+		if lcc has more than 500 nodes
+		sample the lcc 2 x 300
+		lcc1,lcc2 <- sample_graph(g, 2, 300)
+		edgelist <- lcc1,lcc2
+		1prs_out <- tree1, tree2
+		
+		'''
+	from core.utils import largest_conn_comp
+	G = nx.read_gpickle(pickle_fname)
+	subgraph = max(nx.connected_component_subgraphs(G), key=len)
+	if subgraph.number_of_nodes()>500:
+		for Gprime in gs.rwr_sample(subgraph, 2, 300): # ret generator
+			cc_fname =write_tmp_edgelist(Gprime) # subgraph to temp edgelist
+	
+def write_tmp_edgelist(sg):
+	import tempfile
+	visible = tempfile.NamedTemporaryFile()
+	try:
+		nx.write_edgelist(sg, visible.name, data=False)
+		edgelist_to_dimacs(visible.name)#
+		print "::> edgelist to dimacs"
+	finally:
+		os.close(fd)
+
+	return 
+
 def dimacs_convert_orig_graph(fname):
-#  print fname
-  edgelist_to_dimacs(fname)
-  print ("dimacs convert orig graph")
+	edgelist_to_dimacs(fname)
+	print ("dimacs convert orig graph")
 
 def new_main(args):
-	dimacs_convert_orig_graph(args['orig'][0])
+	if args['base']:
+		f = graph_name(args['orig'][0])
+		f = "../datasets/"+f+".p"
+		base_graph_edgelist_to_prod_rules(f) # whole; or sample
+	else:
+		dimacs_convert_orig_graph(args['orig'])
 	# treedecomp_origdimacs_2trees_xvarels(args['orig'])
 	# prod_rules_from_td(args['orig'])
 	# union_prs_gen_graphs(args['orig'])
@@ -731,14 +763,15 @@ def new_main(args):
 
 def get_parser ():
 	parser = argparse.ArgumentParser(description='Clique trees for HRG graph model.')
-	parser.add_argument('--etd', action='store_true', default=0, required=0,help="Edglst to Dimacs")
-	parser.add_argument('--ctrl',action='store_true',default=0,required=0,help="Cntrl given --orig")
-	parser.add_argument('--clqs',action='store_true',default=0, required=0, help="tree objs 2 hrgCT")
-	parser.add_argument('--bam', action='store_true',	default=0, required=0,help="Barabasi-Albert")
-	parser.add_argument('--tr',  nargs=1, required=False, help="indiv. bz2 produ	ction rules.")
+	parser.add_argument('--etd', action='store_true', default=0, required=0, help="Edglst to Dimacs")
+	parser.add_argument('--ctrl',action='store_true', default=0, required=0, help="Cntrl given --orig")
+	parser.add_argument('--clqs',action='store_true', default=0, required=0, help="tree objs 2 hrgCT")
+	parser.add_argument('--bam', action='store_true', default=0, required=0, help="Barabasi-Albert")
+	parser.add_argument('--tr',  nargs=1, required=False, help="indiv. bz2 production rules.")
 	parser.add_argument('--isom',      nargs=1, required=0, help="isom test")
 	parser.add_argument('--stacked',   nargs=1, required=0, help="(grouped) stacked production rules.")
-	parser.add_argument('--orig',      nargs=1, required=False, help="edgelist input file")
+	parser.add_argument('--orig', nargs=1, required=1, help="edgelist input file")
+	parser.add_argument('--base', action='store_true', default=0, required=0, help="base graph to prs")
 	parser.add_argument('--synthchks', action='store_true', default=0, required=0, help="analyze graphs in FakeGraphs")
 	parser.add_argument('--version',   action='version', version=__version__)
 	return parser
@@ -748,10 +781,11 @@ if __name__ == '__main__':
 	'''
 	parser = get_parser()
 	args = vars(parser.parse_args())
+
 	try:
 		#main(args)
 		new_main(args)
-	except (Exception, e):
+	except Exception, e:
 		print (str(e))
 		traceback.print_exc()
 		sys.exit(1)

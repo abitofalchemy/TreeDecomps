@@ -85,3 +85,28 @@ def Info(_str):
 def listify_rhs(rhs_rule):
 	rhs_clean= [f[1:-1] for f in re.findall("'.+?'", rhs_rule)]
 	return rhs_clean
+
+def sample_subgraph(g):
+	import core.graph_sampler as gs
+	import tempfile
+
+	subgraphs = []
+	for j,Gprime in enumerate(gs.rwr_sample(G, 2, 300)):
+		fd, path = tempfile.mkstemp()
+		try:
+			nx.write_edgelist(fd)    # use the path or the file descriptor
+		finally:
+			os.close(fd)
+		
+	
+def largest_conn_comp(fname):
+	graph  = nx.read_gpickle(fname)
+	giant_nodes = max(nx.connected_component_subgraphs(graph), key=len)
+	if giant_nodes.number_of_nodes()>500:
+		samp_subgraph = sample_subgraph(nx.subgraph(G, giant_nodes))
+		return samp_subgraph
+	else:
+		return giant_nodes
+	
+
+

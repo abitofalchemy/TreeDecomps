@@ -7,12 +7,11 @@ from PHRG import grow
 
 def probe_stacked_prs_likelihood_tofire(df, fname="", nbr_nodes=0):
 	Info("probe stacked prs likelihood tofire")
-	# Info("{}, {}, {}".format(df.shape, nbr_nodes, df.columns))
 	g = pcfg.Grammar('S')
 	df = df[['rnbr', 'lhs', 'rhs', 'prob']] # ToDo: need to drop the gname column
 	for (id, lhs, rhs, prob) in df.values.tolist(): # 21Nov17
 		g.add_rule(pcfg.Rule(id, lhs, rhs, float(prob)))
-	num_nodes = nbr_nodes[0]
+	num_nodes = int(nbr_nodes)
 	g.set_max_size(num_nodes)
 	try:
 		g.set_max_size(num_nodes)
