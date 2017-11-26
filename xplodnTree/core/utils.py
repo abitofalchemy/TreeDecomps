@@ -85,3 +85,25 @@ def Info(_str):
 def listify_rhs(rhs_rule):
 	rhs_clean= [f[1:-1] for f in re.findall("'.+?'", rhs_rule)]
 	return rhs_clean
+
+
+def load_edgelist(gfname):
+	import pandas as pd
+	try:
+		edglst = pd.read_csv(gfname, comment='%', delimiter='\t')
+		# print edglst.shape
+		if edglst.shape[1]==1: edglst = pd.read_csv(gfname, comment='%', delimiter="\s+")
+	except (Exception, e):
+		print ("EXCEPTION:",str(e))
+		traceback.print_exc()
+		sys.exit(1)
+	
+	if edglst.shape[1] == 3:
+		edglst.columns = ['src', 'trg', 'wt']
+	elif edglst.shape[1] == 4:
+		edglst.columns = ['src', 'trg', 'wt','ts']
+	else:
+		edglst.columns = ['src', 'trg']
+	g = nx.from_pandas_dataframe(edglst,source='src',target='trg')
+	g.name = [n for n in os.path.basename(gfname).split(".") if len(n)>3][0]
+	return g
