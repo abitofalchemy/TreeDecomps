@@ -397,7 +397,7 @@ def trees_to_hrg_clq_trees():
 		print 'Results/{}_isom_interxn.tsv'.format(gname)+' saved'
 
 
-def main (args_d):
+def main2 (args_d):
 	print "Hello"
 		
 	#~#
