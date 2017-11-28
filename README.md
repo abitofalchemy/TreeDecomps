@@ -158,3 +158,6 @@ Date   | Notes
 20Nov17 | cc_in_ds.py identify what cc are in each graph
 22Nov17 | got to look into tstprs.py ../xplodnTree/core/  to read stacked 
 24Nov17 | `vim ../datasets/many_ds.txt`
+26Nov17 |
+26Nov17 |
+27Nov17 | Need to make sure the sampled graphs are created correctly

@@ -188,30 +188,29 @@ def dfs_edges(G, source, n):
         while stack and i<n:
             parent,children = stack[-1]
             try:
-				child = children.next() #next(children)
-				if child not in visited:
-					i+=1
-					yield parent,child
-					visited.add(child)
-					stack.append((child,iter(G[child])))
+                child = next(children)
+                if child not in visited:
+                    i+=1
+                    yield parent,child
+                    visited.add(child)
+                    stack.append((child,iter(G[child])))
             except StopIteration:
                 stack.pop()
 
 def bfs_edges(G, source, n):
-    # neighbors = G.neighbors_iter # nx 1.x, but in 2.x this is now just `neighbors`
-    neighbors = G.neighbors
+    neighbors = G.neighbors_iter # nx 1.x, but in 2.x this is now just `neighbors`
+		# nx v2.0 neighbors = G.neighbors
     visited = set([source])
     queue = deque([(source, neighbors(source))])
     i=0
     while queue and i<n:
-		parent, children = queue[0]
-		children = iter(children)
-		try:
-			child = children.next() # next(children)
-			if child not in visited:
-				i += 1
-				yield parent, child
-				visited.add(child)
-				queue.append((child, neighbors(child)))
-		except StopIteration:
-			queue.popleft()
+        parent, children = queue[0]
+        try:
+            child = next(children)
+            if child not in visited:
+                i += 1
+                yield parent, child
+                visited.add(child)
+                queue.append((child, neighbors(child)))
+        except StopIteration:
+            queue.popleft()

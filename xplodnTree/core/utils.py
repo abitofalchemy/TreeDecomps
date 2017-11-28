@@ -1,5 +1,6 @@
 import multiprocessing as mp
 import os
+import sys
 import re
 from collections import defaultdict
 
@@ -113,14 +114,17 @@ def largest_conn_comp(fname):
 
 def load_edgelist(gfname):
 	import pandas as pd
+	import traceback
+
 	try:
 		edglst = pd.read_csv(gfname, comment='%', delimiter='\t')
 		# print edglst.shape
 		if edglst.shape[1]==1: edglst = pd.read_csv(gfname, comment='%', delimiter="\s+")
-	except (Exception, e):
-		print ("EXCEPTION:",str(e))
-		traceback.print_exc()
-		sys.exit(1)
+	except Exception, e:
+		# print ("EXCEPTION:",str(e))
+		# traceback.print_exc()
+		# sys.exit(1)
+		edglst = pd.read_csv(gfname, delimiter=",", comment="#")
 	
 	if edglst.shape[1] == 3:
 		edglst.columns = ['src', 'trg', 'wt']
