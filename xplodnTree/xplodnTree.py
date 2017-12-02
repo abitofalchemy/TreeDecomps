@@ -21,6 +21,29 @@ from explodingTree import graph_name, load_edgelist
 DEBUG = False
 results_lst = []
 
+def transform_edgelist_to_dimacs(files):
+	Info ("Transform to dimacs")
+	Info ("-"*40)
+	results = []
+	p = mp.Pool(processes=2)
+	for f in files:
+		print ("  {}".format(f))
+		gn = xt.graph_name(f)
+		if os.path.exists('../datasets/{}.dimacs'.format(gn)):
+			Info ('This file already exists.')
+			continue
+		gfname = "../datasets/{}.p".format(gn)
+		if os.path.exists(gfname):
+			g = nx.read_gpickle(gfname)
+			g.name = gn
+		else:
+			g = load_edgelist(f)
+		
+		p.apply_async(xt.convert_nx_gObjs_to_dimacs_gObjs, args=([g], ), callback=collect_results)
+			# xt.convert_nx_gObjs_to_dimacs_gObjs([g])
+		p.close()
+		p.join()
+	print (results)
 
 def collect_results(result):
 	#results.extend(result)
@@ -198,7 +221,7 @@ def explode_to_trees(files, results_trees):
 		p.close()
 		p.join()
 		print(results_lst)
-		
+
 		if j == 0:
 			asp_arr = np.array(results_trees)
 			continue

@@ -122,10 +122,15 @@ def load_edgelist(gfname):
 		if edglst.shape[1]==1: edglst = pd.read_csv(gfname, comment='%', delimiter="\s+")
 	except Exception, e:
 		# print ("EXCEPTION:",str(e))
-		# traceback.print_exc()
+		traceback.print_exc()
 		# sys.exit(1)
-		edglst = pd.read_csv(gfname, delimiter=",", comment="#")
-	
+		try:
+			edglst = pd.read_csv(gfname, delimiter=",", comment="#")
+		except Exception, e:
+			Info ("EXCEPTION: %s"%str(e))
+			traceback.print_exc()
+			sys.exit(1)
+
 	if edglst.shape[1] == 3:
 		edglst.columns = ['src', 'trg', 'wt']
 	elif edglst.shape[1] == 4:

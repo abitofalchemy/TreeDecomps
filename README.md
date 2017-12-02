@@ -39,7 +39,11 @@ terxn.bz2 moreno_vdb_vdb`
 - `python isomorph_overlap_hl.py --orig ~/KynKon/datasets/out.karate_club_graph --pathfrag ../ProdRules/karate_club_graph`
 
 
-### sampling
+## Alternatives to INDDGO
+- https://github.com/mabseher/htd
+
+
+## Sampling
 This file: `rndmSubgSamp.py` is doing a lot of the heavy lifting.
 This will generate all *prs files needed, then I can seprately run the analysis of
 orig vs hStars and then look at the Union and Isomorphic ovelaps.
@@ -156,8 +160,3 @@ Date   | Notes
 26Sep17 | `pwd`
 28Sep17 | probe_stacked_prs_likelihood_tofire
 20Nov17 | cc_in_ds.py identify what cc are in each graph
-22Nov17 | got to look into tstprs.py ../xplodnTree/core/  to read stacked 
-24Nov17 | `vim ../datasets/many_ds.txt`
-26Nov17 |
-26Nov17 |
-27Nov17 | Need to make sure the sampled graphs are created correctly
