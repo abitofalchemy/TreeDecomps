@@ -296,9 +296,8 @@ def star_dot_trees_to_prod_rules(files,results_prs):
 
 def main(args):
 	orig_fname = args['orig'][0]
-	print type(orig_fname), orig_fname
 	gname = graph_name(orig_fname)
-	print(os.getcwd())
+	Info(os.getcwd())
 	dir= "../datasets"
 	p_files = [x[0]+"/"+f for x in os.walk(dir) for f in x[2] if f.endswith(".p")]
 	orig_p = [x for x in p_files if gname in x]

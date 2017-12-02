@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 __version__="0.1.0"
 
 # ToDo:
@@ -29,6 +30,42 @@ from core.utils import Info, load_edgelist
 
 #_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~#
 results_trees=[]
+
+def explode_to_trees(files, results_trees):
+	Info("\nExplode to trees")
+
+	var_els=['mcs','mind','minf','mmd','lexm','mcsm']
+	if len(files) == 1:
+		gn = xt.graph_name(files)
+		dimacs_file = "../datasets/{}.dimacs".format(gn)
+
+		exit()
+		p = mp.Pool(processes=2)
+		for vael in var_els:
+			p.apply_async(xt.dimacs_nddgo_tree_simple, args=(dimacs_file, vael,), callback=collect_results)
+		# xt.dimacs_nddgo_tree_simple(f, vael)
+		p.close()
+		p.join()
+		print(results_lst)
+	for j,f in enumerate(files):
+		gn = xt.graph_name(f)
+		dimacs_file = "../datasets/{}.dimacs".format(gn)
+		print (" ", gn,)
+		p = mp.Pool(processes=2)
+		for vael in var_els:
+			p.apply_async(xt.dimacs_nddgo_tree_simple, args=(dimacs_file,vael, ), callback=collect_results)
+		# xt.dimacs_nddgo_tree_simple(f, vael)
+		p.close()
+		p.join()
+		print(results_lst)
+		
+		if j == 0:
+			asp_arr = np.array(results_trees)
+			continue
+
+		prs_np = np.array(results_trees)
+		asp_arr = np.append(asp_arr, prs_np)
+
 
 def synth_checks_network_metrics(orig_graph):
 	gname = graph_name(orig_graph)
@@ -728,16 +765,26 @@ def base_graph_edgelist_to_prod_rules(pickle_fname):
 		'''
 	G = nx.read_gpickle(pickle_fname)
 	subgraph = max(nx.connected_component_subgraphs(G), key=len)
+	results=[]
 	if subgraph.number_of_nodes()>500:
 		for k,Gprime in enumerate(gs.rwr_sample(subgraph, 2, 300)): # ret generator
 			print k
 			gname = os.path.basename(pickle_fname).rstrip('.p')
 			Gprime.name = gname + ("_%d" % k)
 			cc_fname =write_tmp_edgelist(Gprime, k) # subgraph to temp edgelist
+			results.append(cc_fname)
+	else:
+		cc_fname =write_tmp_edgelist(G)
+		results.append(cc_fname) 
+	return results
+
 
 def write_tmp_edgelist(sg, k):
 	from core.graph_format_converter import edgelist_in_dimacs_out
-	tmp_f = "../datasets/{}_{}.dimacs".format(sg.name, k)
+	if k is None:
+		tmp_f = "../datasets/{}.dimacs".format(sg.name)
+	else:
+		tmp_f = "../datasets/{}_{}.dimacs".format(sg.name, k)
 	try:
 		nx.write_edgelist(sg, tmp_f, data=False)
 		edgelist_in_dimacs_out(tmp_f)#
@@ -746,7 +793,7 @@ def write_tmp_edgelist(sg, k):
 		print str(e)
 		exit()
 
-	return 
+	return os.path.basename(tmp_f) 
 
 def dimacs_convert_orig_graph(fname):
 	edgelist_to_dimacs(fname)
@@ -758,11 +805,16 @@ def collect_results_trees(result):
 
 def new_main(args):
 	if not (args['base'] is None):
+		Info("<- converts to dimacs")
 		f = graph_name(args['base'][0])
 		f = "../datasets/"+f+".p"
-		base_graph_edgelist_to_prod_rules(f) # whole; or sample
+		files = base_graph_edgelist_to_prod_rules(f) # whole; or sample
+		pp.pprint(files)
+		results = []
+		explode_to_trees(files, results)
 		exit(0)
 	elif not (args['orig'] is None):
+		Info("<- converts edgelist gpickle")
 		f = args['orig'][0]
 		pfname = graph_name(f)
 		pfname = "../datasets/{}.p".format(pfname)
@@ -839,6 +891,8 @@ def new_main(args):
 
 def get_parser ():
 	parser = argparse.ArgumentParser(description='Clique trees for HRG graph model.')
+	parser.add_argument('--orig', nargs=1, required=0, help="edgelist input file")
+	parser.add_argument('--base', nargs=1, required=0, help="base graph to prs")
 	parser.add_argument('--etd', action='store_true', default=0, required=0, help="Edglst to Dimacs")
 	parser.add_argument('--ctrl',action='store_true', default=0, required=0, help="Cntrl given --orig")
 	parser.add_argument('--clqs',action='store_true', default=0, required=0, help="tree objs 2 hrgCT")
@@ -846,8 +900,6 @@ def get_parser ():
 	parser.add_argument('--tr',  nargs=1, required=False, help="indiv. bz2 production rules.")
 	parser.add_argument('--isom',      nargs=1, required=0, help="isom test")
 	parser.add_argument('--stacked',   nargs=1, required=0, help="(grouped) stacked production rules.")
-	parser.add_argument('--orig', nargs=1, required=0, help="edgelist input file")
-	parser.add_argument('--base', nargs=1, required=0, help="base graph to prs")
 	parser.add_argument('--edgelist2dimacs', nargs=1, required=0, help="Edgelist in to dimacs out")
 	parser.add_argument('--td', nargs=1, required=0, help="dimacs to tree (TD)")
 	parser.add_argument('--synthchks', action='store_true', default=0, required=0, help="analyze graphs in FakeGraphs")
@@ -861,7 +913,7 @@ if __name__ == '__main__':
 	args = vars(parser.parse_args())
 	if len(sys.argv) ==1: parser.print_help(); exit()
 	try:
-		#main(args)
+		# main(args)
 		new_main(args)
 	except Exception, e:
 		print (str(e))
