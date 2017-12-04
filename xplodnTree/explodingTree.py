@@ -16,6 +16,7 @@ import traceback
 from   glob import glob
 from   itertools import combinations
 
+import pprint as pp
 import networkx as nx
 import numpy as np
 import pandas as pd
@@ -30,41 +31,48 @@ from core.utils import Info, load_edgelist
 
 #_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~#
 results_trees=[]
+results = []
+
+def collect_results(result):
+	results.append(result)
 
 def explode_to_trees(files, results_trees):
 	Info("\nExplode to trees")
-
+	
 	var_els=['mcs','mind','minf','mmd','lexm','mcsm']
 	if len(files) == 1:
-		gn = xt.graph_name(files)
+		gn = graph_name(files)
 		dimacs_file = "../datasets/{}.dimacs".format(gn)
-
 		exit()
-		p = mp.Pool(processes=2)
-		for vael in var_els:
-			p.apply_async(xt.dimacs_nddgo_tree_simple, args=(dimacs_file, vael,), callback=collect_results)
-		# xt.dimacs_nddgo_tree_simple(f, vael)
-		p.close()
-		p.join()
-		print(results_lst)
+#		p = mp.Pool(processes=2)
+#		for vael in var_els:
+#			p.apply_async(dimacs_nddgo_tree_simple, args=(dimacs_file, vael,), callback=collect_results)
+#		# xt.dimacs_nddgo_tree_simple(f, vael)
+#		p.close()
+#		p.join()
+#		print(results_lst)
+
 	for j,f in enumerate(files):
-		gn = xt.graph_name(f)
-		dimacs_file = "../datasets/{}.dimacs".format(gn)
-		print (" ", gn,)
+		gn = graph_name(f)
+		# dimacs_file = "../datasets/{}.dimacs".format(gn)
+		dimacs_file = f
+		results = []
 		p = mp.Pool(processes=2)
 		for vael in var_els:
-			p.apply_async(xt.dimacs_nddgo_tree_simple, args=(dimacs_file,vael, ), callback=collect_results)
-		# xt.dimacs_nddgo_tree_simple(f, vael)
+			p.apply_async(dimacs_nddgo_tree_simple, args=(dimacs_file,vael, ), callback=collect_results)
+#			dimacs_nddgo_tree_simple(dimacs_file,vael)
 		p.close()
 		p.join()
-		print(results_lst)
 		
+		# What is below?
 		if j == 0:
-			asp_arr = np.array(results_trees)
+			asp_arr = np.array(results)
 			continue
 
-		prs_np = np.array(results_trees)
+		prs_np = np.array(results)
 		asp_arr = np.append(asp_arr, prs_np)
+
+		pp.pprint(results)
 
 
 def synth_checks_network_metrics(orig_graph):
@@ -91,14 +99,27 @@ def dimacs_nddgo_tree_simple(fname, heuristic):
 	ret_lst = []
 	nddgoout = ""
 	outfname = "{}.{}.tree".format(fname, heuristic)
-	if os.path.exists(outfname): return (0,0)
+#	print (fname, outfname)
+	if os.path.exists(outfname):
+		Info("{} already exists".format(outfname))
+		return (None, None)
 
 	if platform.system() == "Linux":
 		args = ["bin/linux/serial_wis -f {} -nice -{} -w {} -decompose_only".format(fname, heuristic, outfname)]
+		print (args)
 	else:
 		args = ["bin/mac/serial_wis -f {} -nice -{} -w {} -decompose_only".format(fname, heuristic, outfname)]
-	out, err = subprocess.Popen(args, stdout=subprocess.PIPE, shell=True).wait().communicate()
-	return (out,err)
+		pp.pprint(args)
+
+	popen = subprocess.Popen(args,
+							 stdout=subprocess.PIPE,
+							 stderr=subprocess.PIPE, shell=True)
+	popen.wait()
+	# output = popen.stdout.read()
+	out, err = popen.communicate()
+	out = out.split('\n')
+#
+	return (out, err)
 
 def dimacs_nddgo_tree(dimacsfnm_lst, heuristic):
 	'''
@@ -246,10 +267,7 @@ def tree_decomposition_with_varelims(fnames, var_elims):
 	return trees_files_d
 
 def convert_nx_gObjs_to_dimacs_gObjs(nx_gObjs):
-	# type: (nx.Graph) -> object
-	'''
-	Take list of graphs and convert to dimacs
-	'''
+	Info("Take list of graphs and convert to dimacs:convert_nx_gObjs_to_dimacs")
 	
 	dimacs_glst=[]
 	for G in nx_gObjs:
@@ -759,10 +777,7 @@ def base_graph_edgelist_to_prod_rules(pickle_fname):
 	:param pickle_fname:
 	:return:
 	"""
-	'''
-
-		
-		'''
+	Info("base_graph_edgelist_to_prod_rules")
 	G = nx.read_gpickle(pickle_fname)
 	subgraph = max(nx.connected_component_subgraphs(G), key=len)
 	results=[]
@@ -775,16 +790,17 @@ def base_graph_edgelist_to_prod_rules(pickle_fname):
 			results.append(cc_fname)
 	else:
 		cc_fname =write_tmp_edgelist(G)
-		results.append(cc_fname) 
+		results.append(cc_fname)
 	return results
 
 
 def write_tmp_edgelist(sg, k):
+	Info("write_tmp_edgelist")
 	from core.graph_format_converter import edgelist_in_dimacs_out
 	if k is None:
-		tmp_f = "../datasets/{}.dimacs".format(sg.name)
+		tmp_f = "../datasets/{}.tsv".format(sg.name)
 	else:
-		tmp_f = "../datasets/{}_{}.dimacs".format(sg.name, k)
+		tmp_f = "../datasets/{}_{}.tsv".format(sg.name, k)
 	try:
 		nx.write_edgelist(sg, tmp_f, data=False)
 		edgelist_in_dimacs_out(tmp_f)#
@@ -808,10 +824,14 @@ def new_main(args):
 		Info("<- converts to dimacs")
 		f = graph_name(args['base'][0])
 		f = "../datasets/"+f+".p"
-		files = base_graph_edgelist_to_prod_rules(f) # whole; or sample
-		pp.pprint(files)
+		files = base_graph_edgelist_to_prod_rules(f) # tmp tsv / whole; or sample
+		dimacs_lst = []
+		for f in files:
+			g = load_edgelist("../datasets/" + f)
+			dimacs_lst.append( convert_nx_gObjs_to_dimacs_gObjs([g])[0] )
+	
 		results = []
-		explode_to_trees(files, results)
+		explode_to_trees(dimacs_lst, results)
 		exit(0)
 	elif not (args['orig'] is None):
 		Info("<- converts edgelist gpickle")

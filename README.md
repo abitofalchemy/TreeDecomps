@@ -160,3 +160,5 @@ Date   | Notes
 26Sep17 | `pwd`
 28Sep17 | probe_stacked_prs_likelihood_tofire
 20Nov17 | cc_in_ds.py identify what cc are in each graph
+04Dec17  |  test
+04Dec17  |  re index and recount vertices in converting to dimacs
