@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-__version__="0.1.0"
+__version__ = "0.1.0"
 
 # ToDo:
 # [] process mult dimacs.trees to hrg
@@ -13,8 +13,8 @@ import shelve
 import subprocess
 import sys
 import traceback
-from	 glob import glob
-from	 itertools import combinations
+from     glob import glob
+from     itertools import combinations
 
 import pprint as pp
 import networkx as nx
@@ -24,14 +24,15 @@ import pandas as pd
 import core.graph_sampler as gs
 import core.isomorph_interxn as isoint
 import core.net_metrics as metrics
-from	 core.PHRG import graph_checks
-from	 core.arbolera import jacc_dist_for_pair_dfrms
-from	 core.load_edgelist_from_dataframe import Pandas_DataFrame_From_Edgelist
+from core.PHRG import graph_checks
+from core.arbolera import jacc_dist_for_pair_dfrms
+from core.load_edgelist_from_dataframe import Pandas_DataFrame_From_Edgelist
 from core.utils import Info, load_edgelist, largest_conn_comp
 
-#_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~#
-results_trees=[]
+# _~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~#
+results_trees = []
 results = []
+
 
 def collect_results(result):
 	results.append(result)
@@ -52,7 +53,7 @@ def transform_edgelist_to_dimacs(files):
 		if os.path.exists('../datasets/{}.dimacs'.format(gn)):
 			Info('This file already exists.')
 			continue
-		g = load_edgelist("../datasets/"+f)
+		g = load_edgelist("../datasets/" + f)
 
 		# p.apply_async(convert_nx_gObjs_to_dimacs_gObjs, args=([g],), callback=collect_results)
 		convert_nx_gObjs_to_dimacs_gObjs([g])
@@ -64,24 +65,24 @@ def transform_edgelist_to_dimacs(files):
 
 def explode_to_trees(files, results_trees):
 	Info("\nExplode to trees")
-	
-	var_els=['mcs','mind','minf','mmd','lexm','mcsm']
+
+	var_els = ['mcs', 'mind', 'minf', 'mmd', 'lexm', 'mcsm']
 	if len(files) == 1:
 		gn = graph_name(files)
 		dimacs_file = "../datasets/{}.dimacs".format(gn)
 		exit()
 
-	for j,f in enumerate(files):
+	for j, f in enumerate(files):
 		dimacs_file = f
 		results = []
 		# p = mp.Pool(processes=2)
 		for vael in var_els:
 			# p.apply_async(dimacs_nddgo_tree_simple, args=(dimacs_file,vael, ), callback=collect_results)
-			print "\t",vael
-			dimacs_nddgo_tree_simple(dimacs_file,vael)
+			print "\t", vael
+			dimacs_nddgo_tree_simple(dimacs_file, vael)
 		# p.close()
 		# p.join()
-		
+
 		# What is below?
 		if j == 0:
 			asp_arr = np.array(results)
@@ -95,8 +96,8 @@ def explode_to_trees(files, results_trees):
 
 def synth_checks_network_metrics(orig_graph):
 	gname = graph_name(orig_graph)
-	files = glob("./FakeGraphs/"+gname +"*")
-	shl_db = shelve.open(files[0]) # open for read
+	files = glob("./FakeGraphs/" + gname + "*")
+	shl_db = shelve.open(files[0])  # open for read
 	origG = load_edgelist(orig_graph)
 	print ("%%")
 	print ("%%", gname)
@@ -104,14 +105,15 @@ def synth_checks_network_metrics(orig_graph):
 
 	for k in shl_db.keys():
 		synthGs = shl_db[k]
-		#print synthGs[0].number_of_edges(), synthGs[0].number_of_nodes()
-	
+		# print synthGs[0].number_of_edges(), synthGs[0].number_of_nodes()
+
 		metricx = ['degree']
-		metrics.network_properties( [origG], metricx, synthGs, name="hstars_"+origG.name, out_tsv=False)
-	
+		metrics.network_properties([origG], metricx, synthGs, name="hstars_" + origG.name, out_tsv=False)
+
 	shl_db.close()
 
-#_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~#
+
+# _~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~#
 
 def dimacs_nddgo_tree_simple(fname, heuristic):
 	Info("dimacs nddgo tree simple")
@@ -137,8 +139,9 @@ def dimacs_nddgo_tree_simple(fname, heuristic):
 	# output = popen.stdout.read()
 	out, err = popen.communicate()
 	out = out.split('\n')
-	print	(out, err)
+	print    (out, err)
 	return (out, err)
+
 
 def dimacs_nddgo_tree(dimacsfnm_lst, heuristic):
 	'''
@@ -150,14 +153,15 @@ def dimacs_nddgo_tree(dimacsfnm_lst, heuristic):
 
 	for dimacsfname in dimacsfnm_lst:
 
-		if isinstance(dimacsfname, list): dimacsfname= dimacsfname[0]
+		if isinstance(dimacsfname, list): dimacsfname = dimacsfname[0]
 		nddgoout = ""
-		outfname = dimacsfname+"."+heuristic+".tree"
-		if os.path.exists(outfname): 
+		outfname = dimacsfname + "." + heuristic + ".tree"
+		if os.path.exists(outfname):
 			break
 
 		if platform.system() == "Linux":
-			args = ["bin/linux/serial_wis -f {} -nice -{} -w {} -decompose_only".format(dimacsfname, heuristic, outfname)]
+			args = [
+				"bin/linux/serial_wis -f {} -nice -{} -w {} -decompose_only".format(dimacsfname, heuristic, outfname)]
 		else:
 			args = ["bin/mac/serial_wis -f {} -nice -{} -w {} -decompose_only".format(dimacsfname, heuristic, outfname)]
 		while not nddgoout:
@@ -172,8 +176,6 @@ def dimacs_nddgo_tree(dimacsfnm_lst, heuristic):
 	return ret_lst
 
 
-
-
 def nx_edges_to_nddgo_graph_sampling(graph, n, m, peo_h):
 	G = graph
 	if n is None and m is None: return
@@ -182,10 +184,10 @@ def nx_edges_to_nddgo_graph_sampling(graph, n, m, peo_h):
 	nbr_nodes = 256
 	basefname = 'datasets/{}_{}'.format(G.name, peo_h)
 
-	K = int(math.ceil(.25*G.number_of_nodes()/nbr_nodes))
+	K = int(math.ceil(.25 * G.number_of_nodes() / nbr_nodes))
 	#	print "--", nbr_nodes, K, '--';
 
-	for j,Gprime in enumerate(gs.rwr_sample(G, K, nbr_nodes)):
+	for j, Gprime in enumerate(gs.rwr_sample(G, K, nbr_nodes)):
 		# if gname is "":
 		#	 # nx.write_edgelist(Gprime, '/tmp/sampled_subgraph_200_{}.tsv'.format(j), delimiter="\t", data=False)
 		#	 gprime_lst.append(Gprime)
@@ -200,12 +202,12 @@ def nx_edges_to_nddgo_graph_sampling(graph, n, m, peo_h):
 		df = pd.DataFrame(edges)
 		df.sort_values(by=[0], inplace=True)
 
-		ofname = basefname+"_{}.dimacs".format(j)
+		ofname = basefname + "_{}.dimacs".format(j)
 		if os.path.exists(ofname): break
 
 		with open(ofname, 'w') as f:
 			f.write('c {}\n'.format(G.name))
-			f.write('p edge\t{}\t{}\n'.format(n,m))
+			f.write('p edge\t{}\t{}\n'.format(n, m))
 			# for e in df.iterrows():
 			output_edges = lambda x: f.write("e\t{}\t{}\n".format(x[0], x[1]))
 			df.apply(output_edges, axis=1)
@@ -214,16 +216,17 @@ def nx_edges_to_nddgo_graph_sampling(graph, n, m, peo_h):
 
 	return basefname
 
-def edgelist_dimacs_graph(orig_graph, peo_h, prn_tw = False):
+
+def edgelist_dimacs_graph(orig_graph, peo_h, prn_tw=False):
 	fname = orig_graph
 	gname = os.path.basename(fname).split(".")
-	gname = sorted(gname,reverse=True, key=len)[0]
+	gname = sorted(gname, reverse=True, key=len)[0]
 
 	if ".tar.bz2" in fname:
 		from core.read_tarbz2 import read_tarbz2_file
 		edglst = read_tarbz2_file(fname)
-		df = pd.DataFrame(edglst,dtype=int)
-		G = nx.from_pandas_dataframe(df,source=0, target=1)
+		df = pd.DataFrame(edglst, dtype=int)
+		G = nx.from_pandas_dataframe(df, source=0, target=1)
 	else:
 		G = nx.read_edgelist(fname, comments="%", data=False, nodetype=int)
 	# print "...",	G.number_of_nodes(), G.number_of_edges()
@@ -248,7 +251,8 @@ def edgelist_dimacs_graph(orig_graph, peo_h, prn_tw = False):
 	else:
 		return (nx_edges_to_nddgo_graph(G, n=N, m=M, varel=peo_h), gname)
 
-def print_treewidth (in_dimacs, var_elim):
+
+def print_treewidth(in_dimacs, var_elim):
 	'''
 	:param in_dimacs:
 	:param var_elim:
@@ -265,8 +269,9 @@ def print_treewidth (in_dimacs, var_elim):
 		# output = popen.stdout.read()
 		out, err = popen.communicate()
 		nddgoout = out.split('\n')
-#	print nddgoout
+	#	print nddgoout
 	return nddgoout
+
 
 def tree_decomposition_with_varelims(fnames, var_elims):
 	'''
@@ -276,19 +281,20 @@ def tree_decomposition_with_varelims(fnames, var_elims):
 	'''
 	#	print "~~~~ tree_decomposition_with_varelims",'.'*10
 	#	print type(fnames), type(var_elims)
-	trees_files_d = {} #(list)
+	trees_files_d = {}  # (list)
 	for f in fnames:
 		# print f[0]
-		trees_files_d[f[0]]= [dimacs_nddgo_tree(f,td) for td in var_elims]
-	#	for varel in var_elims:
+		trees_files_d[f[0]] = [dimacs_nddgo_tree(f, td) for td in var_elims]
+	# for varel in var_elims:
 	#		tree_files.append([dimacs_nddgo_tree([f], varel) for f in fnames])
 
 	return trees_files_d
 
+
 def convert_nx_gObjs_to_dimacs_gObjs(nx_gObjs):
 	Info("Take list of graphs and convert to dimacs:convert_nx_gObjs_to_dimacs")
-	
-	dimacs_glst=[]
+
+	dimacs_glst = []
 	for G in nx_gObjs:
 		N = max(G.nodes())
 		M = G.number_of_edges()
@@ -331,46 +337,47 @@ def convert_dimacs_tree_objs_to_hrg_clique_trees(grph_orig, treeObjs):
 
 	return results
 
+
 def get_hrg_prod_rules(prules):
 	'''
 	These are production rules
 	prules is list of tsv files
 	'''
-	mdf = pd.DataFrame() #columns=['rnbr', 'lhs', 'rhs', 'pr'])
+	mdf = pd.DataFrame()  # columns=['rnbr', 'lhs', 'rhs', 'pr'])
 	for f in prules:
 		if not (f is ""):
-			mdf_ofname = "ProdRules/"+f.split(".")[0]+".prs"
+			mdf_ofname = "ProdRules/" + f.split(".")[0] + ".prs"
 			break
 
 	for f in prules:
 		if f is "": continue
-		df = pd.read_csv("ProdRules/"+f, header=None, sep="\t")
-		df.columns=['rnbr', 'lhs', 'rhs', 'pr']
+		df = pd.read_csv("ProdRules/" + f, header=None, sep="\t")
+		df.columns = ['rnbr', 'lhs', 'rhs', 'pr']
 		tname = os.path.basename(f).split(".")
 		df['cate'] = ".".join(tname[:2])
-		mdf = pd.concat([mdf,df])
+		mdf = pd.concat([mdf, df])
 		print (">> ", f, ">> ", df.shape, mdf.shape)
-
-
 
 	mdf[['rnbr', 'lhs', 'rhs', 'pr']].to_csv(mdf_ofname, sep="\t", header=False, index=False)
 	return mdf
 
-def get_isom_overlap_in_stacked_prod_rules(td_keys_lst, df ):
-#	for p in [",".join(map(str, comb)) for comb in combinations(td_keys_lst, 2)]:
-#		p p.split(',')
-#		print df[df.cate == p[0]].head()
-#		print df[df.cate == p[1]].head()
-#		print
+
+def get_isom_overlap_in_stacked_prod_rules(td_keys_lst, df):
+	#	for p in [",".join(map(str, comb)) for comb in combinations(td_keys_lst, 2)]:
+	#		p p.split(',')
+	#		print df[df.cate == p[0]].head()
+	#		print df[df.cate == p[1]].head()
+	#		print
 
 
-#		js = jacc_dist_for_pair_dfrms(stckd_df[stckd_df['cate']==p[0]],
-#														 stckd_df[stckd_df['cate']==p[1]])
-#		print js
-#		print stckd_df[stckd_df['cate']==p[0]].head()
+	#		js = jacc_dist_for_pair_dfrms(stckd_df[stckd_df['cate']==p[0]],
+	#														 stckd_df[stckd_df['cate']==p[1]])
+	#		print js
+	#		print stckd_df[stckd_df['cate']==p[0]].head()
 	for comb in combinations(td_keys_lst, 2):
-		js = jacc_dist_for_pair_dfrms(df[df['cate']==comb[0]], df[df['cate']==comb[1]])
+		js = jacc_dist_for_pair_dfrms(df[df['cate'] == comb[0]], df[df['cate'] == comb[1]])
 		print ("\t", js)
+
 
 def graph_stats_and_visuals(gobjs=None):
 	"""
@@ -382,11 +389,11 @@ def graph_stats_and_visuals(gobjs=None):
 	matplotlib.use('pdf')
 	import matplotlib.pylab as pylab
 	params = {'legend.fontsize': 'small',
-						'figure.figsize': (1.6 * 7, 1.0 * 7),
-						'axes.labelsize': 'small',
-						'axes.titlesize': 'small',
-						'xtick.labelsize': 'small',
-						'ytick.labelsize': 'small'}
+			  'figure.figsize': (1.6 * 7, 1.0 * 7),
+			  'axes.labelsize': 'small',
+			  'axes.titlesize': 'small',
+			  'xtick.labelsize': 'small',
+			  'ytick.labelsize': 'small'}
 	pylab.rcParams.update(params)
 
 	print ("BA G(V,E)")
@@ -395,39 +402,38 @@ def graph_stats_and_visuals(gobjs=None):
 	dimacs_g = {}
 	for fl in gobjs:
 		with open(fl, 'r') as f:
-			l=f.readline()
-			l=f.readline().rstrip('\r\n')
+			l = f.readline()
+			l = f.readline().rstrip('\r\n')
 			bn = os.path.basename(fl)
 			dimacs_g[bn] = [int(x) for x in l.split()[-2:]]
-		print ("%d\t%s" %(dimacs_g[bn][0], dimacs_g[bn][1]))
+		print ("%d\t%s" % (dimacs_g[bn][0], dimacs_g[bn][1]))
 
 	print ("BA Prod rules size")
 	for k in dimacs_g.keys():
-		fname = "ProdRules/"+k.split('.')[0]+".prs"
+		fname = "ProdRules/" + k.split('.')[0] + ".prs"
 		f_sz = np.loadtxt(fname, delimiter="\t", dtype=str)
 		print (k, len(f_sz))
 
 
-
-
-#def hrg_graph_gen_from_interxn(iso_interxn_df):
+# def hrg_graph_gen_from_interxn(iso_interxn_df):
 def trees_to_hrg_clq_trees():
 	gname = 'synthG_15_60'
 	files = glob('ProdRules/{}*.bz2'.format(gname))
-	print ('\tNbr of files:',len(files))
+	print ('\tNbr of files:', len(files))
 	prod_rules_lst = []
 
 	stacked_pr_rules = get_hrg_prod_rules(files)
-	print ('\tSize of the df',len(stacked_pr_rules))
+	print ('\tSize of the df', len(stacked_pr_rules))
 	df = stacked_pr_rules
 	gb = df.groupby(['cate']).groups.keys()
 	print ('Jaccard Similarity')
 	A = get_isom_overlap_in_stacked_prod_rules(gb, df)
 
 	iso_union, iso_interx = isoint.isomorph_intersection_2dfstacked(df)
-	iso_interx[[1,2,3,4]].to_csv('Results/{}_isom_interxn.tsv'.format(gname), sep="\t", header=False, index=False)
+	iso_interx[[1, 2, 3, 4]].to_csv('Results/{}_isom_interxn.tsv'.format(gname), sep="\t", header=False, index=False)
 	if os.path.exists('Results/{}_isom_interxn.tsv'.format(gname)):
 		print ('Results/{}_isom_interxn.tsv saved'.format(gname))
+
 
 def isomorphic_test_on_stacked_prs(stacked_pr_rules_fname=None):
 	in_fname = stacked_pr_rules_fname
@@ -439,30 +445,28 @@ def isomorphic_test_on_stacked_prs(stacked_pr_rules_fname=None):
 		if in_fname is None:
 			in_fname = "ProdRules/synthG_63_stcked_prs.tsv"
 		else:
-			stacked_df = pd.read_csv(in_fname,sep="\t",header=None)
-			if len(stacked_df.columns) == 5: stacked_df.columns = ['rnbr', 'lhs','rhs', 'pr', 'cate']
+			stacked_df = pd.read_csv(in_fname, sep="\t", header=None)
+			if len(stacked_df.columns) == 5: stacked_df.columns = ['rnbr', 'lhs', 'rhs', 'pr', 'cate']
 			iso_union, iso_interx = isoint.isomorph_intersection_2dfstacked(stacked_df)
 
-			iso_interx[[1,2,3,4]].to_csv(outfname, sep="\t", header=False, index=False)
+			iso_interx[[1, 2, 3, 4]].to_csv(outfname, sep="\t", header=False, index=False)
 			if os.path.exists(outfname):
-				print ("\t", 'Written:',outfname)
+				print ("\t", 'Written:', outfname)
 
 	return outfname
 
 
 def graph_name(fname):
-	gnames= [x for x in os.path.basename(fname).split('.') if len(x) >3][0]
+	gnames = [x for x in os.path.basename(fname).split('.') if len(x) > 3][0]
 	if len(gnames):
 		return gnames
 	else:
 		return gnames[0]
 
 
-
-
 def ref_graph_largest_conn_componet(fname):
 	df = Pandas_DataFrame_From_Edgelist([fname])[0]
-	G	= nx.from_pandas_dataframe(df, source='src',target='trg')
+	G = nx.from_pandas_dataframe(df, source='src', target='trg')
 	Gc = max(nx.connected_component_subgraphs(G), key=len)
 	gname = graph_name(fname)
 	num_nodes = Gc.number_of_nodes()
@@ -472,9 +476,9 @@ def ref_graph_largest_conn_componet(fname):
 	if num_nodes >= 500:
 		cnt = 0
 		for Gprime in gs.rwr_sample(G, 2, 300):
-			subg_fnm_lst.append('.{}_lcc_{}.edl'.format(gname,cnt))
+			subg_fnm_lst.append('.{}_lcc_{}.edl'.format(gname, cnt))
 			try:
-				nx.write_edgelist(Gprime,'.{}_lcc_{}.edl'.format(gname,cnt), data=False)
+				nx.write_edgelist(Gprime, '.{}_lcc_{}.edl'.format(gname, cnt), data=False)
 				cnt += 1
 			except Exception, e:
 				print (str(e), '\n!!Error writing to disk')
@@ -482,66 +486,63 @@ def ref_graph_largest_conn_componet(fname):
 	else:
 		subg_fnm_lst.append('.{}_lcc.edl'.format(gname))
 		try:
-			nx.write_edgelist(Gc,'.{}_lcc.edl'.format(gname), data=False)
+			nx.write_edgelist(Gc, '.{}_lcc.edl'.format(gname), data=False)
 		except Exception, e:
 			print (str(e), '\n!!Error writing to disk')
 			return ""
 
 	return subg_fnm_lst
 
+
 def subgraphs_exploding_trees(orig, sub_graph_lst):
 	# edl -> dimacs -> treeX -> CliqueTreeX
 	# union the prod rules?
 	prs_paths_lst = []
 	for sbg_edl_fname in sub_graph_lst:
-		dimacsFname = edgelist_to_dimacs(sbg_edl_fname) # argsd['orig'][0])
-		varElimLst	= ['mcs','mind','minf','mmd','lexm','mcsm']
-		
+		dimacsFname = edgelist_to_dimacs(sbg_edl_fname)  # argsd['orig'][0])
+		varElimLst = ['mcs', 'mind', 'minf', 'mmd', 'lexm', 'mcsm']
+
 		##
 		# dict where values are the file path of the written trees
 		dimacsTrees_d = tree_decomposition_with_varelims(dimacsFname, varElimLst)
 		trees_lst = []
 		for x in dimacsTrees_d.itervalues(): [trees_lst.append(f[0]) for f in x]
-		
+
 		##
 		# to HRG Clique Tree, in stacked pd df form / returns indiv. filenames
-		prs_paths_lst.append( convert_dimacs_tree_objs_to_hrg_clique_trees(orig, trees_lst))
-	
+		prs_paths_lst.append(convert_dimacs_tree_objs_to_hrg_clique_trees(orig, trees_lst))
+
 	##
 	# stack production rules // returns an array of k (2) //
 	prs_stacked_dfs = [get_hrg_prod_rules(multi_paths_lst) for multi_paths_lst in prs_paths_lst]
 
-	if len(prs_stacked_dfs)==2:
+	if len(prs_stacked_dfs) == 2:
 		prs_stacked_df = pd.concat([prs_stacked_dfs[0], prs_stacked_dfs[1]])
 	gb = prs_stacked_df.groupby(['cate']).groups.keys()
 
 	##
 	# Jaccard Similarity
-	get_isom_overlap_in_stacked_prod_rules(gb, prs_stacked_df )
-		
+	get_isom_overlap_in_stacked_prod_rules(gb, prs_stacked_df)
+
 	##
 	# isomorph_intersection_2dfstacked
-	iso_union, iso_interx =isoint.isomorph_intersection_2dfstacked(prs_stacked_df)
+	iso_union, iso_interx = isoint.isomorph_intersection_2dfstacked(prs_stacked_df)
 	gname = graph_name(orig)
-	iso_interx[[1,2,3,4]].to_csv('Results/{}_isom_interxn.tsv'.format(gname),
-								 sep="\t", header=False, index=False)
+	iso_interx[[1, 2, 3, 4]].to_csv('Results/{}_isom_interxn.tsv'.format(gname),
+									sep="\t", header=False, index=False)
 	if os.path.exists('Results/{}_isom_interxn.tsv'.format(gname)):
-		print ("\t", 'Written:','Results/{}_isom_interxn.tsv'.format(gname))
+		print ("\t", 'Written:', 'Results/{}_isom_interxn.tsv'.format(gname))
 		print ("\t", 'Next step is to generate graphs using this subsect of production rules.')
-	else: print ("!!Unable to savefile")
-
+	else:
+		print ("!!Unable to savefile")
 
 	print ("Done")
 	print (gb, "\n---------------<>---------------<>---------------")
 	exit()
-	
 
 	'''
 	
 	'''
-
-
-
 
 
 def xplodingTree(argsd):
@@ -560,15 +561,15 @@ def xplodingTree(argsd):
 	None
 
 	"""
-	sub_graphs_fnames_lst = ref_graph_largest_conn_componet(argsd['orig'][0]) # max largest conn componet
+	sub_graphs_fnames_lst = ref_graph_largest_conn_componet(argsd['orig'][0])  # max largest conn componet
 	if len(sub_graphs_fnames_lst) > 1:
 		print ('process subgraphs from sampling')
 		print (sub_graphs_fnames_lst)
-		subgraphs_exploding_trees(argsd['orig'][0], sub_graphs_fnames_lst )
+		subgraphs_exploding_trees(argsd['orig'][0], sub_graphs_fnames_lst)
 		exit()
-	
-	dimacsFname = edgelist_to_dimacs(sub_graphs_fnames_lst[0]) # argsd['orig'][0])
-	varElimLst	= ['mcs','mind','minf','mmd','lexm','mcsm']
+
+	dimacsFname = edgelist_to_dimacs(sub_graphs_fnames_lst[0])  # argsd['orig'][0])
+	varElimLst = ['mcs', 'mind', 'minf', 'mmd', 'lexm', 'mcsm']
 
 	##
 	# dict where values are the file path of the written trees
@@ -587,28 +588,29 @@ def xplodingTree(argsd):
 
 	##
 	# Jaccard Similarity
-	get_isom_overlap_in_stacked_prod_rules(gb, prs_stacked_df )
+	get_isom_overlap_in_stacked_prod_rules(gb, prs_stacked_df)
 
 	##
 	# isomorph_intersection_2dfstacked
-	iso_union, iso_interx =isoint.isomorph_intersection_2dfstacked(prs_stacked_df)
+	iso_union, iso_interx = isoint.isomorph_intersection_2dfstacked(prs_stacked_df)
 	gname = graph_name(argsd['orig'][0])
-	iso_interx[[1,2,3,4]].to_csv('Results/{}_isom_interxn.tsv'.format(gname),
-															 sep="\t", header=False, index=False)
+	iso_interx[[1, 2, 3, 4]].to_csv('Results/{}_isom_interxn.tsv'.format(gname),
+									sep="\t", header=False, index=False)
 	if os.path.exists('Results/{}_isom_interxn.tsv'.format(gname)):
-			print ("\t", 'Written:','Results/{}_isom_interxn.tsv'.format(gname))
-			print ("\t", 'Next step is to generate graphs using this subsect of production rules.')
-	else: print ("!!Unable to savefile")
-
+		print ("\t", 'Written:', 'Results/{}_isom_interxn.tsv'.format(gname))
+		print ("\t", 'Next step is to generate graphs using this subsect of production rules.')
+	else:
+		print ("!!Unable to savefile")
 
 	print ("Done")
 	exit()
 
+
 def only_orig_arg_passed(argsdic):
-	if (len(argsdic['orig']) and not(argsdic['synthchks'])) \
-		and not( argsdic['etd']) and not(argsdic['ctrl']) \
-		and not( argsdic['clqs']) and	not( argsdic['bam']) and	(argsdic['tr'] is None) \
-		and ( argsdic['isom'] is None) and ( argsdic['stacked'] is None):
+	if (len(argsdic['orig']) and not (argsdic['synthchks'])) \
+			and not (argsdic['etd']) and not (argsdic['ctrl']) \
+			and not (argsdic['clqs']) and not (argsdic['bam']) and (argsdic['tr'] is None) \
+			and (argsdic['isom'] is None) and (argsdic['stacked'] is None):
 		return True
 	else:
 		return False
@@ -774,7 +776,7 @@ def only_orig_arg_passed(argsdic):
 # 		#~#
 # 		#~#		hrg_graph_gen_from_interxn(iso_interx[[1,2,3,4]])
 
-#_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~#
+# _~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~#
 def base_graph_edgelist_to_prod_rules(pickle_fname):
 	"""
 	if lcc has more than 500 nodes
@@ -789,16 +791,16 @@ def base_graph_edgelist_to_prod_rules(pickle_fname):
 	Info("base_graph_edgelist_to_prod_rules")
 	G = nx.read_gpickle(pickle_fname)
 	subgraph = max(nx.connected_component_subgraphs(G), key=len)
-	results=[]
-	if subgraph.number_of_nodes()>500:
-		for k,Gprime in enumerate(gs.rwr_sample(subgraph, 2, 300)): # ret generator
+	results = []
+	if subgraph.number_of_nodes() > 500:
+		for k, Gprime in enumerate(gs.rwr_sample(subgraph, 2, 300)):  # ret generator
 			print k
 			gname = os.path.basename(pickle_fname).rstrip('.p')
 			Gprime.name = gname
-			cc_fname =write_tmp_edgelist(Gprime, k) # subgraph to temp edgelist
+			cc_fname = write_tmp_edgelist(Gprime, k)  # subgraph to temp edgelist
 			results.append(cc_fname)
 	else:
-		cc_fname =write_tmp_edgelist(G)
+		cc_fname = write_tmp_edgelist(G)
 		results.append(cc_fname)
 	return results
 
@@ -812,28 +814,30 @@ def write_tmp_edgelist(sg, k):
 		tmp_f = "../datasets/{}_{}.tsv".format(sg.name, k)
 	try:
 		nx.write_edgelist(sg, tmp_f, data=False)
-		# edgelist_in_dimacs_out(tmp_f)#
-		# print "::> edgelist to dimacs %s" % tmp_f
-	except Exception,e:
+	# edgelist_in_dimacs_out(tmp_f)#
+	# print "::> edgelist to dimacs %s" % tmp_f
+	except Exception, e:
 		print str(e)
 		exit()
 
-	return os.path.basename(tmp_f) 
+	return os.path.basename(tmp_f)
+
 
 # def dimacs_convert_orig_graph(fname):
 # 	edgelist_to_dimacs(fname)
 # 	print ("dimacs convert orig graph")
 
 def collect_results_trees(result):
-		#results.extend(result)
-		results.append(result)
+	# results.extend(result)
+	results.append(result)
+
 
 def new_main(args):
 	if not (args['base'] is None):
 		Info("<- converts to dimacs")
 		gn = graph_name(args['base'][0])
-		f = "../datasets/"+gn+".p"
-		files = base_graph_edgelist_to_prod_rules(f) # tmp tsv / whole; or sample
+		f = "../datasets/" + gn + ".p"
+		files = base_graph_edgelist_to_prod_rules(f)  # tmp tsv / whole; or sample
 		transform_edgelist_to_dimacs(files)
 		dimacs_lst = glob("../datasets/{}*dimacs".format(gn))
 		results = []
@@ -842,29 +846,24 @@ def new_main(args):
 	elif not (args['orig'] is None):
 		Info("<- converts edgelist gpickle")
 		f = args['orig'][0]
-		pfname = graph_name(f)
-		pfname = "../datasets/{}.p".format(pfname)
-		if os.path.exists(pfname): 
-		    Info("file already exists")
-		    sys.exit(0)
+		g = load_edgelist(f) # full graph
+		Info("# of conn comp: %d" %  len(list(nx.connected_component_subgraphs(g))))
+		g = largest_conn_comp(f) # largerst conn comp
+		if isinstance(g, list):
+			for k,Gprime in enumerate(g):
+				subg_out_fname = max(graph_name(f).split("."), key=len)
+				subg_out_fname = "../datasets/" + subg_out_fname
+				subg_out_fname += "_{}.p".format(k)
+				cc_fname = nx.write_gpickle(Gprime, subg_out_fname)  # subgraph to temp edgelist
+				if os.path.exists(subg_out_fname): Info("Wrote %s" % subg_out_fname)
 		else:
-			# create a gpicke for the given edgelist
-			g = load_edgelist(f)
-			g = largest_conn_comp(f)
-			if len(g) ==1 :
-				nx.write_gpickle(g, pfname)
-				if os.path.exists(pfname): 
-					Info("Wrote file %s"%pfname)
-			else:
-				for j,sg in enumerate(g):
-					pfname = graph_name(f)
-					pfname = "../datasets/{}_{}.p".format(pfname,j)
-					try:
-						nx.write_gpickle(sg, pfname)
-					finally:
-						if os.path.exists(pfname): Info("Wrote file %s"%pfname)
-
-
+			subg_out_fname = max(graph_name(f).split("."), key=len)
+			subg_out_fname = "../datasets/" + subg_out_fname
+			subg_out_fname += ".p"
+			cc_fname = nx.write_gpickle(g, subg_out_fname)
+			if os.path.exists(subg_out_fname): Info("Wrote %s" % subg_out_fname)
+		print ("done")
+		exit()
 	elif not (args['edgelist2dimacs'] is None):
 		f = args['edgelist2dimacs'][0]
 		pfname = graph_name(f)
@@ -875,81 +874,82 @@ def new_main(args):
 		subgraph = max(nx.connected_component_subgraphs(G), key=len)
 		gprime_lst = []
 		if subgraph.number_of_nodes() > 500:
-			for j,Gprime in enumerate(gs.rwr_sample(subgraph, 2, 300)):
-				Gprime.name = G.name +"_%d"%j
-				gprime_lst.append( convert_graph_obj_2dimacs([Gprime]))
+			for j, Gprime in enumerate(gs.rwr_sample(subgraph, 2, 300)):
+				Gprime.name = G.name + "_%d" % j
+				gprime_lst.append(convert_graph_obj_2dimacs([Gprime]))
 			print [x for x in gprime_lst]
 
 
 	elif not (args['td'] is None):
 		origG = args['td'][0]
-		dimacs_f = glob("../datasets/" + graph_name(args['td'][0]) +"*.dimacs") 
-		''' "Explode to trees" ''' # ToDo
-		var_els=['mcs','mind','minf','mmd','lexm','mcsm']
-		for j,f in enumerate(dimacs_f):
+		dimacs_f = glob("../datasets/" + graph_name(args['td'][0]) + "*.dimacs")
+		''' "Explode to trees" '''  # ToDo
+		var_els = ['mcs', 'mind', 'minf', 'mmd', 'lexm', 'mcsm']
+		for j, f in enumerate(dimacs_f):
 			print f
 			gn = xt.graph_name(f)
 			dimacs_file = "../datasets/{}.dimacs".format(gn)
 			p = mp.Pool(processes=2)
 			for vael in var_els:
-				p.apply_async(dimacs_nddgo_tree_simple, args=(dimacs_file,vael, ), callback=collect_results_trees)
-				# xt.dimacs_nddgo_tree_simple(f, vael)
+				p.apply_async(dimacs_nddgo_tree_simple, args=(dimacs_file, vael,), callback=collect_results_trees)
+			# xt.dimacs_nddgo_tree_simple(f, vael)
 			p.close()
 			p.join()
 
-		#dimacs_td_ct_fast(oriG, tdfname) # dimacs to tree (decomposition)
+		# dimacs_td_ct_fast(oriG, tdfname) # dimacs to tree (decomposition)
 	else:
 		sys.exit(0)
-	
-	#	dimacs_convert_orig_graph(args['orig'])
-		pickle_fname = "../datasets/"+f+".p"
+
+		#	dimacs_convert_orig_graph(args['orig'])
+		pickle_fname = "../datasets/" + f + ".p"
 		g = nx.read_gpickle(pickle_fname)
 		subgraph = max(nx.connected_component_subgraphs(g), key=len)
-		if subgraph.number_of_nodes()>500:
+		if subgraph.number_of_nodes() > 500:
 			for Gprime in gs.rwr_sample(subgraph, 2, 300):
 				edgelist_in_dimacs_out(Gprime)
 
 
-#def dimacs_convert_orig_graph(fname):
-#	edgelist_to_dimacs(fname)
-#	print ("dimacs convert orig graph")
-#Ddef new_main(args):
-#	if args['base']:
-#		base_graph_edgelist_to_prod_rules(args['orig'][0])# whole; or sample
-#	else:
-#		dimacs_convert_orig_graph(args['orig'][0])
-	# treedecomp_origdimacs_2trees_xvarels(args['orig'])
-	# prod_rules_from_td(args['orig'])
-	# union_prs_gen_graphs(args['orig'])
-	# intersect_isom_prs_gen_graphs(args['orig'])
-	#
-	# eval_generated_graphs_net_metrics(args['orig'])
-	# eval_generated_graphs_graph_frags_stats(args['orig'])
+			# def dimacs_convert_orig_graph(fname):
+			#	edgelist_to_dimacs(fname)
+			#	print ("dimacs convert orig graph")
+			# Ddef new_main(args):
+			#	if args['base']:
+			#		base_graph_edgelist_to_prod_rules(args['orig'][0])# whole; or sample
+			#	else:
+			#		dimacs_convert_orig_graph(args['orig'][0])
+			# treedecomp_origdimacs_2trees_xvarels(args['orig'])
+			# prod_rules_from_td(args['orig'])
+			# union_prs_gen_graphs(args['orig'])
+			# intersect_isom_prs_gen_graphs(args['orig'])
+			#
+			# eval_generated_graphs_net_metrics(args['orig'])
+			# eval_generated_graphs_graph_frags_stats(args['orig'])
 
 
-def get_parser ():
+def get_parser():
 	parser = argparse.ArgumentParser(description='Clique trees for HRG graph model.')
 	parser.add_argument('--orig', nargs=1, required=0, help="edgelist input file")
 	parser.add_argument('--base', nargs=1, required=0, help="base graph to prs")
 	parser.add_argument('--etd', action='store_true', default=0, required=0, help="Edglst to Dimacs")
-	parser.add_argument('--ctrl',action='store_true', default=0, required=0, help="Cntrl given --orig")
-	parser.add_argument('--clqs',action='store_true', default=0, required=0, help="tree objs 2 hrgCT")
+	parser.add_argument('--ctrl', action='store_true', default=0, required=0, help="Cntrl given --orig")
+	parser.add_argument('--clqs', action='store_true', default=0, required=0, help="tree objs 2 hrgCT")
 	parser.add_argument('--bam', action='store_true', default=0, required=0, help="Barabasi-Albert")
-	parser.add_argument('--tr',	nargs=1, required=False, help="indiv. bz2 production rules.")
-	parser.add_argument('--isom',			nargs=1, required=0, help="isom test")
-	parser.add_argument('--stacked',	 nargs=1, required=0, help="(grouped) stacked production rules.")
+	parser.add_argument('--tr', nargs=1, required=False, help="indiv. bz2 production rules.")
+	parser.add_argument('--isom', nargs=1, required=0, help="isom test")
+	parser.add_argument('--stacked', nargs=1, required=0, help="(grouped) stacked production rules.")
 	parser.add_argument('--edgelist2dimacs', nargs=1, required=0, help="Edgelist in to dimacs out")
 	parser.add_argument('--td', nargs=1, required=0, help="dimacs to tree (TD)")
 	parser.add_argument('--synthchks', action='store_true', default=0, required=0, help="analyze graphs in FakeGraphs")
-	parser.add_argument('--version',	 action='version', version=__version__)
+	parser.add_argument('--version', action='version', version=__version__)
 	return parser
+
 
 if __name__ == '__main__':
 	'''ToDo: clean the edglists, write them back to disk and then run inddgo on 1 component graphs
 	'''
 	parser = get_parser()
 	args = vars(parser.parse_args())
-	if len(sys.argv) ==1: parser.print_help(); exit()
+	if len(sys.argv) == 1: parser.print_help(); exit()
 	try:
 		# main(args)
 		new_main(args)
