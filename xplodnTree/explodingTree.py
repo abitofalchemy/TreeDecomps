@@ -13,8 +13,8 @@ import shelve
 import subprocess
 import sys
 import traceback
-from   glob import glob
-from   itertools import combinations
+from	 glob import glob
+from	 itertools import combinations
 
 import pprint as pp
 import networkx as nx
@@ -24,10 +24,10 @@ import pandas as pd
 import core.graph_sampler as gs
 import core.isomorph_interxn as isoint
 import core.net_metrics as metrics
-from   core.PHRG import graph_checks
-from   core.arbolera import jacc_dist_for_pair_dfrms
-from   core.load_edgelist_from_dataframe import Pandas_DataFrame_From_Edgelist
-from core.utils import Info, load_edgelist
+from	 core.PHRG import graph_checks
+from	 core.arbolera import jacc_dist_for_pair_dfrms
+from	 core.load_edgelist_from_dataframe import Pandas_DataFrame_From_Edgelist
+from core.utils import Info, load_edgelist, largest_conn_comp
 
 #_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~#
 results_trees=[]
@@ -137,7 +137,7 @@ def dimacs_nddgo_tree_simple(fname, heuristic):
 	# output = popen.stdout.read()
 	out, err = popen.communicate()
 	out = out.split('\n')
-	print  (out, err)
+	print	(out, err)
 	return (out, err)
 
 def dimacs_nddgo_tree(dimacsfnm_lst, heuristic):
@@ -462,7 +462,7 @@ def graph_name(fname):
 
 def ref_graph_largest_conn_componet(fname):
 	df = Pandas_DataFrame_From_Edgelist([fname])[0]
-	G  = nx.from_pandas_dataframe(df, source='src',target='trg')
+	G	= nx.from_pandas_dataframe(df, source='src',target='trg')
 	Gc = max(nx.connected_component_subgraphs(G), key=len)
 	gname = graph_name(fname)
 	num_nodes = Gc.number_of_nodes()
@@ -495,7 +495,7 @@ def subgraphs_exploding_trees(orig, sub_graph_lst):
 	prs_paths_lst = []
 	for sbg_edl_fname in sub_graph_lst:
 		dimacsFname = edgelist_to_dimacs(sbg_edl_fname) # argsd['orig'][0])
-		varElimLst  = ['mcs','mind','minf','mmd','lexm','mcsm']
+		varElimLst	= ['mcs','mind','minf','mmd','lexm','mcsm']
 		
 		##
 		# dict where values are the file path of the written trees
@@ -568,7 +568,7 @@ def xplodingTree(argsd):
 		exit()
 	
 	dimacsFname = edgelist_to_dimacs(sub_graphs_fnames_lst[0]) # argsd['orig'][0])
-	varElimLst  = ['mcs','mind','minf','mmd','lexm','mcsm']
+	varElimLst	= ['mcs','mind','minf','mmd','lexm','mcsm']
 
 	##
 	# dict where values are the file path of the written trees
@@ -607,7 +607,7 @@ def xplodingTree(argsd):
 def only_orig_arg_passed(argsdic):
 	if (len(argsdic['orig']) and not(argsdic['synthchks'])) \
 		and not( argsdic['etd']) and not(argsdic['ctrl']) \
-		and not( argsdic['clqs']) and  not( argsdic['bam']) and  (argsdic['tr'] is None) \
+		and not( argsdic['clqs']) and	not( argsdic['bam']) and	(argsdic['tr'] is None) \
 		and ( argsdic['isom'] is None) and ( argsdic['stacked'] is None):
 		return True
 	else:
@@ -624,7 +624,7 @@ def only_orig_arg_passed(argsdic):
 # 		orig = args_d['orig'][0]
 # 		import subprocess
 # 		from threading import Timer
-# 		args = ("pytyon", "exact_phrg.py",  "--orig", orig)
+# 		args = ("pytyon", "exact_phrg.py",	"--orig", orig)
 # 		proc = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 # 		kill_proc = lambda p: p.kill()
 # 		timer = Timer(600, kill_proc, [proc])
@@ -633,10 +633,10 @@ def only_orig_arg_passed(argsdic):
 # 			output, stderr = proc.communicate()
 # 		finally:
 # 			timer.cancel()
-# 		#        print output
+# 		#				print output
 # 		gname = [x for x in os.path.basename(orig).split('.') if len(x) >3][0]
 # 		fname = "ProdRules/" + gname + "_prs.tsv"
-# 		#        print fname
+# 		#				print fname
 #
 # 		from td_rndGStats import graph_gen_isom_interxn
 # 		graph_gen_isom_interxn(in_fname=fname, orig_el=orig) # gen graph from the prod rules
@@ -650,8 +650,8 @@ def only_orig_arg_passed(argsdic):
 # 		var_el_m = ['mcs','mind','minf','mmd','lexm','mcsm']
 # 		trees_d = tree_decomposition_with_varelims(dimacs_gObjs, var_el_m)
 # 		for k in trees_d.keys():
-# 			print    ('\t',k, "==>")
-# 			for v in trees_d[k]: print ("\t    ", v)
+# 			print		('\t',k, "==>")
+# 			for v in trees_d[k]: print ("\t		", v)
 #
 # 	elif args_d['tr']: # / process trees and gen stacked PRS /
 # 		files = glob(args_d['tr'][0])
@@ -673,10 +673,10 @@ def only_orig_arg_passed(argsdic):
 # 	elif args_d['isom']:
 # 		print ('~~~~ isom intrxn from stacked df')
 # 		files = glob(args_d['isom'][0])
-# 		orig  = args_d['orig'][0] # reference path
+# 		orig	= args_d['orig'][0] # reference path
 # 		orig_bbn = [x for x in os.path.basename(orig).split(".") if len(x) > 3][0]
-# 		#        print orig
-# 		#        print orig_bbn
+# 		#				print orig
+# 		#				print orig_bbn
 #
 # 		files = glob("ProdRules/{}*stcked_prs.tsv".format(orig_bbn))
 # 		for f in files:
@@ -684,7 +684,7 @@ def only_orig_arg_passed(argsdic):
 # 			isom_ntrxn_f = isomorphic_test_on_stacked_prs(f)
 # 			#from td_rndGStats import graph_gen_isom_interxn
 # 			#graph_gen_isom_interxn(in_fname= isom_ntrxn_f, orig_el = orig)
-# 		#            print type(isom_ntrxn_f)
+# 		#						print type(isom_ntrxn_f)
 # 			'''isom_ntrxn_f[[1,2,3,4]].to_csv('Results/{}_isom_interxn.tsv'.format(gname),
 # 				sep="\t", header=False, index=False)
 # 			if os.path.exists('Results/{}_isom_interxn.tsv'.format(gname)):
@@ -692,7 +692,7 @@ def only_orig_arg_passed(argsdic):
 # 			'''
 #
 #
-# 	elif (args_d['synthchks'] and  args_d['orig']):
+# 	elif (args_d['synthchks'] and	args_d['orig']):
 # 		print('~~~~ Analysis of the Synthetic graphs')
 # 		synth_checks_network_metrics(args_d['orig'][0])
 # 		exit(1)
@@ -719,8 +719,8 @@ def only_orig_arg_passed(argsdic):
 # 		var_el_m = ['mcs','mind','minf','mmd','lexm','mcsm']
 # 		trees_d = tree_decomposition_with_varelims(dimacs_gObjs, var_el_m)
 # 		for k in trees_d.keys():
-# 			print    ('\t',k, "==>")
-# 			for v in trees_d[k]: print( "\t    ", v)
+# 			print		('\t',k, "==>")
+# 			for v in trees_d[k]: print( "\t		", v)
 #
 # 		#~#
 # 		#~# dimacs tree to HRG clique tree
@@ -740,7 +740,7 @@ def only_orig_arg_passed(argsdic):
 # 		for k in pr_rules_d.keys():
 # 			st_prs_d[k] = get_hrg_prod_rules(pr_rules_d[k])
 #
-# 		print('    ', st_prs_d.keys())
+# 		print('		', st_prs_d.keys())
 # 		for k in st_prs_d.keys():
 # 			df = pd.DataFrame(st_prs_d[k])
 # 			outfname = "Results/"+os.path.basename(k).split('.')[0]+"stckd_prs.tsv"
@@ -748,10 +748,10 @@ def only_orig_arg_passed(argsdic):
 #
 # 		#~#
 # 		#~# get the isomophic overlap
-# 		#    intxn_prod_rules = get_isom_overlap_in_stacked_prod_rules(stck_prod_rules)
-# 		#    for nm    in sorted(stck_prod_rules.groupby(['cate']).groups.keys()):
-# 		#        if os.path.exists('ProdRules/'+nm+'.bz2'):
-# 		#            print '    ProdRules/'+nm+'.bz2'
+# 		#		intxn_prod_rules = get_isom_overlap_in_stacked_prod_rules(stck_prod_rules)
+# 		#		for nm		in sorted(stck_prod_rules.groupby(['cate']).groups.keys()):
+# 		#				if os.path.exists('ProdRules/'+nm+'.bz2'):
+# 		#						print '		ProdRules/'+nm+'.bz2'
 # 		print ('\n~~~~ get_isom_overlap_in_stacked_prod_rules')
 # 		print ('~~~~ output is Jaccard Sim Scores')
 # 		for k in st_prs_d.keys():
@@ -772,7 +772,7 @@ def only_orig_arg_passed(argsdic):
 # 			if os.path.exists('Results/{}_isom_interxn.tsv'.format(gname)):
 # 				print ('\tWritten: Results/{}_isom_interxn.tsv'.format(gname))
 # 		#~#
-# 		#~#    hrg_graph_gen_from_interxn(iso_interx[[1,2,3,4]])
+# 		#~#		hrg_graph_gen_from_interxn(iso_interx[[1,2,3,4]])
 
 #_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~#
 def base_graph_edgelist_to_prod_rules(pickle_fname):
@@ -825,7 +825,7 @@ def write_tmp_edgelist(sg, k):
 # 	print ("dimacs convert orig graph")
 
 def collect_results_trees(result):
-	  #results.extend(result)
+		#results.extend(result)
 		results.append(result)
 
 def new_main(args):
@@ -845,14 +845,26 @@ def new_main(args):
 		pfname = graph_name(f)
 		pfname = "../datasets/{}.p".format(pfname)
 		if os.path.exists(pfname): 
-			Info("file already exists")
-			sys.exit(0)
+		    Info("file already exists")
+		    sys.exit(0)
 		else:
 			# create a gpicke for the given edgelist
 			g = load_edgelist(f)
-			nx.write_gpickle(g, pfname)
-			if os.path.exists(pfname): 
-				Info("Wrote file %s"%pfname)
+			g = largest_conn_comp(f)
+			if len(g) ==1 :
+				nx.write_gpickle(g, pfname)
+				if os.path.exists(pfname): 
+					Info("Wrote file %s"%pfname)
+			else:
+				for j,sg in enumerate(g):
+					pfname = graph_name(f)
+					pfname = "../datasets/{}_{}.p".format(pfname,j)
+					try:
+						nx.write_gpickle(sg, pfname)
+					finally:
+						if os.path.exists(pfname): Info("Wrote file %s"%pfname)
+
+
 	elif not (args['edgelist2dimacs'] is None):
 		f = args['edgelist2dimacs'][0]
 		pfname = graph_name(f)
@@ -923,13 +935,13 @@ def get_parser ():
 	parser.add_argument('--ctrl',action='store_true', default=0, required=0, help="Cntrl given --orig")
 	parser.add_argument('--clqs',action='store_true', default=0, required=0, help="tree objs 2 hrgCT")
 	parser.add_argument('--bam', action='store_true', default=0, required=0, help="Barabasi-Albert")
-	parser.add_argument('--tr',  nargs=1, required=False, help="indiv. bz2 production rules.")
-	parser.add_argument('--isom',      nargs=1, required=0, help="isom test")
-	parser.add_argument('--stacked',   nargs=1, required=0, help="(grouped) stacked production rules.")
+	parser.add_argument('--tr',	nargs=1, required=False, help="indiv. bz2 production rules.")
+	parser.add_argument('--isom',			nargs=1, required=0, help="isom test")
+	parser.add_argument('--stacked',	 nargs=1, required=0, help="(grouped) stacked production rules.")
 	parser.add_argument('--edgelist2dimacs', nargs=1, required=0, help="Edgelist in to dimacs out")
 	parser.add_argument('--td', nargs=1, required=0, help="dimacs to tree (TD)")
 	parser.add_argument('--synthchks', action='store_true', default=0, required=0, help="analyze graphs in FakeGraphs")
-	parser.add_argument('--version',   action='version', version=__version__)
+	parser.add_argument('--version',	 action='version', version=__version__)
 	return parser
 
 if __name__ == '__main__':

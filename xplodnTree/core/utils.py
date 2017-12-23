@@ -50,7 +50,7 @@ def net_info(edgelist_fname):
 
 	try:
 		g = nx.from_pandas_dataframe(df, 'src', 'trg', edge_attr=['ts'])
-	except  Exception, e:
+	except	Exception, e:
 		g = nx.from_pandas_dataframe(df, 'src', 'trg')
 
 	if df.empty:
@@ -81,7 +81,7 @@ def load_graph_base_info():
 	return data
 
 def Info(_str):
-	print "  >> {}".format(_str)
+	print "	>> {}".format(_str)
 
 def listify_rhs(rhs_rule):
 	rhs_clean= [f[1:-1] for f in re.findall("'.+?'", rhs_rule)]
@@ -92,25 +92,39 @@ def sample_subgraph(g):
 	import tempfile
 
 	subgraphs = []
-	for j,Gprime in enumerate(gs.rwr_sample(G, 2, 300)):
+	for j,Gprime in enumerate(gs.rwr_sample(g, 2, 300)):
 		fd, path = tempfile.mkstemp()
 		try:
-			nx.write_edgelist(fd)    # use the path or the file descriptor
+			nx.write_edgelist(Gprime,path)		# use the path or the file descriptor
 		finally:
 			os.close(fd)
 		
+		subgraphs.append(Gprime)
+	return subgraphs
+		
 	
 def largest_conn_comp(fname):
-	graph  = nx.read_gpickle(fname)
-	giant_nodes = max(nx.connected_component_subgraphs(graph), key=len)
-	if giant_nodes.number_of_nodes()>500:
-		samp_subgraph = sample_subgraph(nx.subgraph(G, giant_nodes))
-		return samp_subgraph
+	if fname.endswith(".p"):
+		graph	= nx.read_gpickle(fname)
 	else:
+		graph = load_edgelist(fname)
+	giant_nodes = max(nx.connected_component_subgraphs(graph), key=len)
+	print giant_nodes
+	if giant_nodes.number_of_nodes()>500:
+		samp_subgraphs = sample_subgraph(nx.subgraph(graph, giant_nodes))
+		print "samp_subgraphs",len(samp_subgraphs)
+		return samp_subgraphs
+	else:
+		print "largest cc",nx.info(giant_nodes)
 		return giant_nodes
-	
 
-
+def list_largest_conn_comp(fname):
+	print os.path.basename(fname)
+	if fname.endswith(".p"):
+		graph = nx.read_gpickle(fname)
+	else:
+		graph = load_edgelist(fname)
+	print "	",sorted([len(x) for x in nx.connected_component_subgraphs(graph)])
 
 def load_edgelist(gfname):
 	import pandas as pd

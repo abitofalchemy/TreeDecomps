@@ -1,0 +1,3 @@
+find ../../datasets -name 'out.*' -type f | parallel "python -c 'from utils import list_largest_conn_comp; list_largest_conn_comp(\"{}\")'"
+
+
