@@ -38,50 +38,41 @@ def collect_results(result):
 	results.append(result)
 
 
-def transform_edgelist_to_dimacs(files):
+def transform_edgelist_to_dimacs(files, f_str=None):
 	"""
 	edgelist to dimacs graph format
 	:param files: list of file path(s)
 	:return:
 	"""
-	Info("Transform to dimacs")
+	Info("edgelist to dimacs graph format")
 	Info("-" * 40)
-	results = []
-	p = mp.Pool(processes=2)
+	rslt = []
 	for f in files:
-		gn = graph_name(f)
-		if os.path.exists('../datasets/{}.dimacs'.format(gn)):
-			Info('This file already exists.')
-			continue
-		g = load_edgelist("../datasets/" + f)
+		g = nx.read_gpickle(f)
+		g.name = graph_name(f)
+		rslt.append( convert_nx_gObjs_to_dimacs_gObjs([g]))
 
-		# p.apply_async(convert_nx_gObjs_to_dimacs_gObjs, args=([g],), callback=collect_results)
-		convert_nx_gObjs_to_dimacs_gObjs([g])
-		# p.close()
-		# p.join()
-		results.append('../datasets/{}.dimacs'.format(gn))
-	return results
+	return rslt
 
 
 def explode_to_trees(files, results_trees):
-	Info("\nExplode to trees")
-
+	"""
+	explode into tree decompositions
+	:param files:
+	:param results_trees:
+	:return:
+	"""
+	Info("Explode to trees")
 	var_els = ['mcs', 'mind', 'minf', 'mmd', 'lexm', 'mcsm']
-	if len(files) == 1:
-		gn = graph_name(files)
-		dimacs_file = "../datasets/{}.dimacs".format(gn)
-		exit()
-
-	for j, f in enumerate(files):
-		dimacs_file = f
+	for j, dimacs_file in enumerate(files):
 		results = []
-		# p = mp.Pool(processes=2)
+		p = mp.Pool(processes=2)
 		for vael in var_els:
-			# p.apply_async(dimacs_nddgo_tree_simple, args=(dimacs_file,vael, ), callback=collect_results)
 			print "\t", vael
-			dimacs_nddgo_tree_simple(dimacs_file, vael)
-		# p.close()
-		# p.join()
+			# dimacs_nddgo_tree_simple(dimacs_file[0], vael)
+			p.apply_async(dimacs_nddgo_tree_simple, args=(dimacs_file[0], vael,), callback=collect_results_trees)
+		p.close()
+		p.join()
 
 		# What is below?
 		if j == 0:
@@ -90,7 +81,7 @@ def explode_to_trees(files, results_trees):
 
 		prs_np = np.array(results)
 		asp_arr = np.append(asp_arr, prs_np)
-
+		print  "pp.pprint(asp_arr)"
 		pp.pprint(asp_arr)
 
 
@@ -124,23 +115,23 @@ def dimacs_nddgo_tree_simple(fname, heuristic):
 	if os.path.exists(outfname):
 		Info("{} already exists".format(outfname))
 		return (None, None)
-
+	# p = mp.Pool(processes=2)
 	if platform.system() == "Linux":
 		args = ["bin/linux/serial_wis -f {} -nice -{} -w {} -decompose_only".format(fname, heuristic, outfname)]
-		print "\t", args
+		#print "\t", args
 	else:
 		args = ["bin/mac/serial_wis -f {} -nice -{} -w {} -decompose_only".format(fname, heuristic, outfname)]
-		pp.pprint(args)
+		#pp.pprint(args)
 
 	popen = subprocess.Popen(args,
 							 stdout=subprocess.PIPE,
 							 stderr=subprocess.PIPE, shell=True)
 	popen.wait()
-	# output = popen.stdout.read()
 	out, err = popen.communicate()
-	out = out.split('\n')
-	print    (out, err)
+	print (out, err)
 	return (out, err)
+	# p.apply_async()
+
 
 
 def dimacs_nddgo_tree(dimacsfnm_lst, heuristic):
@@ -298,7 +289,6 @@ def convert_nx_gObjs_to_dimacs_gObjs(nx_gObjs):
 	for G in nx_gObjs:
 		N = max(G.nodes())
 		M = G.number_of_edges()
-
 		from core.arbolera import nx_edges_to_nddgo_graph
 		dimacs_glst.append(nx_edges_to_nddgo_graph(G, n=N, m=M, save_g=True))
 
@@ -306,8 +296,6 @@ def convert_nx_gObjs_to_dimacs_gObjs(nx_gObjs):
 
 
 def convert_graph_obj_2dimacs(nx_gObjs):
-	# type: (object) -> object
-	# type: (nx.Graph) -> object
 	'''
 	Take list of graphs and convert to dimacs
 	'''
@@ -319,7 +307,6 @@ def convert_graph_obj_2dimacs(nx_gObjs):
 		# +++ Graph Checks
 		if G is None: sys.exit(1)
 
-		Info(G.name)
 		from core.arbolera import nx_edges_to_nddgo_graph
 		dimacs_glst.append(nx_edges_to_nddgo_graph(G, n=N, m=M, save_g=True))
 
@@ -836,12 +823,17 @@ def new_main(args):
 	if not (args['base'] is None):
 		Info("<- converts to dimacs")
 		gn = graph_name(args['base'][0])
-		f = "../datasets/" + gn + ".p"
-		files = base_graph_edgelist_to_prod_rules(f)  # tmp tsv / whole; or sample
-		transform_edgelist_to_dimacs(files)
-		dimacs_lst = glob("../datasets/{}*dimacs".format(gn))
+		f = "../datasets/" + gn + "*.p"
+		files = glob(f)
+		dimacs_lst = transform_edgelist_to_dimacs(files)
 		results = []
-		explode_to_trees(dimacs_lst, results)
+		trees = explode_to_trees(dimacs_lst, results)
+
+		pp.pprint(files)
+		pp.pprint(dimacs_lst)
+		pp.pprint(trees)
+		print
+		pp.pprint (results)
 		exit(0)
 	elif not (args['orig'] is None):
 		Info("<- converts edgelist gpickle")
@@ -869,7 +861,8 @@ def new_main(args):
 		pfname = graph_name(f)
 		pfname = "../datasets/{}.p".format(pfname)
 		if not os.path.exists(pfname):
-			Info("File does not found, please run: python explodingTree.py --orig path/to/edgelist")
+			Info("File not found, please run:")
+			Info("  python explodingTree.py --orig path/to/edgelist")
 		G = load_edgelist(f)
 		subgraph = max(nx.connected_component_subgraphs(G), key=len)
 		gprime_lst = []
