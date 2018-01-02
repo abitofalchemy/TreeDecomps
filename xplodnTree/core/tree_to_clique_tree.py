@@ -67,78 +67,78 @@ def dimacs_td_ct_fast(oriG, tdfname):
 		synthg:		when the input graph is a syth (orig) graph
 	Todo: 
 		currently not handling sythg in this version of dimacs_td_ct
-	"""
-  # G = oriG
-  # if G is None: return (1)
-  # graph_checks(G)  # --- graph checks
-  # prod_rules = {}
-  #
-  # t_basename = os.path.basename(tdfname)
-  # out_tdfname = os.path.basename(t_basename) + ".prs"
-  # if os.path.exists("ProdRules/" + out_tdfname):
-  #   print "==> exists:", out_tdfname
-  #   return out_tdfname
-  # if 0: print "ProdRules/" + out_tdfname, tdfname
+  """
+  G = oriG
+  if G is None: return (1)
+  graph_checks(G)  # --- graph checks
+  prod_rules = {}
 
-  # with open(tdfname, 'r') as f:  # read tree decomp from inddgo
-  #   lines = f.readlines()
-  #   lines = [x.rstrip('\r\n') for x in lines]
+  t_basename = os.path.basename(tdfname)
+  out_tdfname = os.path.basename(t_basename) + ".prs"
+  if os.path.exists("ProdRules/" + out_tdfname):
+    print "==> exists:", out_tdfname
+    return out_tdfname
+  if 0: print "ProdRules/" + out_tdfname, tdfname
 
-  # cbags = {}
-  # bags = [x.split() for x in lines if x.startswith('B')]
-  #
-  # for b in bags:
-  #   cbags[int(b[1])] = [int(x) for x in b[3:]]  # what to do with bag size?
-  #
-  # edges = [x.split()[1:] for x in lines if x.startswith('e')]
-  # edges = [[int(k) for k in x] for x in edges]
-  #
-  # tree = defaultdict(set)
-  # for s, t in edges:
-  #   tree[frozenset(cbags[s])].add(frozenset(cbags[t]))
-  #   if DEBUG: print '.. # of keys in `tree`:', len(tree.keys())
-  #
-  # root = list(tree)[0]
-  # root = frozenset(cbags[1])
-  # T = td.make_rooted(tree, root)
-  # # nfld.unfold_2wide_tuple(T) # lets me display the tree's frozen sets
-  #
-  # T = phrg.binarize(T)
-  # root = list(T)[0]
-  # root, children = T
-  # # td.new_visit(T, G, prod_rules, TD)
-  # # print ">>",len(T)
-  #
-  # td.new_visit(T, G, prod_rules)
-  #
-  # if 0: print "--------------------"
-  # if 0: print "- Production Rules -"
-  # if 0: print "--------------------"
-  #
-  # for k in prod_rules.iterkeys():
-  #   if DEBUG: print k
-  #   s = 0
-  #   for d in prod_rules[k]:
-  #     s += prod_rules[k][d]
-  #   for d in prod_rules[k]:
-  #     prod_rules[k][d] = float(prod_rules[k][d]) / float(
-  #       s)  # normailization step to create probs not counts.
-  #     if DEBUG: print '\t -> ', d, prod_rules[k][d]
-  #
-  # rules = []
-  # id = 0
-  # for k, v in prod_rules.iteritems():
-  #   sid = 0
-  #   for x in prod_rules[k]:
-  #     rhs = re.findall("[^()]+", x)
-  #     rules.append(("r%d.%d" % (id, sid), "%s" % re.findall("[^()]+", k)[0], rhs, prod_rules[k][x]))
-  #     if 0: print ("r%d.%d" % (id, sid), "%s" % re.findall("[^()]+", k)[0], rhs, prod_rules[k][x])
-  #     sid += 1
-  #   id += 1
-  # # print rules
-  # if 0: print "--------------------"
-  # if 0:print '- P. Rules', len(rules)
-  # if 0: print "--------------------"
+  with open(tdfname, 'r') as f:  # read tree decomp from inddgo
+    lines = f.readlines()
+    lines = [x.rstrip('\r\n') for x in lines]
+
+  cbags = {}
+  bags = [x.split() for x in lines if x.startswith('B')]
+
+  for b in bags:
+    cbags[int(b[1])] = [int(x) for x in b[3:]]  # what to do with bag size?
+
+  edges = [x.split()[1:] for x in lines if x.startswith('e')]
+  edges = [[int(k) for k in x] for x in edges]
+
+  tree = defaultdict(set)
+  for s, t in edges:
+    tree[frozenset(cbags[s])].add(frozenset(cbags[t]))
+    if DEBUG: print '.. # of keys in `tree`:', len(tree.keys())
+
+  root = list(tree)[0]
+  root = frozenset(cbags[1])
+  T = td.make_rooted(tree, root)
+  # nfld.unfold_2wide_tuple(T) # lets me display the tree's frozen sets
+
+  T = phrg.binarize(T)
+  root = list(T)[0]
+  root, children = T
+  # td.new_visit(T, G, prod_rules, TD)
+  # print ">>",len(T)
+
+  td.new_visit(T, G, prod_rules)
+
+  if 0: print "--------------------"
+  if 0: print "- Production Rules -"
+  if 0: print "--------------------"
+
+  for k in prod_rules.iterkeys():
+    if DEBUG: print k
+    s = 0
+    for d in prod_rules[k]:
+      s += prod_rules[k][d]
+    for d in prod_rules[k]:
+      prod_rules[k][d] = float(prod_rules[k][d]) / float(
+        s)  # normailization step to create probs not counts.
+      if DEBUG: print '\t -> ', d, prod_rules[k][d]
+
+  rules = []
+  id = 0
+  for k, v in prod_rules.iteritems():
+    sid = 0
+    for x in prod_rules[k]:
+      rhs = re.findall("[^()]+", x)
+      rules.append(("r%d.%d" % (id, sid), "%s" % re.findall("[^()]+", k)[0], rhs, prod_rules[k][x]))
+      if 0: print ("r%d.%d" % (id, sid), "%s" % re.findall("[^()]+", k)[0], rhs, prod_rules[k][x])
+      sid += 1
+    id += 1
+  # print rules
+  if 0: print "--------------------"
+  if 0:print '- P. Rules', len(rules)
+  if 0: print "--------------------"
 
   '''
   # ToDo.
@@ -161,19 +161,18 @@ def dimacs_td_ct_fast(oriG, tdfname):
   return ""
 
 
-def main ():
-  parser = get_parser()
-  args = vars(parser.parse_args())
-
-
-## dimacs_td_ct(args['orig'], args['tree'] )	# gen synth graph
-
+# def main ():
+#   parser = get_parser()
+#   args = vars(parser.parse_args())
+#
+#
+# ## dimacs_td_ct(args['orig'], args['tree'] )	# gen synth graph
+#
 
 if __name__ == '__main__':
-  try:
-    main()
-  except Exception, e:
-    print str(e)
-    traceback.print_exc()
-    sys.exit(1)
-  sys.exit(0)
+	f = "../datasets/karate*tree"
+	orig = "/Users/sal.aguinaga/KynKon/datasets/out.karate_club_graph"
+	pp.pprint(f)
+	print
+	pp.pprint(orig)
+	sys.exit(0)

@@ -1,29 +1,37 @@
 #!/usr/bin/env python
 
 import multiprocessing as mp
-import explodingTree as xt
+# import explodingTree as xt
 import os, sys
 import re
 from collections import deque, defaultdict, Counter
-from core.file_utils import edgelist_basic_info
+# from core.file_utils import edgelist_basic_info
 from glob import glob
 from core.stacked_prod_rules import stack_prod_rules_bygroup_into_list
 from core.will_prod_rules_fire import will_prod_rules_fire
-import tdec.tree_decomposition as td
-import tdec.PHRG as phrg
+import core.tree_decomposition as td
+import core.PHRG as phrg
 import numpy as np
 import pprint  as pp
+from core.utils import Info
 
 results = []
 results_prs =[]
 DEBUG=False
 
 def write_prod_rules_to_tsv(prules, out_name):
-  from pandas import DataFrame
-  df = DataFrame(prules)
-  # print "out_tdfname:", out_name
-  df.to_csv("ProdRules/" + out_name, sep="\t", header=False, index=False)
-
+	Info("write_prod_rules_to_tsv")
+	from pandas import DataFrame
+	df = DataFrame(prules)
+	# print "out_tdfname:", out_name
+	if not os.path.exists("../ProdRules"):
+	  os.mkdir("../ProdRules")
+	try:
+		df.to_csv("../ProdRules/" + out_name, sep="\t", header=False, index=False)
+	finally:
+		print "\tWrote", "../ProdRules/" + out_name
+	if os.path.exists("../ProdRules/" + out_name):
+		print "Wrote", "../ProdRules/" + out_name
 
 def dimacs_td_ct_fast(oriG, tdfname):
   """ tree decomp to clique-tree
@@ -36,7 +44,6 @@ def dimacs_td_ct_fast(oriG, tdfname):
 	"""
   G = oriG
   if G is None: return (1)
-  # graph_checks(G)  # --- graph checks
   prod_rules = {}
 
   t_basename = os.path.basename(tdfname)
@@ -160,15 +167,15 @@ def run_external(args):
 # ^~_~^^~_~^^~_~^^~_~^^~_~^^~_~^^~_~^^~_~^^~_~^^~_~^^~_~^^~_~^^~_~^^~_~^^~_~^^~_~^^~_~^^~_~^^~_~^^~_
 # ^~_~^^~_~^^~_~^^~_~^^~_~^^~_~^^~_~^^~_~^^~_~^^~_~^^~_~^^~_~^^~_~^^~_~^^~_~^^~_~^^~_~^^~_~^^~_~^^~_
 
-files = [f.rstrip('\n\r') for f in open("datasets/datlst.txt","r").readlines()]
-
-# edgelist base info dict
-el_base_info_d  = {}
-el_base_info_d  = edgelist_basic_info(files)
-
-# print
-# print "Transform to dimacs"
-# print "-"*40
+# files = [f.rstrip('\n\r') for f in open("datasets/datlst.txt","r").readlines()]
+#
+# # edgelist base info dict
+# el_base_info_d  = {}
+# el_base_info_d  = edgelist_basic_info(files)
+#
+# # print
+# # print "Transform to dimacs"
+# # print "-"*40
 # p = mp.Pool(processes=2)
 # for f in files:
 # 	gn = xt.graph_name(f)
@@ -247,21 +254,50 @@ el_base_info_d  = edgelist_basic_info(files)
 	#n = el_base_info_d[gn]
 	#will_prod_rules_fire(prs_files_l, n) # probe each group
 
-print
-print "Test intersectin (isomorphic) production rules subset"
-print "-"*40
-from core.baseball import recompute_probabilities
-from core.will_prod_rules_fire import probe_stacked_prs_likelihood_tofire
-from explodingTree import graph_name
+# print
+# print "Test intersectin (isomorphic) production rules subset"
+# print "-"*40
+# from core.baseball import recompute_probabilities
+# from core.will_prod_rules_fire import probe_stacked_prs_likelihood_tofire
+# from explodingTree import graph_name
+#
+# for f in files:
+# 	gn = xt.graph_name(f)
+# 	prs_files = glob("ProdRules/{}*prs".format(gn))
+# 	staked_prs_df = stack_prod_rules_bygroup_into_list(prs_files) # from core.stacked_prod_rules
+# 	print "*************" # recompute the probabilities for the group of prs
+# 	df = recompute_probabilities(staked_prs_df) # from core.baseball
+# 	# test if stacked prs can fire
+# 	stck_fired = probe_stacked_prs_likelihood_tofire(df, graph_name(f), el_base_info_d[graph_name(f)])
+# 	print (stck_fired)
+# 	#
+# 	break
 
-for f in files:
-	gn = xt.graph_name(f)
-	prs_files = glob("ProdRules/{}*prs".format(gn))
-	staked_prs_df = stack_prod_rules_bygroup_into_list(prs_files) # from core.stacked_prod_rules
-	print "*************" # recompute the probabilities for the group of prs
-	df = recompute_probabilities(staked_prs_df) # from core.baseball
-	# test if stacked prs can fire
-	stck_fired = probe_stacked_prs_likelihood_tofire(df, graph_name(f), el_base_info_d[graph_name(f)])
-	print (stck_fired)
-	#
-	break
+if __name__ == '__main__':
+	import sys
+	from core.utils import graph_name
+
+	if len(sys.argv) < 2:
+		Info("add an out.* dataset with its full path")
+		exit()
+	f = sys.argv[1]
+	f = "../datasets/" + graph_name(f) + "*.tree"
+	ftrees = glob(f)
+
+
+	orig = sys.argv[1] #"/Users/sal.aguinaga/KynKon/datasets/out.karate_club_graph"
+	from core.utils import graph_name
+	import networkx as nx
+
+	gn = graph_name(orig)
+	f = "../datasets/" + gn + "*.p"
+	results = []
+	for p in glob(f):
+		pp.pprint(p)
+		g = nx.read_gpickle(p)
+		for tf in ftrees:
+			print ("\t"), tf
+			results.append(dimacs_td_ct_fast(g, tf))
+	pp.pprint(results)
+
+	sys.exit(0)

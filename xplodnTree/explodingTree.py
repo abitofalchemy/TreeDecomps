@@ -27,7 +27,8 @@ import core.net_metrics as metrics
 from core.PHRG import graph_checks
 from core.arbolera import jacc_dist_for_pair_dfrms
 from core.load_edgelist_from_dataframe import Pandas_DataFrame_From_Edgelist
-from core.utils import Info, load_edgelist, largest_conn_comp
+from core.utils import Info, load_edgelist, largest_conn_comp, graph_name
+from bb3D import dimacs_td_ct_fast
 
 # _~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~_~#
 results_trees = []
@@ -44,8 +45,7 @@ def transform_edgelist_to_dimacs(files, f_str=None):
 	:param files: list of file path(s)
 	:return:
 	"""
-	Info("edgelist to dimacs graph format")
-	Info("-" * 40)
+	Info("edgelist to dimacs graph format\n" + "-" * 40)
 	rslt = []
 	for f in files:
 		g = nx.read_gpickle(f)
@@ -443,12 +443,7 @@ def isomorphic_test_on_stacked_prs(stacked_pr_rules_fname=None):
 	return outfname
 
 
-def graph_name(fname):
-	gnames = [x for x in os.path.basename(fname).split('.') if len(x) > 3][0]
-	if len(gnames):
-		return gnames
-	else:
-		return gnames[0]
+
 
 
 def ref_graph_largest_conn_componet(fname):
@@ -872,7 +867,17 @@ def new_main(args):
 				gprime_lst.append(convert_graph_obj_2dimacs([Gprime]))
 			print [x for x in gprime_lst]
 
-
+	elif not (args['prules'] is None):
+		gn = graph_name(args['prules'][0])
+		print gn
+		f = "../datasets/" + gn + "*.tree"
+		files = glob(f)
+		f = "../datasets/" + gn + "*.p"
+		graphs = glob(f)
+		for g in graphs:
+			for f in files:
+				dimacs_td_ct_fast(g, f)  # dimacs to tree (decomposition)
+		exit(0)
 	elif not (args['td'] is None):
 		origG = args['td'][0]
 		dimacs_f = glob("../datasets/" + graph_name(args['td'][0]) + "*.dimacs")
@@ -880,14 +885,14 @@ def new_main(args):
 		var_els = ['mcs', 'mind', 'minf', 'mmd', 'lexm', 'mcsm']
 		for j, f in enumerate(dimacs_f):
 			print f
-			gn = xt.graph_name(f)
+			gn = graph_name(f)
 			dimacs_file = "../datasets/{}.dimacs".format(gn)
 			p = mp.Pool(processes=2)
 			for vael in var_els:
 				p.apply_async(dimacs_nddgo_tree_simple, args=(dimacs_file, vael,), callback=collect_results_trees)
 			# xt.dimacs_nddgo_tree_simple(f, vael)
-			p.close()
-			p.join()
+		p.close()
+		p.join()
 
 		# dimacs_td_ct_fast(oriG, tdfname) # dimacs to tree (decomposition)
 	else:
@@ -922,7 +927,8 @@ def new_main(args):
 def get_parser():
 	parser = argparse.ArgumentParser(description='Clique trees for HRG graph model.')
 	parser.add_argument('--orig', nargs=1, required=0, help="edgelist input file")
-	parser.add_argument('--base', nargs=1, required=0, help="base graph to prs")
+	parser.add_argument('--base', nargs=1, required=0, help="base graph to trees")
+	parser.add_argument('--prules', nargs=1, required=0, help="trees to prs")
 	parser.add_argument('--etd', action='store_true', default=0, required=0, help="Edglst to Dimacs")
 	parser.add_argument('--ctrl', action='store_true', default=0, required=0, help="Cntrl given --orig")
 	parser.add_argument('--clqs', action='store_true', default=0, required=0, help="tree objs 2 hrgCT")

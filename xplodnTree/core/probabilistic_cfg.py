@@ -2,14 +2,14 @@ import collections
 
 import networkx as nx
 import numpy as np
-import num_to_word as ntw
+from .num_to_word import num_to_word
 
 class Rule(object):
 		def __init__(self, id, lhs, rhs, prob, translate=True):
 				self.id = id
 				self.lhs = lhs
 				if lhs == 'S':
-						print " ",#".",
+					print (" ",)
 				if translate:
 						self.rhs = rhs
 						self.cfg_rhs = self.hrg_to_cfg(lhs, rhs)
@@ -17,14 +17,14 @@ class Rule(object):
 						self.cfg_rhs = rhs
 				self.prob = prob
 				if len(self.cfg_rhs) == 0:
-						print " ",#"T",
+						print (" ",)
 
 		def hrg_to_cfg(self, lhs, rhs):
 				t_symb = set()
 				n_symb = []
 				for r in rhs:
 						if r.endswith(":N"):
-								size = [ntw.num_to_word(x) for x in range(0, r.count(",") + 1)]
+								size = [num_to_word(x) for x in range(0, r.count(",") + 1)]
 								str = ",".join(sorted(size))
 								n_symb.append(str)
 						else:
@@ -75,7 +75,7 @@ class Grammar(object):
 				alpha.fill(-np.inf)
 				for size in range(1, max_size + 1):
 						if size%100 == 0:
-								print size
+								print (size)
 						for lhs_i, lhs in enumerate(topological):
 								for rule in g.by_lhs[lhs]:
 										if unary_matrix is not None:
@@ -216,4 +216,4 @@ if __name__ == "__main__":
 
 		g.set_max_size(6)
 		for i in range(10):
-					print g.sample(6)
+					print (g.sample(6))

@@ -24,6 +24,7 @@ import core.net_metrics as metrics
 import pprint as pp
 import argparse, traceback
 import core.graph_sampler as gs
+from glob import glob
 from multiprocessing import Process
 from explodingTree import graph_name, print_treewidth
 # from core.growing import derive_prules_from
@@ -535,6 +536,82 @@ def get_phrg_production_rules (argmnts):
 		metrics.network_properties([G], metricx, hStars, name=graph_name, out_tsv=False)
 	'''
 
+def reset_graph_nodes(nxgraph):
+	mapping = dict(zip(nxgraph.nodes(), range(nxgraph.number_of_nodes())))
+	G1 = nx.relabel_nodes(nxgraph, mapping)
+	return G1
+
+def get_phrg_production_rules_onsubgraphs(argmnts):
+	args = argmnts
+	gn = graph_name(args['orig'][0])
+	f = "../datasets/" + gn + "*.p"
+	files = glob(f)
+	prod_rules = {}
+	rules = []
+	id = 0
+
+	for f in files:
+		Gprime = nx.read_gpickle(f)
+		Gprime = reset_graph_nodes(Gprime)
+		pp.pprint(Gprime.nodes())
+		T = td.quickbb(Gprime)
+		root = list(T)[0]
+		T = td.make_rooted(T, root)
+		T = phrg.binarize(T)
+		root = list(T)[0]
+		root, children = T
+		# td.new_visit(T, G, prod_rules, TD)
+		td.new_visit(T, Gprime, prod_rules)
+		# Process(target=td.new_visit, args=(T, Gprime, prod_rules,)).start()
+	if DBG: print
+	if DBG: print "--------------------"
+	if DBG: print "- Production Rules -"
+	if DBG: print "--------------------"
+
+	for k in prod_rules.iterkeys():
+		if DBG: print k
+		s = 0
+		for d in prod_rules[k]:
+			s += prod_rules[k][d]
+		for d in prod_rules[k]:
+			prod_rules[k][d] = float(prod_rules[k][d]) / float(s)  # normailization step to create probs not counts.
+			if DBG: print '\t -> ', d, prod_rules[k][d]
+
+	for k, v in prod_rules.iteritems():
+		sid = 0
+		for x in prod_rules[k]:
+			rhs = re.findall("[^()]+", x)
+			rules.append(("r%d.%d" % (id, sid), "%s" % re.findall("[^()]+", k)[0], rhs, prod_rules[k][x]))
+			if DBG: print ("r%d.%d" % (id, sid), "%s" % re.findall("[^()]+", k)[0], rhs, prod_rules[k][x])
+			sid += 1
+		id += 1
+
+	df = pd.DataFrame(rules)
+	# pp.pprint(df.values.tolist()); exit()
+
+	df.to_csv('../ProdRules/{}.tsv.phrg.prs'.format(gn), header=False, index=False, sep="\t")
+	if os.path.exists('../ProdRules/{}.tsv.phrg.prs'.format(gn)):
+		print 'Saved', '../ProdRules/{}.tsv.phrg.prs'.format(gn)
+	else:
+		print "Trouble saving"
+
+
+	'''
+	Graph Generation of Synthetic Graphs
+	Grow graphs usigng the union of rules from sampled sugbgraphs to predict the target order of the 
+	original graph
+
+	hStars = grow_exact_size_hrg_graphs_from_prod_rules(rules, graph_name, G.number_of_nodes(), 10)
+	print '... hStart graphs:', len(hStars)
+	d = {graph_name + "_hstars": hStars}
+	with open(r"../Results/{}_hstars.pickle".format(graph_name), "wb") as output_file:
+		cPickle.dump(d, output_file)
+	if os.path.exists(r"../Results/{}_hstars.pickle".format(graph_name)): print "File saved"
+
+	if nstats:
+		metricx = ['clust']
+		metrics.network_properties([G], metricx, hStars, name=graph_name, out_tsv=False)
+	'''
 
 def compute_net_stats_on_read_hrg_pickle(orig_df, gn,metricx):
 	with open(r"../Results/{}_hstars.pickle".format(gn), "rb") as in_file:
@@ -622,8 +699,6 @@ if __name__ == '__main__':
 
 	gname = graph_name(args['orig'][0])
 
-	# print (args)
-	# exit()
 	if args['nstats']:
 		# main_network_stats(args)
 		exit()
@@ -634,8 +709,8 @@ if __name__ == '__main__':
 		print 'Generate chunglu graphs given an edgelist'
 		sys.exit(0)
 	elif args['prs']:
-		print ('get_phrg_production_rules')
-		get_phrg_production_rules(args)
+		print ('get_phrg_production_rules_onsubgraphs')
+		get_phrg_production_rules_onsubgraphs(args)
 	#elif args['samp']:
 	#	print 'Sample K subgraphs of n nodes'
 	#	K = 500

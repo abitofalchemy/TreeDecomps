@@ -5,9 +5,9 @@ import pprint as pp
 import re
 import networkx as nx
 #import david as pcfg
-from probabilistic_cfg import Grammar, Rule
-from graph_sampler import rwr_sample
-from tree_decomposition import quickbb, new_visit, make_rooted
+from .probabilistic_cfg import Grammar, Rule
+from .graph_sampler import rwr_sample
+from .tree_decomposition import quickbb, new_visit, make_rooted
 # import graph_sampler as gs
 # prod_rules = {}
 DEBUG =	False

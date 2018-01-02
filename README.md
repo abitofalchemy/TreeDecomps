@@ -162,3 +162,4 @@ Date   | Notes
 20Nov17 | cc_in_ds.py identify what cc are in each graph
 04Dec17  |  test
 04Dec17  |  re index and recount vertices in converting to dimacs
+30Dec17 | fix tree_2cliquetree to get prs
