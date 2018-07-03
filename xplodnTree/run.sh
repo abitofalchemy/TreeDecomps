@@ -1,5 +1,5 @@
 find ~/KynKon/datasets -name 'out.*' | parallel /Users/sal.aguinaga/Boltzmann/TreeDecomps/xplodnTree/xplotree_subgraphs_prs.py {}
-find ~/KynKon/datasets -name 'out.as' | parallel /Users/sal.aguinaga/Boltzmann/TreeDecomps/xplodnTree/explodingTree.py --base {}
+find ~/KynKon/datasets -name 'out.*' | parallel /Users/sal.aguinaga/Boltzmann/TreeDecomps/xplodnTree/explodingTree.py --base {}
 
 # python xplodnTree.py --orig /Users/sal.aguinaga/KynKon/datasets/ucidata-gama/out.ucidata-gama
 # python prs.py --orig /Users/sal.aguinaga/KynKon/datasets/ucidata-gama/out.ucidata-gama
